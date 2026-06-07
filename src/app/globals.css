@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Brand colours */
+    --color-brand-primary: 99 102 241;   /* indigo-500 */
+    --color-brand-secondary: 51 65 85;   /* slate-700 */
+
+    /* Surface */
+    --color-surface-base: 255 255 255;
+    --color-surface-raised: 248 250 252; /* slate-50 */
+    --color-surface-overlay: 241 245 249; /* slate-100 */
+
+    /* Text */
+    --color-text-primary: 15 23 42;      /* slate-900 */
+    --color-text-secondary: 71 85 105;   /* slate-600 */
+    --color-text-muted: 148 163 184;     /* slate-400 */
+
+    /* Border */
+    --color-border: 226 232 240;         /* slate-200 */
+    --color-border-strong: 148 163 184;  /* slate-400 */
+
+    /* Trust score bands */
+    --color-trust-low: 239 68 68;        /* red-500 */
+    --color-trust-medium: 245 158 11;    /* amber-500 */
+    --color-trust-high: 34 197 94;       /* green-500 */
+    --color-trust-elite: 16 185 129;     /* emerald-500 */
+
+    /* Spacing / radius */
+    --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-lg: 0.75rem;
+
+    /* Typography */
+    --font-sans: var(--font-geist-sans, system-ui, sans-serif);
+    --font-mono: var(--font-geist-mono, ui-monospace, monospace);
+  }
+
+  .dark {
+    --color-surface-base: 15 23 42;      /* slate-900 */
+    --color-surface-raised: 30 41 59;    /* slate-800 */
+    --color-surface-overlay: 51 65 85;   /* slate-700 */
+
+    --color-text-primary: 248 250 252;   /* slate-50 */
+    --color-text-secondary: 203 213 225; /* slate-300 */
+    --color-text-muted: 100 116 139;     /* slate-500 */
+
+    --color-border: 51 65 85;            /* slate-700 */
+    --color-border-strong: 100 116 139;  /* slate-500 */
+  }
+
+  * {
+    @apply border-slate-200;
+  }
+
+  body {
+    @apply bg-white text-slate-900 font-sans antialiased;
+  }
+}
+
+/* ── Component utilities ───────────────────────────────────────────────────── */
+@layer components {
+  .sentinel-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2;
+  }
+
+  .sentinel-card {
+    @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+  }
+
+  .sentinel-badge-tier {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@layer utilities {
+  @keyframes fade-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--color-border-strong)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border-strong));
+    border-radius: 3px;
+  }
+}
