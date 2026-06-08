@@ -6,9 +6,9 @@ import type { Agent, AgentListResponse } from "@/types/agent";
 
 export const PricingSchema = z.object({
   model: z.enum(["per_task", "per_outcome", "subscription", "credits"]),
-  pricePerTaskPaise: z.number().int().nonneg().optional(),
-  subscriptionMonthlyPaise: z.number().int().nonneg().optional(),
-  creditsPerTask: z.number().int().nonneg().optional(),
+  pricePerTaskPaise: z.number().int().min(0).optional(),
+  subscriptionMonthlyPaise: z.number().int().min(0).optional(),
+  creditsPerTask: z.number().int().min(0).optional(),
 });
 
 export const AgentSchema = z.object({

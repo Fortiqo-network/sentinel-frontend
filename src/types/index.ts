@@ -47,6 +47,7 @@ import type { LedgerEntryType } from "./billing";
 
 /** Certification status returned by the verification pipeline. */
 export type CertStatus =
+  | "certified_managed"
   | "certified"
   | "conditional"
   | "failed"

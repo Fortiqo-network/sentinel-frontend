@@ -5,7 +5,7 @@ import type { CreditBalance, LedgerEntry, Invoice } from "@/types/billing";
 // ── Zod schemas ──────────────────────────────────────────────────────────────
 
 export const CreditBalanceSchema = z.object({
-  balancePaise: z.number().int().nonneg(),
+  balancePaise: z.number().int().min(0),
   currency: z.literal("INR"),
   updatedAt: z.string().datetime(),
 });
@@ -13,7 +13,7 @@ export const CreditBalanceSchema = z.object({
 export const LedgerEntrySchema = z.object({
   id: z.string().uuid(),
   type: z.enum(["credit", "debit"]),
-  amountPaise: z.number().int().nonneg(),
+  amountPaise: z.number().int().min(0),
   description: z.string(),
   agentId: z.string().uuid().optional(),
   createdAt: z.string().datetime(),
@@ -21,7 +21,7 @@ export const LedgerEntrySchema = z.object({
 
 export const InvoiceSchema = z.object({
   id: z.string().uuid(),
-  amountPaise: z.number().int().nonneg(),
+  amountPaise: z.number().int().min(0),
   currency: z.literal("INR"),
   status: z.enum(["paid", "unpaid", "void"]),
   pdfUrl: z.string().url().optional(),

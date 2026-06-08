@@ -1,0 +1,28 @@
+services:
+  sentinal-frontend:
+    image: ghcr.io/fortiqo-network/sentinal-frontend:latest
+    container_name: sentinal-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    networks:
+      - sentinel
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_FILTER: "name=sentinal-frontend"
+    networks:
+      - sentinel
+
+networks:
+  sentinel:
+    name: sentinel

@@ -108,7 +108,7 @@ export default async function AgentDetailPage({ params }: { params: Promise<{ ag
     failed:            { label: "Failed",              cls: "bg-red-50 text-red-700 border-red-200" },
     not_submitted:     { label: "Uncertified",         cls: "bg-slate-50 text-slate-500 border-slate-100" },
   };
-  const cert = certConfig[agent.certStatus] ?? certConfig["not_submitted"];
+  const cert = certConfig[agent.certStatus] ?? { label: "Uncertified", cls: "bg-slate-50 text-slate-500 border-slate-100" };
   const trustBadgeCert = agent.certStatus === "certified_managed" ? ("certified_managed" as const) : agent.certStatus === "certified" ? ("certified" as const) : agent.certStatus === "conditional" ? ("provisional" as const) : ("uncertified" as const);
 
   return (

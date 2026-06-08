@@ -4,6 +4,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
 
+  // ESLint runs as a dedicated CI step — skip during Docker builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   experimental: {
     // Server actions are stable in Next.js 15 but explicit opt-in documents intent
     serverActions: {
