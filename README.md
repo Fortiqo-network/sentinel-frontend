@@ -1,4 +1,4 @@
-# sentinal-frontend
+# sentinel-frontend
 
 > The web application for **Sentinel** — the verification, settlement, and portable-reputation layer for the AI agent economy. This is the single human-facing surface for buyers, developers, and admins.
 
