@@ -77,45 +77,36 @@ jobs:
 
   deploy:
     name: Redeploy on Server
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build-and-push
     environment: production
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy compose file to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: docker-compose.yml
-          target: ~/sentinal-frontend
-
       - name: Pull image & restart container
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            set -e
-            cd ~/sentinal-frontend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          OIDC_ISSUER: ${{ secrets.OIDC_ISSUER }}
+          OIDC_CLIENT_SECRET: ${{ secrets.OIDC_CLIENT_SECRET }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        run: |
+          set -e
 
-            cat > .env.production <<'ENVEOF'
-            NODE_ENV=production
-            OIDC_ISSUER=${{ secrets.OIDC_ISSUER }}
-            OIDC_CLIENT_SECRET=${{ secrets.OIDC_CLIENT_SECRET }}
-            SESSION_SECRET=${{ secrets.SESSION_SECRET }}
-            ENVEOF
-            chmod 600 .env.production
+          cat > .env.production <<EOF
+          NODE_ENV=production
+          OIDC_ISSUER=${OIDC_ISSUER}
+          OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
+          SESSION_SECRET=${SESSION_SECRET}
+          EOF
+          chmod 600 .env.production
 
-            echo "${{ secrets.GITHUB_TOKEN }}" | \
-              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${GITHUB_TOKEN}" | \
+            docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
 
-            docker compose pull sentinal-frontend
-            docker compose up -d --force-recreate sentinal-frontend
-            docker image prune -f
+          docker compose pull sentinal-frontend
+          docker compose up -d --force-recreate sentinal-frontend
+          docker image prune -f
 
-            echo "✓ sentinal-frontend redeployed"
+          echo "✓ sentinal-frontend redeployed"
