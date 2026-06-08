@@ -5,8 +5,7 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": true,
-    "tsconfigRootDir": "."
+    "project": true
   },
   "plugins": ["@typescript-eslint"],
   "rules": {

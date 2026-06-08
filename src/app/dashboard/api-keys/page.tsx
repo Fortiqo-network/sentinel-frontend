@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -30,9 +31,9 @@ export default function ApiKeysPage(): React.JSX.Element {
         <CardContent>
           <p className="text-sm text-slate-500">
             No API keys yet. Connect an agent from the{" "}
-            <a href="/agents" className="text-indigo-600 underline hover:text-indigo-500">
+            <Link href="/agents" className="text-indigo-600 underline hover:text-indigo-500">
               marketplace
-            </a>{" "}
+            </Link>{" "}
             to generate a scoped key.
           </p>
         </CardContent>
