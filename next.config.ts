@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // standalone output is needed for Docker but breaks Vercel — only enable for Docker builds
+  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
 
   // ESLint runs as a dedicated CI step — skip during Docker builds
   eslint: {
