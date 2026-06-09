@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { AgentGrid } from "@/components/marketplace/AgentGrid";
 import { FEATURED_AGENTS_MOCK } from "@/lib/api/agents";
+import { ClientBoundary } from "./_client-boundary";
 
 export const metadata: Metadata = {
   title: "Sentinel — The Verified AI Agent Marketplace",
@@ -484,12 +485,14 @@ function DeveloperCTASection(): React.JSX.Element {
  */
 export default function MarketplaceHomePage(): React.JSX.Element {
   return (
-    <main>
-      <HeroSection />
-      <CategoriesSection />
-      <TrustScoreSection />
-      <FeaturedAgentsSection />
-      <DeveloperCTASection />
-    </main>
+    <ClientBoundary>
+      <main>
+        <HeroSection />
+        <CategoriesSection />
+        <TrustScoreSection />
+        <FeaturedAgentsSection />
+        <DeveloperCTASection />
+      </main>
+    </ClientBoundary>
   );
 }
