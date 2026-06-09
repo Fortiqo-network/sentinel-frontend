@@ -11,97 +11,45 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { getCreditBalance, getLedger } from "@/lib/api/billing";
+import { listAgents } from "@/lib/api/agents";
+import type { LedgerEntry } from "@/types/billing";
+import type { Agent } from "@/types/agent";
 import { cn } from "@/lib/utils/cn";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type InvocationStatus = "success" | "error" | "timeout";
-
-interface UsageDataPoint {
-  date: string;
-  costPaise: number;
-  calls: number;
-}
-
-interface Invocation {
-  id: string;
-  agentName: string;
-  timestamp: string;
-  status: InvocationStatus;
-  costPaise: number;
-}
-
-interface TopAgent {
-  name: string;
-  calls: number;
-  costPaise: number;
-}
-
-// ---------------------------------------------------------------------------
-// Mock data (realistic INR amounts in paise)
-// ---------------------------------------------------------------------------
-
-function generateUsageData(): UsageDataPoint[] {
-  const days = 30;
-  const today = new Date("2026-06-07");
-  return Array.from({ length: days }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (days - 1 - i));
-    const label = d.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
-    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-    const base = isWeekend ? 2000 : 8000;
-    const variance = Math.floor(Math.random() * 6000);
-    const calls = isWeekend ? Math.floor(Math.random() * 10) + 2 : Math.floor(Math.random() * 40) + 10;
-    return { date: label, costPaise: base + variance, calls };
-  });
-}
-
-const USAGE_DATA = generateUsageData();
-
-const MOCK_INVOCATIONS: Invocation[] = [
-  { id: "inv_1", agentName: "TaxBot Pro", timestamp: "2026-06-07 10:42", status: "success", costPaise: 1500 },
-  { id: "inv_2", agentName: "Invoice Extractor", timestamp: "2026-06-07 09:17", status: "success", costPaise: 800 },
-  { id: "inv_3", agentName: "Compliance Checker", timestamp: "2026-06-06 18:03", status: "error", costPaise: 0 },
-  { id: "inv_4", agentName: "TaxBot Pro", timestamp: "2026-06-06 15:30", status: "success", costPaise: 1500 },
-  { id: "inv_5", agentName: "GST Reconciler", timestamp: "2026-06-06 11:55", status: "timeout", costPaise: 200 },
-  { id: "inv_6", agentName: "Invoice Extractor", timestamp: "2026-06-05 14:20", status: "success", costPaise: 800 },
-];
-
-const TOP_AGENTS: TopAgent[] = [
-  { name: "TaxBot Pro", calls: 84, costPaise: 126000 },
-  { name: "Invoice Extractor", calls: 52, costPaise: 41600 },
-  { name: "GST Reconciler", calls: 31, costPaise: 24800 },
-  { name: "Compliance Checker", calls: 18, costPaise: 14400 },
-];
-
-const CREDITS_BALANCE_PAISE = 248500;
-const USAGE_THIS_MONTH_PAISE = USAGE_DATA.slice(-30).reduce((sum, d) => sum + d.costPaise, 0);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function formatInr(paise: number): string {
   return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-const STATUS_STYLES: Record<InvocationStatus, string> = {
-  success: "bg-emerald-100 text-emerald-700",
-  error: "bg-red-100 text-red-700",
-  timeout: "bg-amber-100 text-amber-700",
-};
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-const STATUS_LABELS: Record<InvocationStatus, string> = {
-  success: "Success",
-  error: "Error",
-  timeout: "Timeout",
-};
+interface BalancePoint {
+  date: string;
+  balancePaise: number;
+}
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
+/** Build a running-balance series from ledger entries (oldest → newest). */
+function buildBalanceSeries(entries: LedgerEntry[]): BalancePoint[] {
+  const ordered = [...entries].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+  let running = 0;
+  return ordered.map((e) => {
+    running += e.type === "credit" ? e.amountPaise : -e.amountPaise;
+    return {
+      date: new Date(e.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
+      balancePaise: running,
+    };
+  });
+}
 
 interface StatCardProps {
   label: string;
@@ -127,13 +75,13 @@ function StatCard({ label, value, sub, accent }: StatCardProps): React.JSX.Eleme
   );
 }
 
-interface UsageTooltipProps {
+interface BalanceTooltipProps {
   active?: boolean;
   payload?: Array<{ value: number }>;
   label?: string;
 }
 
-function UsageTooltip({ active, payload, label }: UsageTooltipProps): React.JSX.Element | null {
+function BalanceTooltip({ active, payload, label }: BalanceTooltipProps): React.JSX.Element | null {
   if (!active || !payload || payload.length === 0) return null;
   const item = payload[0];
   if (!item) return null;
@@ -145,22 +93,45 @@ function UsageTooltip({ active, payload, label }: UsageTooltipProps): React.JSX.
   );
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 /**
- * Buyer dashboard home. Shows credits balance, usage this month, line chart
- * of spending over 30 days, recent invocations, and top agents used.
+ * Buyer dashboard home. Every figure is live: the wallet balance and ledger
+ * come from the billing service, and the featured agents from the marketplace.
  */
 export default function DashboardPage(): React.JSX.Element {
+  const [balancePaise, setBalancePaise] = React.useState(0);
+  const [entries, setEntries] = React.useState<LedgerEntry[]>([]);
+  const [agents, setAgents] = React.useState<Agent[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    void Promise.allSettled([
+      getCreditBalance(),
+      getLedger(1, 100),
+      listAgents({ sort: "trust_desc", pageSize: 5, page: 1 }),
+    ]).then(([bal, led, ag]) => {
+      if (!active) return;
+      if (bal.status === "fulfilled") setBalancePaise(bal.value.balancePaise);
+      if (led.status === "fulfilled") setEntries(led.value.entries);
+      if (ag.status === "fulfilled") setAgents(ag.value.agents);
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const totalAddedPaise = entries
+    .filter((e) => e.type === "credit")
+    .reduce((sum, e) => sum + e.amountPaise, 0);
+  const series = buildBalanceSeries(entries);
+
   return (
     <div className="space-y-8">
-      {/* Page heading */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-slate-600">Your usage, credits, and active agents at a glance.</p>
+          <p className="mt-1 text-slate-600">Your credits, activity, and verified agents at a glance.</p>
         </div>
         <Link
           href="/dashboard/billing"
@@ -170,136 +141,124 @@ export default function DashboardPage(): React.JSX.Element {
         </Link>
       </div>
 
-      {/* Stats row */}
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label="Credits Balance"
-          value={formatInr(CREDITS_BALANCE_PAISE)}
+          value={loading ? "…" : formatInr(balancePaise)}
           sub="Available to spend"
           accent
         />
-        <StatCard
-          label="Usage This Month"
-          value={formatInr(USAGE_THIS_MONTH_PAISE)}
-          sub="June 2026"
-        />
-        <StatCard
-          label="Total Invocations"
-          value={String(MOCK_INVOCATIONS.length + 1200)}
-          sub="All-time"
-        />
+        <StatCard label="Total Added" value={loading ? "…" : formatInr(totalAddedPaise)} sub="All-time top-ups" />
+        <StatCard label="Transactions" value={loading ? "…" : String(entries.length)} sub="Ledger entries" />
       </div>
 
-      {/* Usage line chart */}
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-slate-900">Spend — Last 30 Days</h2>
+        <h2 className="mb-4 text-base font-semibold text-slate-900">Balance Over Time</h2>
         <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={USAGE_DATA} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
-                tickLine={false}
-                axisLine={false}
-                interval={4}
-              />
-              <YAxis
-                tickFormatter={(v: number) => `₹${(v / 100).toFixed(0)}`}
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
-                tickLine={false}
-                axisLine={false}
-                width={48}
-              />
-              <Tooltip content={<UsageTooltip />} />
-              <Line
-                type="monotone"
-                dataKey="costPaise"
-                stroke="#6366f1"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4, fill: "#6366f1" }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {series.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <p className="text-sm font-medium text-slate-500">No wallet activity yet</p>
+              <p className="mt-1 text-xs text-slate-400">Top up credits to get started.</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={series} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
+                <YAxis
+                  tickFormatter={(v: number) => `₹${(v / 100).toFixed(0)}`}
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={48}
+                />
+                <Tooltip content={<BalanceTooltip />} />
+                <Line type="monotone" dataKey="balancePaise" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#6366f1" }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
-      {/* Two-column: recent invocations + top agents */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent invocations */}
         <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Recent Invocations</h2>
-            <Link href="/dashboard/usage" className="text-sm text-indigo-600 hover:text-indigo-500">
+            <h2 className="text-base font-semibold text-slate-900">Recent Activity</h2>
+            <Link href="/dashboard/billing" className="text-sm text-indigo-600 hover:text-indigo-500">
               View all
             </Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Agent</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Timestamp</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Cost</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {MOCK_INVOCATIONS.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-3 font-medium text-slate-900">{inv.agentName}</td>
-                    <td className="px-6 py-3 text-xs text-slate-500 font-mono">{inv.timestamp}</td>
-                    <td className="px-6 py-3">
-                      <span
-                        className={cn(
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                          STATUS_STYLES[inv.status],
-                        )}
-                      >
-                        {STATUS_LABELS[inv.status]}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3 text-slate-700">{formatInr(inv.costPaise)}</td>
+          {entries.length === 0 ? (
+            <div className="px-6 py-12 text-center text-sm text-slate-400">
+              {loading ? "Loading…" : "No transactions yet."}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {entries.slice(0, 8).map((e) => (
+                    <tr key={e.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-3 font-medium text-slate-900">{e.description}</td>
+                      <td className="px-6 py-3 text-xs text-slate-500 font-mono">{formatDateTime(e.createdAt)}</td>
+                      <td className="px-6 py-3">
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                            e.type === "credit" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600",
+                          )}
+                        >
+                          {e.type === "credit" ? "Credit" : "Debit"}
+                        </span>
+                      </td>
+                      <td className={cn("px-6 py-3 text-right font-medium", e.type === "credit" ? "text-emerald-600" : "text-slate-700")}>
+                        {e.type === "credit" ? "+" : "−"}
+                        {formatInr(e.amountPaise)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        {/* Top agents */}
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Top Agents Used</h2>
-            <p className="text-xs text-slate-400 mt-0.5">This month</p>
+            <h2 className="text-base font-semibold text-slate-900">Top Verified Agents</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Highest trust scores</p>
           </div>
-          <ul className="divide-y divide-slate-50">
-            {TOP_AGENTS.map((agent, idx) => {
-              const maxCalls = TOP_AGENTS[0]?.calls ?? 1;
-              const pct = Math.round((agent.calls / maxCalls) * 100);
-              return (
-                <li key={agent.name} className="px-6 py-4">
+          {agents.length === 0 ? (
+            <div className="px-6 py-12 text-center text-sm text-slate-400">
+              {loading ? "Loading…" : "No agents yet."}
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-50">
+              {agents.map((agent, idx) => (
+                <li key={agent.id} className="px-6 py-4">
                   <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs font-medium text-slate-400 w-4">{idx + 1}</span>
-                      <span className="text-sm font-medium text-slate-800">{agent.name}</span>
+                      <Link href={`/agents/${agent.slug}`} className="text-sm font-medium text-slate-800 truncate hover:text-indigo-600">
+                        {agent.name}
+                      </Link>
                     </div>
-                    <span className="text-xs text-slate-500">{agent.calls} calls</span>
+                    <span className="text-xs text-slate-500">{agent.trustScore}/100</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-indigo-400"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-slate-500 w-16 text-right">{formatInr(agent.costPaise)}</span>
+                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full rounded-full bg-indigo-400" style={{ width: `${agent.trustScore}%` }} />
                   </div>
                 </li>
-              );
-            })}
-          </ul>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

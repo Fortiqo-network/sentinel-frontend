@@ -55,15 +55,24 @@ export async function getInvoices(): Promise<Invoice[]> {
   return z.array(InvoiceSchema).parse(response.data);
 }
 
+export const TopUpResultSchema = z.object({
+  paymentId: z.string(),
+  amountPaise: z.number().int(),
+  balancePaise: z.number().int(),
+  status: z.string(),
+});
+
+export type TopUpResult = z.infer<typeof TopUpResultSchema>;
+
 /**
- * Creates a Stripe PaymentIntent for a credit top-up.
- * The client secret is used by Stripe.js to confirm payment on the client.
- * Card data never touches Sentinel servers.
+ * Adds credits to the authenticated buyer's wallet.
+ * Records a placeholder payment server-side and returns the resulting balance.
+ * Replaces the Stripe intent flow until a real payment provider is wired in.
  */
-export async function createTopUpIntent(amountPaise: number): Promise<{ clientSecret: string }> {
-  const response = await apiClient.post<{ clientSecret: string }>("/v1/billing/topup", {
+export async function topUp(amountPaise: number): Promise<TopUpResult> {
+  const response = await apiClient.post<unknown>("/v1/billing/topup", {
     amountPaise,
     currency: "INR",
   });
-  return response.data;
+  return TopUpResultSchema.parse(response.data);
 }
