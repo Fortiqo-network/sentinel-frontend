@@ -7,8 +7,6 @@ services:
       - "3000:3000"
     env_file:
       - .env.production
-    networks:
-      - sentinel
 
   dozzle:
     image: amir20/dozzle:latest
@@ -20,9 +18,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       DOZZLE_FILTER: "name=sentinel-frontend"
-    networks:
-      - sentinel
 
 networks:
-  sentinel:
-    name: sentinel
+  default:
+    name: sentinel-net
+    external: true

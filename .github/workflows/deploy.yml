@@ -94,19 +94,22 @@ jobs:
         run: |
           set -e
 
-          cat > .env.production <<EOF
-          NODE_ENV=production
-          OIDC_ISSUER=${OIDC_ISSUER}
-          OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
-          SESSION_SECRET=${SESSION_SECRET}
-          EOF
+          docker network create sentinel-net 2>/dev/null || true
+
+          {
+            echo "NODE_ENV=production"
+            echo "OIDC_ISSUER=${OIDC_ISSUER}"
+            echo "OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}"
+            echo "SESSION_SECRET=${SESSION_SECRET}"
+          } > .env.production
           chmod 600 .env.production
 
-          echo "${GITHUB_TOKEN}" | \
-            docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
 
+          docker compose stop sentinel-frontend 2>/dev/null || true
+          docker compose rm -f sentinel-frontend 2>/dev/null || true
           docker compose pull sentinel-frontend
-          docker compose up -d --force-recreate sentinel-frontend
+          docker compose up -d sentinel-frontend
           docker image prune -f
 
           echo "✓ sentinel-frontend redeployed"
