@@ -5,11 +5,6 @@ const nextConfig: NextConfig = {
   // standalone output is needed for Docker but breaks Vercel — only enable for Docker builds
   output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
 
-  // ESLint runs as a dedicated CI step — skip during Docker builds
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   experimental: {
     // Server actions are stable in Next.js 15 but explicit opt-in documents intent
     serverActions: {
