@@ -3,132 +3,8 @@
 import * as React from "react";
 import type { Agent } from "@/types/agent";
 import { AgentCard } from "@/components/marketplace/AgentCard";
+import { listAgents } from "@/lib/api/agents";
 import { cn } from "@/lib/utils/cn";
-
-// ── Extended mock data ────────────────────────────────────────────────────────
-
-const ALL_AGENTS_MOCK: Agent[] = [
-  {
-    id: "00000000-0000-0000-0000-000000000001",
-    name: "CodeReview Pro",
-    slug: "codereview-pro",
-    description:
-      "Automated pull-request reviews with security, style, and correctness checks. Integrates with GitHub, GitLab, and Bitbucket via webhook. Returns structured JSON findings with fix suggestions.",
-    trustScore: 94,
-    tier: "verified",
-    tags: ["code", "devtools", "security", "github"],
-    vertical: "Engineering",
-    icon: "🔍",
-    pricing: { model: "per_task", pricePerTaskPaise: 5000 },
-    publishedAt: "2025-10-01T00:00:00Z",
-    lastVerifiedAt: "2026-06-04T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000002",
-    name: "DataSynth",
-    slug: "datasynth",
-    description:
-      "Generates statistically realistic synthetic datasets for ML training and testing. Supports tabular, time-series, and text modalities. DPDP-compliant anonymisation built in.",
-    trustScore: 81,
-    tier: "verified",
-    tags: ["data", "ml", "synthetic", "privacy"],
-    vertical: "Data Science",
-    icon: "📊",
-    pricing: { model: "credits", creditsPerTask: 10 },
-    publishedAt: "2025-11-15T00:00:00Z",
-    lastVerifiedAt: "2026-06-01T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000003",
-    name: "LegalDraft",
-    slug: "legaldraft",
-    description:
-      "Drafts NDAs, service agreements, and standard commercial contracts under Indian law. Backed by a team of practising advocates. Reviewed every 90 days for regulatory changes.",
-    trustScore: 76,
-    tier: "managed",
-    tags: ["legal", "documents", "contracts", "compliance"],
-    vertical: "Legal",
-    icon: "⚖️",
-    pricing: { model: "per_task", pricePerTaskPaise: 25000 },
-    publishedAt: "2026-01-20T00:00:00Z",
-    lastVerifiedAt: "2026-06-05T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000004",
-    name: "SupportBot",
-    slug: "supportbot",
-    description:
-      "Handles L1 customer support queries with FAQ grounding and intelligent escalation logic. Integrates with Freshdesk, Zendesk, and Intercom. Reduces average handle time by 60%.",
-    trustScore: 88,
-    tier: "verified",
-    tags: ["support", "customer-service", "chat", "automation"],
-    vertical: "Support",
-    icon: "💬",
-    pricing: { model: "subscription", subscriptionMonthlyPaise: 299900 },
-    publishedAt: "2025-09-01T00:00:00Z",
-    lastVerifiedAt: "2026-06-06T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000005",
-    name: "SEOWriter",
-    slug: "seowriter",
-    description:
-      "Produces SEO-optimised long-form articles with keyword research built in. Targets Google Search Console data via API and auto-adjusts heading structure for topical authority.",
-    trustScore: 63,
-    tier: "registry",
-    tags: ["content", "seo", "writing", "marketing"],
-    vertical: "Marketing",
-    icon: "✍️",
-    pricing: { model: "per_task", pricePerTaskPaise: 8000 },
-    publishedAt: "2026-03-10T00:00:00Z",
-    lastVerifiedAt: "2026-05-28T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000006",
-    name: "InvoiceParser",
-    slug: "invoiceparser",
-    description:
-      "Extracts line items, totals, GST breakdowns, and vendor data from PDF and image invoices. Handles multi-language documents and returns structured JSON ready for Tally or SAP import.",
-    trustScore: 91,
-    tier: "verified",
-    tags: ["finance", "ocr", "extraction", "gst"],
-    vertical: "Finance",
-    icon: "🧾",
-    pricing: { model: "per_task", pricePerTaskPaise: 3000 },
-    publishedAt: "2025-12-05T00:00:00Z",
-    lastVerifiedAt: "2026-06-03T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000007",
-    name: "ResearchDigest",
-    slug: "researchdigest",
-    description:
-      "Ingests academic PDFs and produces structured literature reviews, citation graphs, and hypothesis summaries. Ideal for R&D teams running patent landscapes or market studies.",
-    trustScore: 79,
-    tier: "verified",
-    tags: ["research", "summarisation", "academic", "pdf"],
-    vertical: "Research",
-    icon: "🔬",
-    pricing: { model: "credits", creditsPerTask: 25 },
-    publishedAt: "2026-02-14T00:00:00Z",
-    lastVerifiedAt: "2026-06-02T00:00:00Z",
-  },
-  {
-    id: "00000000-0000-0000-0000-000000000008",
-    name: "PipelineOrchestrator",
-    slug: "pipeline-orchestrator",
-    description:
-      "Chains multiple Sentinel agents into declarative DAG workflows. Handles retry logic, fan-out parallelism, and webhook callbacks. Deploy multi-step automations in minutes.",
-    trustScore: 85,
-    tier: "managed",
-    tags: ["automation", "orchestration", "workflow", "devtools"],
-    vertical: "Engineering",
-    icon: "🤖",
-    pricing: { model: "subscription", subscriptionMonthlyPaise: 499900 },
-    publishedAt: "2026-04-01T00:00:00Z",
-    lastVerifiedAt: "2026-06-06T00:00:00Z",
-  },
-];
 
 // ── Filter/sort types ─────────────────────────────────────────────────────────
 
@@ -445,21 +321,41 @@ const DEFAULT_FILTERS: Filters = {
 };
 
 /**
- * Agent discovery page. Fully client-rendered to support instant filter
- * interaction without a server round-trip. Switch to server-side once the
- * gateway /v1/listings endpoint is live and can accept query params.
- *
- * @note This page is intentionally "use client" because the filter panel
- *       manages local state. Once gateway is live, extract the filter panel
- *       as a client island and keep the grid server-rendered.
+ * Agent discovery page. Fetches live agents from the gateway
+ * (`GET /v1/listings`) on mount, then applies filters client-side for instant
+ * interaction. The filter panel manages local state, hence "use client".
  */
 export default function AgentsPage(): React.JSX.Element {
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
+  const [agents, setAgents] = React.useState<Agent[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let active = true;
+    setLoading(true);
+    listAgents({ sort: "trust_desc", pageSize: 100, page: 1 })
+      .then((res) => {
+        if (active) {
+          setAgents(res.agents);
+          setError(null);
+        }
+      })
+      .catch(() => {
+        if (active) setError("Could not load agents. Please try again shortly.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filteredAgents = React.useMemo(
-    () => applyFilters(ALL_AGENTS_MOCK, filters),
-    [filters],
+    () => applyFilters(agents, filters),
+    [agents, filters],
   );
 
   const resetFilters = React.useCallback(() => {
@@ -539,7 +435,26 @@ export default function AgentsPage(): React.JSX.Element {
 
         {/* Agent grid */}
         <div className="min-w-0 flex-1">
-          {filteredAgents.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-44 animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+                />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="text-4xl" aria-hidden="true">
+                ⚠️
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                Something went wrong
+              </h3>
+              <p className="mt-2 max-w-sm text-sm text-slate-500">{error}</p>
+            </div>
+          ) : filteredAgents.length === 0 ? (
             <EmptyState onReset={resetFilters} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

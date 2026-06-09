@@ -2,8 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { register } from "@/lib/api/auth";
+import { isSentinelApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
 
 type Role = "buyer" | "developer";
@@ -44,6 +47,7 @@ const ROLE_OPTIONS: RoleOption[] = [
  * <RegisterForm />
  */
 export function RegisterForm(): React.JSX.Element {
+  const router = useRouter();
   const [role, setRole] = React.useState<Role>("buyer");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | undefined>();
@@ -52,11 +56,37 @@ export function RegisterForm(): React.JSX.Element {
     e.preventDefault();
     setIsSubmitting(true);
     setError(undefined);
+    const form = new FormData(e.currentTarget);
+    const field = (name: string): string => {
+      const v = form.get(name);
+      return typeof v === "string" ? v : "";
+    };
+    const email = field("email").trim();
+    const password = field("password");
+    const confirmPassword = field("confirmPassword");
+    const displayName = field("displayName").trim();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // TODO: call /api/auth/register BFF route handler
-      await new Promise<void>((r) => setTimeout(r, 800));
-    } catch {
-      setError("Registration failed. Please try again.");
+      await register({ email, password, displayName, role });
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      if (isSentinelApiError(err) && err.statusCode === 409) {
+        setError("An account with this email already exists.");
+      } else {
+        setError("Registration failed. Please try again shortly.");
+      }
     } finally {
       setIsSubmitting(false);
     }

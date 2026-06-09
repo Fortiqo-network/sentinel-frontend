@@ -2,21 +2,22 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { login } from "@/lib/api/auth";
+import { isSentinelApiError } from "@/lib/api/client";
 
 /**
- * Login form. Submits credentials to /api/auth/login (BFF route handler)
- * which performs the OIDC token exchange and sets the httpOnly session cookie.
- *
- * Includes "remember me" checkbox and a forgot-password link.
- *
- * TODO: wire up react-hook-form + zod validation once BFF route is ready.
+ * Login form. Submits credentials to the gateway (`POST /v1/auth/login`),
+ * which verifies them against core-api and sets the httpOnly session cookie.
+ * On success the user is redirected to their dashboard.
  *
  * @example
  * <LoginForm />
  */
 export function LoginForm(): React.JSX.Element {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | undefined>();
 
@@ -24,11 +25,23 @@ export function LoginForm(): React.JSX.Element {
     e.preventDefault();
     setIsSubmitting(true);
     setError(undefined);
+    const form = new FormData(e.currentTarget);
+    const field = (name: string): string => {
+      const v = form.get(name);
+      return typeof v === "string" ? v : "";
+    };
+    const email = field("email").trim();
+    const password = field("password");
     try {
-      // TODO: call /api/auth/login BFF route handler
-      await new Promise<void>((r) => setTimeout(r, 800));
-    } catch {
-      setError("Invalid email or password. Please try again.");
+      await login({ email, password });
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      if (isSentinelApiError(err) && (err.statusCode === 401 || err.statusCode === 403)) {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        setError("Sign in failed. Please try again shortly.");
+      }
     } finally {
       setIsSubmitting(false);
     }

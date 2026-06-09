@@ -6,7 +6,7 @@ import axios, {
 import type { Agent, AgentListResponse } from "@/types/agent";
 import type { User } from "@/types/user";
 
-const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8000";
+const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8080";
 
 // ── Trace ID ──────────────────────────────────────────────────────────────────
 
