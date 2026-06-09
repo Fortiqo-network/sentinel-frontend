@@ -131,8 +131,16 @@ export function RegisterForm(): React.JSX.Element {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      if (isSentinelApiError(err) && err.statusCode === 409) {
-        setError("An account with this email already exists.");
+      if (isSentinelApiError(err)) {
+        if (err.statusCode === 409) {
+          setError("An account with this email already exists.");
+        } else if (err.statusCode === 0) {
+          setError("Could not reach the server. Check your connection and try again.");
+        } else if (err.statusCode >= 400 && err.statusCode < 500) {
+          setError(err.displayMessage);
+        } else {
+          setError("Registration failed. Please try again shortly.");
+        }
       } else {
         setError("Registration failed. Please try again shortly.");
       }

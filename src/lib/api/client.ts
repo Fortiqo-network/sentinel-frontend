@@ -25,13 +25,30 @@ function generateTraceId(): string {
 
 /** Structured error body returned by the Sentinel gateway. */
 export interface GatewayErrorBody {
-  error: string;
-  message: string;
-  statusCode: number;
+  error?: string;
+  message?: string;
+  /** FastAPI's error field. A string for HTTPException, or an array for 422 validation errors. */
+  detail?: unknown;
+  statusCode?: number;
   /** Seconds to wait before retrying (present on 429 responses). */
   retryAfter?: number;
   /** Trace ID for correlating with gateway logs. */
   traceId?: string;
+}
+
+/**
+ * Extracts a human-readable message from a gateway/FastAPI error body.
+ * Handles both `{message}` and FastAPI's `{detail}` (string or validation array).
+ */
+function extractMessage(body: GatewayErrorBody | undefined): string | undefined {
+  if (body == null) return undefined;
+  if (typeof body.message === "string" && body.message) return body.message;
+  if (typeof body.detail === "string" && body.detail) return body.detail;
+  if (Array.isArray(body.detail) && body.detail.length > 0) {
+    const first = body.detail[0] as { msg?: unknown };
+    if (typeof first?.msg === "string") return first.msg;
+  }
+  return undefined;
 }
 
 /** Typed gateway error — wraps AxiosError with a parsed body. */
@@ -41,11 +58,16 @@ export class SentinelApiError extends Error {
   readonly traceId: string | undefined;
 
   constructor(statusCode: number, body: GatewayErrorBody | undefined, traceId?: string) {
-    super(body?.message ?? `Request failed with status ${statusCode}`);
+    super(extractMessage(body) ?? `Request failed with status ${statusCode}`);
     this.name = "SentinelApiError";
     this.statusCode = statusCode;
     this.body = body;
     this.traceId = traceId;
+  }
+
+  /** A friendly, displayable message derived from the response body. */
+  get displayMessage(): string {
+    return extractMessage(this.body) ?? this.message;
   }
 
   get isUnauthorized(): boolean {

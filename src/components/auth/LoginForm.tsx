@@ -45,8 +45,16 @@ export function LoginForm(): React.JSX.Element {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      if (isSentinelApiError(err) && (err.statusCode === 401 || err.statusCode === 403)) {
-        setError("Invalid email or password. Please try again.");
+      if (isSentinelApiError(err)) {
+        if (err.statusCode === 401 || err.statusCode === 403) {
+          setError("Invalid email or password. Please try again.");
+        } else if (err.statusCode === 0) {
+          setError("Could not reach the server. Check your connection and try again.");
+        } else if (err.statusCode >= 400 && err.statusCode < 500) {
+          setError(err.displayMessage);
+        } else {
+          setError("Sign in failed. Please try again shortly.");
+        }
       } else {
         setError("Sign in failed. Please try again shortly.");
       }
