@@ -106,8 +106,8 @@ jobs:
 
           echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
 
-          docker stop sentinel-frontend 2>/dev/null || true
-          docker rm sentinel-frontend 2>/dev/null || true
+          docker stop sentinel-frontend sentinal-frontend 2>/dev/null || true
+          docker rm sentinel-frontend sentinal-frontend 2>/dev/null || true
           docker compose pull sentinel-frontend
           docker compose up -d sentinel-frontend
           docker image prune -f
