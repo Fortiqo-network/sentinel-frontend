@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { AgentCard } from "./AgentCard";
 import { AgentCardSkeleton } from "@/components/ui/skeleton";
