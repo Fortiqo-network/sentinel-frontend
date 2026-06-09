@@ -85,3 +85,14 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 2. Add the typed function using `apiClient`.
 3. Export the inferred TypeScript type if consumers need it.
 4. Update `src/types/<domain>.ts` if the shape is new.
+
+## Conventions
+
+### Commits
+- Use **Conventional Commits**: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`, `build:`, `ci:` — optional scope, e.g. `fix(auth): reject expired tokens`.
+- The message describes the change only. **Never** reference AI assistants, agents, or tooling, and never add `Co-Authored-By` or other attribution trailers.
+
+### Code style
+- **No inline comments.** Make intent obvious through precise names and small, single-purpose functions.
+- Document with **docstrings** (Python) / **JSDoc** (TypeScript) on modules, classes, and public/exported functions only — explain *why*, not *what*.
+- If a line feels like it needs a comment, rename or refactor until it doesn't.
