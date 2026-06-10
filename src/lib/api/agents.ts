@@ -85,6 +85,31 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
   }
 }
 
+// ── Use (pay-and-use) ─────────────────────────────────────────────────────────
+
+export const UseAgentResultSchema = z.object({
+  success: z.boolean(),
+  agent: z.string(),
+  costPaise: z.number().int(),
+  balancePaise: z.number().int(),
+  output: z.object({
+    result: z.string(),
+    confidence: z.number().optional(),
+  }),
+  traceId: z.string().optional(),
+});
+
+export type UseAgentResult = z.infer<typeof UseAgentResultSchema>;
+
+/**
+ * Invokes an agent and charges the caller's wallet for one successful call.
+ * Throws a SentinelApiError with statusCode 402 when credits are insufficient.
+ */
+export async function runAgent(slug: string): Promise<UseAgentResult> {
+  const response = await apiClient.post<unknown>(`/v1/agents/${slug}/use`, {});
+  return UseAgentResultSchema.parse(response.data);
+}
+
 // ── Mock data (remove once gateway /v1/listings is live) ─────────────────────
 
 /** Static fixture agents used during development before the gateway is live. */

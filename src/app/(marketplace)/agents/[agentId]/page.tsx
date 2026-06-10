@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { TrustBadge } from "@/components/marketplace/TrustBadge";
 import { formatPaise, formatDate } from "@/lib/utils/format";
 import { getAgentBySlug } from "@/lib/api/agents";
+import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import type { Agent } from "@/types/agent";
 
 type CertLevel = "certified_managed" | "certified" | "provisional" | "uncertified";
@@ -131,9 +132,15 @@ export default async function AgentDetailPage({
               {agent.pricing?.model === "subscription" && <span className="text-sm text-slate-400">/ month</span>}
             </div>
             <p className="mt-1 text-xs text-slate-400">Billed from your Sentinel credit wallet (INR). No commitment.</p>
+            <div className="mt-5">
+              <UseAgentButton
+                slug={agent.slug}
+                priceLabel={pricePerTask != null ? `${formatPaise(pricePerTask)} / call` : "Free"}
+              />
+            </div>
             <Link
               href={`/playground?agent=${agent.slug}`}
-              className="mt-5 block w-full rounded-xl bg-indigo-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+              className="mt-2 block w-full rounded-xl border border-slate-200 bg-white py-2.5 text-center text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Try in Playground
             </Link>
