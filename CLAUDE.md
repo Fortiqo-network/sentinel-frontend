@@ -96,3 +96,10 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 - **No inline comments.** Make intent obvious through precise names and small, single-purpose functions.
 - Document with **docstrings** (Python) / **JSDoc** (TypeScript) on modules, classes, and public/exported functions only — explain *why*, not *what*.
 - If a line feels like it needs a comment, rename or refactor until it doesn't.
+
+### Docs stay in sync (mandatory)
+- Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the master TODO (`sentinel-infra/TODO.md`). Tick completed items, add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
+
+### The system speaks in points — never currency
+- All user- and API-facing values are **points**. Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
+- Conversion: **1 point = ₹1 = 100 paise** (current). 1 USD ≈ 95 points (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses points only.
