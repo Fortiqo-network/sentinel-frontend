@@ -5,10 +5,8 @@ import type { Agent, AgentListResponse } from "@/types/agent";
 // ── Zod schemas (mirror sentinel-shared; update via codegen) ─────────────────
 
 export const PricingSchema = z.object({
-  model: z.enum(["per_task", "per_outcome", "subscription", "credits"]),
-  pricePerTaskPaise: z.number().int().min(0).optional(),
-  subscriptionMonthlyPaise: z.number().int().min(0).optional(),
-  creditsPerTask: z.number().int().min(0).optional(),
+  model: z.enum(["per_call", "per_task", "per_outcome", "subscription", "credits"]),
+  pricePoints: z.number().int().min(0).optional(),
 });
 
 export const AgentSchema = z.object({
@@ -23,6 +21,7 @@ export const AgentSchema = z.object({
   pricing: PricingSchema.optional(),
   icon: z.string().optional(),
   ownerId: z.string().uuid().optional(),
+  developer: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
   lastVerifiedAt: z.string().datetime().optional(),
 });
@@ -90,8 +89,8 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
 export const UseAgentResultSchema = z.object({
   success: z.boolean(),
   agent: z.string(),
-  costPaise: z.number().int(),
-  balancePaise: z.number().int(),
+  costPoints: z.number().int(),
+  balancePoints: z.number().int(),
   output: z.object({
     result: z.string(),
     confidence: z.number().optional(),
@@ -102,11 +101,12 @@ export const UseAgentResultSchema = z.object({
 export type UseAgentResult = z.infer<typeof UseAgentResultSchema>;
 
 /**
- * Invokes an agent and charges the caller's wallet for one successful call.
- * Throws a SentinelApiError with statusCode 402 when credits are insufficient.
+ * Runs an agent (addressed as developer/slug) and charges the caller's wallet
+ * in points for one successful call. Throws a SentinelApiError with statusCode
+ * 402 when points are insufficient.
  */
-export async function runAgent(slug: string): Promise<UseAgentResult> {
-  const response = await apiClient.post<unknown>(`/v1/agents/${slug}/use`, {});
+export async function runAgent(developer: string, slug: string): Promise<UseAgentResult> {
+  const response = await apiClient.post<unknown>(`/v1/agents/${developer}/${slug}/use`, {});
   return UseAgentResultSchema.parse(response.data);
 }
 
@@ -124,7 +124,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["code", "devtools", "security"],
     vertical: "Engineering",
     icon: "🔍",
-    pricing: { model: "per_task", pricePerTaskPaise: 5000 },
+    pricing: { model: "per_call", pricePoints: 50 },
     publishedAt: "2025-10-01T00:00:00Z",
     lastVerifiedAt: "2026-06-04T00:00:00Z",
   },
@@ -138,7 +138,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["data", "ml", "synthetic"],
     vertical: "Data Science",
     icon: "📊",
-    pricing: { model: "credits", creditsPerTask: 10 },
+    pricing: { model: "per_call", pricePoints: 10 },
     publishedAt: "2025-11-15T00:00:00Z",
     lastVerifiedAt: "2026-06-01T00:00:00Z",
   },
@@ -152,7 +152,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["legal", "documents", "contracts"],
     vertical: "Legal",
     icon: "⚖️",
-    pricing: { model: "per_task", pricePerTaskPaise: 25000 },
+    pricing: { model: "per_call", pricePoints: 250 },
     publishedAt: "2026-01-20T00:00:00Z",
     lastVerifiedAt: "2026-06-05T00:00:00Z",
   },
@@ -166,7 +166,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["support", "customer-service", "chat"],
     vertical: "Support",
     icon: "💬",
-    pricing: { model: "subscription", subscriptionMonthlyPaise: 299900 },
+    pricing: { model: "per_call", pricePoints: 2999 },
     publishedAt: "2025-09-01T00:00:00Z",
     lastVerifiedAt: "2026-06-06T00:00:00Z",
   },
@@ -180,7 +180,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["content", "seo", "writing"],
     vertical: "Marketing",
     icon: "✍️",
-    pricing: { model: "per_task", pricePerTaskPaise: 8000 },
+    pricing: { model: "per_call", pricePoints: 80 },
     publishedAt: "2026-03-10T00:00:00Z",
     lastVerifiedAt: "2026-05-28T00:00:00Z",
   },
@@ -194,7 +194,7 @@ export const FEATURED_AGENTS_MOCK: Agent[] = [
     tags: ["finance", "ocr", "extraction"],
     vertical: "Finance",
     icon: "🧾",
-    pricing: { model: "per_task", pricePerTaskPaise: 3000 },
+    pricing: { model: "per_call", pricePoints: 30 },
     publishedAt: "2025-12-05T00:00:00Z",
     lastVerifiedAt: "2026-06-03T00:00:00Z",
   },

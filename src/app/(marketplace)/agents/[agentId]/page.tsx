@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { TrustBadge } from "@/components/marketplace/TrustBadge";
-import { formatPaise, formatDate } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
 import { getAgentBySlug } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import type { Agent } from "@/types/agent";
@@ -66,7 +66,7 @@ export default async function AgentDetailPage({
   const cert = CERT_CONFIG[certLevel];
   const trustBadgeCert =
     certLevel === "uncertified" ? ("uncertified" as const) : certLevel;
-  const pricePerTask = agent.pricing?.pricePerTaskPaise;
+  const pricePoints = agent.pricing?.pricePoints;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
@@ -126,16 +126,16 @@ export default async function AgentDetailPage({
             <h2 className="text-base font-semibold text-slate-900">Pricing</h2>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="text-3xl font-bold text-slate-900">
-                {pricePerTask != null ? formatPaise(pricePerTask) : "Free"}
+                {pricePoints != null ? `${pricePoints} points` : "Free"}
               </span>
-              {agent.pricing?.model === "per_task" && <span className="text-sm text-slate-400">/ call</span>}
-              {agent.pricing?.model === "subscription" && <span className="text-sm text-slate-400">/ month</span>}
+              {pricePoints != null && <span className="text-sm text-slate-400">/ call</span>}
             </div>
             <p className="mt-1 text-xs text-slate-400">Billed from your Sentinel credit wallet (INR). No commitment.</p>
             <div className="mt-5">
               <UseAgentButton
+                developer={agent.developer ?? ""}
                 slug={agent.slug}
-                priceLabel={pricePerTask != null ? `${formatPaise(pricePerTask)} / call` : "Free"}
+                priceLabel={pricePoints != null ? `${pricePoints} points / call` : "Free"}
               />
             </div>
             <Link

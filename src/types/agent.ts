@@ -6,20 +6,16 @@
  */
 
 /** Supported price models for agent invocation. */
-export type PriceModel = "per_task" | "per_outcome" | "subscription" | "credits";
+export type PriceModel = "per_call" | "per_task" | "per_outcome" | "subscription" | "credits";
 
 /** Verification tier assigned after the Sentinel pipeline completes. */
 export type AgentTier = "verified" | "managed" | "registry" | "proxy";
 
-/** Pricing configuration for an agent listing. */
+/** Pricing configuration for an agent listing, in points (1 point = ₹1). */
 export interface Pricing {
   model: PriceModel;
-  /** Price per task invocation in INR paise (100 paise = ₹1). */
-  pricePerTaskPaise?: number;
-  /** Monthly subscription price in INR paise. */
-  subscriptionMonthlyPaise?: number;
-  /** Credits consumed per task invocation. */
-  creditsPerTask?: number;
+  /** Price per successful call, in points. */
+  pricePoints?: number;
 }
 
 /** Public agent listing as returned by GET /v1/listings/{id}. */
@@ -38,6 +34,8 @@ export interface Agent {
   /** Emoji or URL for the agent avatar. */
   icon?: string;
   ownerId?: string;
+  /** Owning developer's URL handle (namespaces the agent). */
+  developer?: string;
   publishedAt?: string;
   lastVerifiedAt?: string;
 }

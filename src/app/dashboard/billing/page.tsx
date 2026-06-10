@@ -6,12 +6,12 @@ import { isSentinelApiError } from "@/lib/api/client";
 import type { Invoice } from "@/types/billing";
 import { cn } from "@/lib/utils/cn";
 
-type TopUpPreset = 50000 | 100000 | 200000;
+type TopUpPreset = 500 | 1000 | 2000;
 
-const TOP_UP_PRESETS: TopUpPreset[] = [50000, 100000, 200000];
+const TOP_UP_PRESETS: TopUpPreset[] = [500, 1000, 2000];
 
-function formatInr(paise: number): string {
-  return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatPoints(points: number): string {
+  return `${points.toLocaleString("en-IN")} points`;
 }
 
 function formatDate(iso: string): string {
@@ -25,12 +25,12 @@ const INVOICE_STATUS_STYLES: Record<Invoice["status"], string> = {
 };
 
 /**
- * Billing page. Shows the live credit balance, a working top-up form (recorded
- * by the placeholder payment store until a real provider is wired in), and the
- * buyer's invoice history — all from the billing service.
+ * Billing page. Shows the live points balance, a working top-up (recorded by
+ * the placeholder payment store until a real provider is wired in), and the
+ * buyer's invoice history — all in points.
  */
 export default function BillingPage(): React.JSX.Element {
-  const [balancePaise, setBalancePaise] = React.useState<number | null>(null);
+  const [balancePoints, setBalancePoints] = React.useState<number | null>(null);
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [selectedPreset, setSelectedPreset] = React.useState<TopUpPreset | null>(null);
   const [customAmount, setCustomAmount] = React.useState("");
@@ -40,7 +40,7 @@ export default function BillingPage(): React.JSX.Element {
 
   const refresh = React.useCallback(async () => {
     const [bal, inv] = await Promise.allSettled([getCreditBalance(), getInvoices()]);
-    if (bal.status === "fulfilled") setBalancePaise(bal.value.balancePaise);
+    if (bal.status === "fulfilled") setBalancePoints(bal.value.balancePoints);
     if (inv.status === "fulfilled") setInvoices(inv.value);
   }, []);
 
@@ -48,28 +48,25 @@ export default function BillingPage(): React.JSX.Element {
     void refresh();
   }, [refresh]);
 
-  const effectiveAmountPaise: number | null = isCustom
+  const effectivePoints: number | null = isCustom
     ? customAmount
-      ? Math.round(parseFloat(customAmount) * 100)
+      ? Math.round(parseFloat(customAmount))
       : null
     : selectedPreset;
 
-  const isValid =
-    effectiveAmountPaise !== null &&
-    effectiveAmountPaise >= 50000 &&
-    effectiveAmountPaise <= 10000000;
+  const isValid = effectivePoints !== null && effectivePoints >= 5 && effectivePoints <= 100000;
 
   async function handleTopUp(): Promise<void> {
-    if (!isValid || effectiveAmountPaise === null) return;
+    if (!isValid || effectivePoints === null) return;
     setSubmitting(true);
     setFeedback(null);
     try {
-      const result = await topUp(effectiveAmountPaise);
-      setBalancePaise(result.balancePaise);
+      const result = await topUp(effectivePoints);
+      setBalancePoints(result.balancePoints);
       setSelectedPreset(null);
       setCustomAmount("");
       setIsCustom(false);
-      setFeedback({ kind: "ok", text: `Added ${formatInr(result.amountPaise)} to your wallet.` });
+      setFeedback({ kind: "ok", text: `Added ${formatPoints(result.points)} to your wallet.` });
       await refresh();
     } catch (err) {
       const text = isSentinelApiError(err) ? err.displayMessage : "Top-up failed. Please try again.";
@@ -83,26 +80,26 @@ export default function BillingPage(): React.JSX.Element {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
-        <p className="mt-1 text-slate-600">Manage credits, top up your wallet, and view invoices.</p>
+        <p className="mt-1 text-slate-600">Manage points, top up your wallet, and view invoices.</p>
       </div>
 
       <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-indigo-600 uppercase tracking-wide">Current Balance</p>
+          <p className="text-sm font-medium text-indigo-600 uppercase tracking-wide">Points Balance</p>
           <p className="mt-1 text-4xl font-bold text-indigo-700">
-            {balancePaise === null ? "…" : formatInr(balancePaise)}
+            {balancePoints === null ? "…" : formatPoints(balancePoints)}
           </p>
-          <p className="mt-1 text-xs text-indigo-500">Credits available for agent invocations</p>
+          <p className="mt-1 text-xs text-indigo-500">Points available for agent calls</p>
         </div>
         <div className="hidden sm:block">
           <div className="h-16 w-16 rounded-full border-4 border-indigo-200 bg-white flex items-center justify-center">
-            <span className="text-2xl font-bold text-indigo-600">₹</span>
+            <span className="text-xl font-bold text-indigo-600">pts</span>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900 mb-4">Top Up Credits</h2>
+        <h2 className="text-base font-semibold text-slate-900 mb-4">Add Points</h2>
 
         <div className="mb-4">
           <label className="mb-2 block text-sm font-medium text-slate-700">Select Amount</label>
@@ -123,7 +120,7 @@ export default function BillingPage(): React.JSX.Element {
                     : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
                 )}
               >
-                {formatInr(preset)}
+                {formatPoints(preset)}
               </button>
             ))}
             <button
@@ -146,24 +143,24 @@ export default function BillingPage(): React.JSX.Element {
 
         {isCustom && (
           <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom Amount (₹)</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom Amount (points)</label>
             <input
               type="number"
-              min="500"
+              min="5"
               max="100000"
-              step="0.01"
+              step="1"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
-              placeholder="Enter amount in ₹"
+              placeholder="Enter points"
               className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
             />
-            <p className="mt-1 text-xs text-slate-400">Min ₹500 — Max ₹1,00,000</p>
+            <p className="mt-1 text-xs text-slate-400">Min 5 — Max 100,000 points</p>
           </div>
         )}
 
-        {effectiveAmountPaise !== null && effectiveAmountPaise > 0 && (
+        {effectivePoints !== null && effectivePoints > 0 && (
           <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700">
-            You will add <span className="font-semibold text-slate-900">{formatInr(effectiveAmountPaise)}</span> in credits.
+            You will add <span className="font-semibold text-slate-900">{formatPoints(effectivePoints)}</span>.
           </div>
         )}
 
@@ -185,10 +182,10 @@ export default function BillingPage(): React.JSX.Element {
           onClick={() => void handleTopUp()}
           className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? "Adding credits…" : "Add Credits"}
+          {submitting ? "Adding points…" : "Add Points"}
         </button>
         <p className="mt-2 text-xs text-slate-400">
-          Payments are recorded directly for now; a card/UPI provider will be enabled here later.
+          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 point = ₹1.
         </p>
       </div>
 
@@ -205,7 +202,7 @@ export default function BillingPage(): React.JSX.Element {
                 <tr className="border-b border-slate-100 bg-slate-50">
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Points</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
                 </tr>
               </thead>
@@ -213,8 +210,8 @@ export default function BillingPage(): React.JSX.Element {
                 {invoices.map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 text-slate-700">{formatDate(invoice.createdAt)}</td>
-                    <td className="px-6 py-4 text-slate-600">Credit top-up</td>
-                    <td className="px-6 py-4 font-medium text-slate-900">{formatInr(invoice.amountPaise)}</td>
+                    <td className="px-6 py-4 text-slate-600">Points top-up</td>
+                    <td className="px-6 py-4 font-medium text-slate-900">{formatPoints(invoice.points)}</td>
                     <td className="px-6 py-4">
                       <span
                         className={cn(

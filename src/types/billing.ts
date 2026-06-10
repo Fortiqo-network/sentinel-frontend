@@ -1,23 +1,22 @@
 /**
  * TypeScript types for Sentinel billing and payments.
- * Amounts are always in INR paise (100 paise = ₹1) to avoid floating-point issues.
+ * The system speaks in points only (1 point = ₹1). Never paise/rupees/dollars.
  */
 
-/** Current credit balance for a buyer account. */
+/** Current wallet balance for a buyer account, in points. */
 export interface CreditBalance {
-  balancePaise: number;
-  currency: "INR";
+  balancePoints: number;
   updatedAt: string;
 }
 
 /** Direction of a ledger entry. */
 export type LedgerEntryType = "credit" | "debit";
 
-/** A single double-entry ledger record. */
+/** A single wallet ledger record, in points. */
 export interface LedgerEntry {
   id: string;
   type: LedgerEntryType;
-  amountPaise: number;
+  points: number;
   description: string;
   /** Set when the entry relates to a specific agent invocation. */
   agentId?: string;
@@ -27,14 +26,11 @@ export interface LedgerEntry {
 /** Invoice status lifecycle. */
 export type InvoiceStatus = "paid" | "unpaid" | "void";
 
-/** A Sentinel invoice (generated for top-ups and subscriptions). */
+/** A Sentinel invoice (generated for top-ups), in points. */
 export interface Invoice {
   id: string;
-  amountPaise: number;
-  currency: "INR";
+  points: number;
   status: InvoiceStatus;
-  /** Pre-signed URL to the PDF invoice. */
-  pdfUrl?: string;
   createdAt: string;
 }
 

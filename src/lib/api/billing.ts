@@ -2,18 +2,17 @@ import { z } from "zod";
 import { apiClient } from "./client";
 import type { CreditBalance, LedgerEntry, Invoice } from "@/types/billing";
 
-// ── Zod schemas ──────────────────────────────────────────────────────────────
+// ── Zod schemas (points only — 1 point = ₹1) ────────────────────────────────
 
 export const CreditBalanceSchema = z.object({
-  balancePaise: z.number().int().min(0),
-  currency: z.literal("INR"),
+  balancePoints: z.number().int().min(0),
   updatedAt: z.string().datetime(),
 });
 
 export const LedgerEntrySchema = z.object({
   id: z.string().uuid(),
   type: z.enum(["credit", "debit"]),
-  amountPaise: z.number().int().min(0),
+  points: z.number().int().min(0),
   description: z.string(),
   agentId: z.string().uuid().optional(),
   createdAt: z.string().datetime(),
@@ -21,10 +20,8 @@ export const LedgerEntrySchema = z.object({
 
 export const InvoiceSchema = z.object({
   id: z.string().uuid(),
-  amountPaise: z.number().int().min(0),
-  currency: z.literal("INR"),
+  points: z.number().int().min(0),
   status: z.enum(["paid", "unpaid", "void"]),
-  pdfUrl: z.string().url().optional(),
   createdAt: z.string().datetime(),
 });
 
@@ -35,7 +32,7 @@ export const LedgerResponseSchema = z.object({
 
 // ── API functions ─────────────────────────────────────────────────────────────
 
-/** Returns the authenticated user's current credit balance. */
+/** Returns the authenticated user's current points balance. */
 export async function getCreditBalance(): Promise<CreditBalance> {
   const response = await apiClient.get<unknown>("/v1/billing/balance");
   return CreditBalanceSchema.parse(response.data);
@@ -57,22 +54,19 @@ export async function getInvoices(): Promise<Invoice[]> {
 
 export const TopUpResultSchema = z.object({
   paymentId: z.string(),
-  amountPaise: z.number().int(),
-  balancePaise: z.number().int(),
+  points: z.number().int(),
+  balancePoints: z.number().int(),
   status: z.string(),
 });
 
 export type TopUpResult = z.infer<typeof TopUpResultSchema>;
 
 /**
- * Adds credits to the authenticated buyer's wallet.
+ * Adds points to the authenticated buyer's wallet.
  * Records a placeholder payment server-side and returns the resulting balance.
  * Replaces the Stripe intent flow until a real payment provider is wired in.
  */
-export async function topUp(amountPaise: number): Promise<TopUpResult> {
-  const response = await apiClient.post<unknown>("/v1/billing/topup", {
-    amountPaise,
-    currency: "INR",
-  });
+export async function topUp(points: number): Promise<TopUpResult> {
+  const response = await apiClient.post<unknown>("/v1/billing/topup", { points });
   return TopUpResultSchema.parse(response.data);
 }

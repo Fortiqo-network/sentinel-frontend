@@ -6,6 +6,7 @@ import { runAgent } from "@/lib/api/agents";
 import { isSentinelApiError } from "@/lib/api/client";
 
 interface UseAgentButtonProps {
+  developer: string;
   slug: string;
   priceLabel: string;
 }
@@ -23,7 +24,7 @@ type Feedback =
  * @example
  * <UseAgentButton slug="codereview-pro" priceLabel="₹5.00 / call" />
  */
-export function UseAgentButton({ slug, priceLabel }: UseAgentButtonProps): React.JSX.Element {
+export function UseAgentButton({ developer, slug, priceLabel }: UseAgentButtonProps): React.JSX.Element {
   const [busy, setBusy] = React.useState(false);
   const [feedback, setFeedback] = React.useState<Feedback | null>(null);
 
@@ -31,10 +32,10 @@ export function UseAgentButton({ slug, priceLabel }: UseAgentButtonProps): React
     setBusy(true);
     setFeedback(null);
     try {
-      const r = await runAgent(slug);
+      const r = await runAgent(developer, slug);
       setFeedback({
         kind: "ok",
-        text: `${r.output.result} Charged ₹${(r.costPaise / 100).toFixed(2)}; balance ₹${(r.balancePaise / 100).toFixed(2)}.`,
+        text: `${r.output.result} Charged ${r.costPoints} points; balance ${r.balancePoints} points.`,
       });
     } catch (err) {
       if (isSentinelApiError(err) && err.statusCode === 402) setFeedback({ kind: "insufficient" });

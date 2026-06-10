@@ -17,8 +17,8 @@ import type { LedgerEntry } from "@/types/billing";
 import type { Agent } from "@/types/agent";
 import { cn } from "@/lib/utils/cn";
 
-function formatInr(paise: number): string {
-  return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatPoints(points: number): string {
+  return `${points.toLocaleString("en-IN")} points`;
 }
 
 function formatDateTime(iso: string): string {
@@ -33,20 +33,20 @@ function formatDateTime(iso: string): string {
 
 interface BalancePoint {
   date: string;
-  balancePaise: number;
+  balancePoints: number;
 }
 
-/** Build a running-balance series from ledger entries (oldest → newest). */
+/** Build a running-balance series (in points) from ledger entries (oldest → newest). */
 function buildBalanceSeries(entries: LedgerEntry[]): BalancePoint[] {
   const ordered = [...entries].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
   let running = 0;
   return ordered.map((e) => {
-    running += e.type === "credit" ? e.amountPaise : -e.amountPaise;
+    running += e.type === "credit" ? e.points : -e.points;
     return {
       date: new Date(e.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
-      balancePaise: running,
+      balancePoints: running,
     };
   });
 }
@@ -88,17 +88,17 @@ function BalanceTooltip({ active, payload, label }: BalanceTooltipProps): React.
   return (
     <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-sm font-semibold text-slate-900">{formatInr(item.value)}</p>
+      <p className="text-sm font-semibold text-slate-900">{formatPoints(item.value)}</p>
     </div>
   );
 }
 
 /**
- * Buyer dashboard home. Every figure is live: the wallet balance and ledger
+ * Buyer dashboard home. Every figure is live: the points balance and ledger
  * come from the billing service, and the featured agents from the marketplace.
  */
 export default function DashboardPage(): React.JSX.Element {
-  const [balancePaise, setBalancePaise] = React.useState(0);
+  const [balancePoints, setBalancePoints] = React.useState(0);
   const [entries, setEntries] = React.useState<LedgerEntry[]>([]);
   const [agents, setAgents] = React.useState<Agent[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -111,7 +111,7 @@ export default function DashboardPage(): React.JSX.Element {
       listAgents({ sort: "trust_desc", pageSize: 5, page: 1 }),
     ]).then(([bal, led, ag]) => {
       if (!active) return;
-      if (bal.status === "fulfilled") setBalancePaise(bal.value.balancePaise);
+      if (bal.status === "fulfilled") setBalancePoints(bal.value.balancePoints);
       if (led.status === "fulfilled") setEntries(led.value.entries);
       if (ag.status === "fulfilled") setAgents(ag.value.agents);
       setLoading(false);
@@ -121,9 +121,9 @@ export default function DashboardPage(): React.JSX.Element {
     };
   }, []);
 
-  const totalAddedPaise = entries
+  const totalAddedPoints = entries
     .filter((e) => e.type === "credit")
-    .reduce((sum, e) => sum + e.amountPaise, 0);
+    .reduce((sum, e) => sum + e.points, 0);
   const series = buildBalanceSeries(entries);
 
   return (
@@ -131,24 +131,24 @@ export default function DashboardPage(): React.JSX.Element {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-slate-600">Your credits, activity, and verified agents at a glance.</p>
+          <p className="mt-1 text-slate-600">Your points, activity, and verified agents at a glance.</p>
         </div>
         <Link
           href="/dashboard/billing"
           className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors whitespace-nowrap"
         >
-          + Top Up Credits
+          + Add Points
         </Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
-          label="Credits Balance"
-          value={loading ? "…" : formatInr(balancePaise)}
+          label="Points Balance"
+          value={loading ? "…" : formatPoints(balancePoints)}
           sub="Available to spend"
           accent
         />
-        <StatCard label="Total Added" value={loading ? "…" : formatInr(totalAddedPaise)} sub="All-time top-ups" />
+        <StatCard label="Total Added" value={loading ? "…" : formatPoints(totalAddedPoints)} sub="All-time top-ups" />
         <StatCard label="Transactions" value={loading ? "…" : String(entries.length)} sub="Ledger entries" />
       </div>
 
@@ -158,7 +158,7 @@ export default function DashboardPage(): React.JSX.Element {
           {series.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <p className="text-sm font-medium text-slate-500">No wallet activity yet</p>
-              <p className="mt-1 text-xs text-slate-400">Top up credits to get started.</p>
+              <p className="mt-1 text-xs text-slate-400">Add points to get started.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -166,14 +166,14 @@ export default function DashboardPage(): React.JSX.Element {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
                 <YAxis
-                  tickFormatter={(v: number) => `₹${(v / 100).toFixed(0)}`}
+                  tickFormatter={(v: number) => `${v}`}
                   tick={{ fontSize: 10, fill: "#94a3b8" }}
                   tickLine={false}
                   axisLine={false}
                   width={48}
                 />
                 <Tooltip content={<BalanceTooltip />} />
-                <Line type="monotone" dataKey="balancePaise" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#6366f1" }} />
+                <Line type="monotone" dataKey="balancePoints" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#6366f1" }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -200,7 +200,7 @@ export default function DashboardPage(): React.JSX.Element {
                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Points</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -220,7 +220,7 @@ export default function DashboardPage(): React.JSX.Element {
                       </td>
                       <td className={cn("px-6 py-3 text-right font-medium", e.type === "credit" ? "text-emerald-600" : "text-slate-700")}>
                         {e.type === "credit" ? "+" : "−"}
-                        {formatInr(e.amountPaise)}
+                        {e.points.toLocaleString("en-IN")}
                       </td>
                     </tr>
                   ))}

@@ -2,7 +2,6 @@ import * as React from "react";
 import Link from "next/link";
 import { TrustBadge } from "./TrustBadge";
 import { cn } from "@/lib/utils/cn";
-import { formatPaise } from "@/lib/utils/format";
 import type { Agent } from "@/types/agent";
 
 interface AgentCardProps {
@@ -13,12 +12,8 @@ interface AgentCardProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatPrice(agent: Agent): string {
-  const p = agent.pricing;
-  if (p == null) return "Free";
-  if (p.pricePerTaskPaise !== undefined) return `${formatPaise(p.pricePerTaskPaise)} / call`;
-  if (p.subscriptionMonthlyPaise !== undefined) return `${formatPaise(p.subscriptionMonthlyPaise)} / mo`;
-  if (p.creditsPerTask !== undefined) return `${p.creditsPerTask} credits / task`;
-  return "Free";
+  const points = agent.pricing?.pricePoints;
+  return points == null ? "Free" : `${points} pts / call`;
 }
 
 // ── Tier badge ────────────────────────────────────────────────────────────────
@@ -197,9 +192,6 @@ export function AgentCard({ agent, className }: AgentCardProps): React.JSX.Eleme
       <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
         <div>
           <span className="text-sm font-semibold text-slate-900">{priceLabel}</span>
-          {agent.pricing?.model === "per_task" && (
-            <span className="ml-1 text-xs text-slate-400">per-call</span>
-          )}
         </div>
         <Link
           href={`/agents/${agent.slug}`}
