@@ -13,7 +13,7 @@ const COLUMNS: FooterColumn[] = [
       { href: "/agents", label: "Marketplace" },
       { href: "/playground", label: "Playground" },
       { href: "/developer", label: "For developers" },
-      { href: "/docs/methodology", label: "How it works" },
+      { href: "/how-it-works", label: "How it works" },
     ],
   },
   {

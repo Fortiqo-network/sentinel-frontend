@@ -11,7 +11,7 @@ const LINKS = [
   { href: "/agents", label: "Marketplace" },
   { href: "/playground", label: "Playground" },
   { href: "/developer", label: "Developers" },
-  { href: "/docs/methodology", label: "How it works" },
+  { href: "/how-it-works", label: "How it works" },
 ];
 
 /**
