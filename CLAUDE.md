@@ -86,6 +86,13 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 3. Export the inferred TypeScript type if consumers need it.
 4. Update `src/types/<domain>.ts` if the shape is new.
 
+## Cinematic marketing layer
+
+- The marketing experience (root `/`) lives in `src/components/marketing/` and is a **scoped dark surface** — it owns its own `void`/`aurora` tokens and white text. It does **not** flip the global theme; the light-mode app (dashboard, marketplace, auth) is unaffected. The "dark mode not yet implemented" note applies to the app shell, not this layer.
+- Animation stack: Lenis (smooth scroll) ↔ GSAP/ScrollTrigger, Framer Motion (reveals, parallax, micro-interactions), React Three Fiber + drei + postprocessing (WebGL). All timing comes from `src/lib/design/motion.ts`.
+- 3D mounts only via `marketing/three/SceneStage.tsx` (`next/dynamic`, `ssr:false`, in-view pausing, device quality tiers). Reduced motion is honoured at every layer.
+- See `docs/frontend/implementation.md` for the full architecture and the skills/dependency reference.
+
 ## Conventions
 
 ### Commits
