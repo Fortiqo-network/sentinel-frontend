@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { AgentCard } from "@/components/marketplace/AgentCard";
-import { FEATURED_AGENTS_MOCK } from "@/lib/api/agents";
+import type { Agent } from "@/types/agent";
 
 export const metadata: Metadata = {
   title: "Sentinel — The Trust Layer for AI Agents",
@@ -12,6 +12,48 @@ export const metadata: Metadata = {
 };
 
 // ── Static data ───────────────────────────────────────────────────────────────
+
+const FEATURED_AGENTS_MOCK: Agent[] = [
+  {
+    id: "00000000-0000-0000-0000-000000000001",
+    name: "DataSift Pro",
+    slug: "datasift-pro",
+    description: "Extracts, cleans, and summarises structured data from any CSV, JSON, or PDF source with full provenance tracking.",
+    trustScore: 94,
+    tier: "verified",
+    tags: ["data", "ETL", "summarisation"],
+    vertical: "Engineering",
+    pricing: { model: "per_call", pricePoints: 5 },
+    icon: "📊",
+    developer: "heurist",
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000002",
+    name: "LegalLens",
+    slug: "legallens",
+    description: "Reviews contracts for liability clauses, missing provisions, and jurisdiction-specific compliance issues.",
+    trustScore: 88,
+    tier: "verified",
+    tags: ["legal", "contracts", "compliance"],
+    vertical: "Legal",
+    pricing: { model: "per_task", pricePoints: 20 },
+    icon: "⚖️",
+    developer: "lexai",
+  },
+  {
+    id: "00000000-0000-0000-0000-000000000003",
+    name: "CodeGuard",
+    slug: "codeguard",
+    description: "Scans pull requests for security vulnerabilities, secret leaks, and dependency CVEs before they reach production.",
+    trustScore: 91,
+    tier: "verified",
+    tags: ["security", "code-review", "DevSecOps"],
+    vertical: "Security",
+    pricing: { model: "per_call", pricePoints: 8 },
+    icon: "🛡️",
+    developer: "sentinelcore",
+  },
+];
 
 const PIPELINE_STAGES = [
   {
