@@ -107,6 +107,7 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 ### Docs stay in sync (mandatory)
 - Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the master TODO (`sentinel-infra/TODO.md`). Tick completed items, add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
 
-### The system speaks in points — never currency
-- All user- and API-facing values are **points**. Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
-- Conversion: **1 point = ₹1 = 100 paise** (current). 1 USD ≈ 95 points (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses points only.
+### The system speaks in credits — never currency
+- All user- and API-facing values are **credits** (short form **Cr**). Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
+- Conversion: **1 Cr = ₹1 = 100 paise** (current). 1 USD ≈ 95 Cr (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses credits only.
+- API contract fields use the `*Credits` suffix (`priceCredits`, `balanceCredits`, `costCredits`, `payableCredits`, `originalCredits`, `currentCredits`); ledger/invoice/top-up amounts use the `credits` key.

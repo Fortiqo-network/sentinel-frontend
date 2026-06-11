@@ -22,7 +22,7 @@ const PREVIEW_REPLY =
  * and lets users compose messages against a selected agent.
  *
  * Live execution is intentionally not wired up: the playground never calls an
- * invoke endpoint, so no points are charged. Sending a message appends an
+ * invoke endpoint, so no credits are charged. Sending a message appends an
  * obvious preview reply instead of a real agent response.
  *
  * @example
@@ -82,8 +82,8 @@ export function PlaygroundClient(): React.JSX.Element {
 
   const formatOption = (agent: Agent): string => {
     const parts = [agent.name, `Trust: ${agent.trustScore}`];
-    if (agent.pricing?.pricePoints !== undefined) {
-      parts.push(`${agent.pricing.pricePoints} points/call`);
+    if (agent.pricing?.priceCredits !== undefined) {
+      parts.push(`${agent.pricing.priceCredits} Cr/call`);
     }
     return parts.join(" — ");
   };
@@ -172,7 +172,7 @@ export function PlaygroundClient(): React.JSX.Element {
             </Button>
           </div>
           <p className="text-xs text-slate-400">
-            Preview only — the playground does not run agents or charge points.
+            Preview only — the playground does not run agents or charge credits.
           </p>
         </>
       )}

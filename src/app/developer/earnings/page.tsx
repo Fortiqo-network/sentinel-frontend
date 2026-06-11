@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils/cn";
 import { getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/developer";
 import { isSentinelApiError } from "@/lib/api/client";
 
-function formatPoints(points: number): string {
-  return `${points.toLocaleString("en-IN")} points`;
+function formatCredits(credits: number): string {
+  return `${credits.toLocaleString("en-IN")} Cr`;
 }
 
 function titleCase(value: string): string {
@@ -43,7 +43,7 @@ function SummaryCard({ label, value, sub, accent }: SummaryCardProps): React.JSX
 
 /**
  * Earnings page for developers. Surfaces payout-eligible balance, payout
- * eligibility and provider, and the active performance bond — all in points.
+ * eligibility and provider, and the active performance bond — all in credits.
  * Write actions (payout request, bond deposit) are intentionally disabled
  * until KYC / provider details are collected by the console.
  */
@@ -130,7 +130,7 @@ export default function EarningsPage(): React.JSX.Element {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <SummaryCard
               label="Payable Balance"
-              value={earnings ? formatPoints(earnings.payablePoints) : "—"}
+              value={earnings ? formatCredits(earnings.payableCredits) : "—"}
               sub="Available for payout"
               accent
             />
@@ -193,13 +193,13 @@ export default function EarningsPage(): React.JSX.Element {
                   <div>
                     <div className="text-sm font-medium text-slate-500">Current</div>
                     <div className="mt-1 text-lg font-semibold text-slate-900">
-                      {formatPoints(bond.currentPoints)}
+                      {formatCredits(bond.currentCredits)}
                     </div>
                   </div>
                   <div>
                     <div className="text-sm font-medium text-slate-500">Original</div>
                     <div className="mt-1 text-lg font-semibold text-slate-900">
-                      {formatPoints(bond.originalPoints)}
+                      {formatCredits(bond.originalCredits)}
                     </div>
                   </div>
                 </div>

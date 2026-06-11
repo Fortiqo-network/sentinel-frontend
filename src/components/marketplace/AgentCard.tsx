@@ -12,8 +12,8 @@ interface AgentCardProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatPrice(agent: Agent): string {
-  const points = agent.pricing?.pricePoints;
-  return points == null ? "Free" : `${points} pts / call`;
+  const credits = agent.pricing?.priceCredits;
+  return credits == null ? "Free" : `${credits} Cr / call`;
 }
 
 // ── Tier badge ────────────────────────────────────────────────────────────────
