@@ -139,7 +139,8 @@ On the agent detail page (`/agents/[agentId]`), the connect panel offers:
 - If a line feels like it needs a comment, rename or refactor until it doesn't.
 
 ### Docs stay in sync (mandatory)
-- Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the master TODO (`sentinel-infra/TODO.md`). Tick completed items, add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
+- Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the **central TODO board** at `sentinal-core-api/master-doc/` (this module's `*-todo.md` plus `platform-todo.md`). Tick completed items (`[ ]`→`[x]`) — **never delete a line**; add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
+- **Each module follows its own implementation doc.** As planning moves, update that module's `docs/implementation.md` / `docs/architecture.md` / roadmap and the central TODO in the **same commit**, so plans and docs stay in lockstep with the code — every module owns and follows its own implementation.
 
 ### The system speaks in points — never currency
 - All user- and API-facing values are **points**. Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
