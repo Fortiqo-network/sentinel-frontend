@@ -35,19 +35,19 @@ export function Stats({ stats }: { stats: LiveStats }): React.JSX.Element {
   return (
     <section className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-6xl">
-        <div className="overflow-hidden rounded-[2.5rem] glass ring-hairline grain relative px-8 py-16 sm:px-14">
+        <div className="relative overflow-hidden rounded-[2.5rem] glass ring-hairline px-8 py-16 sm:px-14">
           <div
             aria-hidden
-            className="absolute -left-1/4 top-0 h-[140%] w-1/2 rotate-12 bg-aurora-indigo/10 blur-[120px]"
+            className="glow-soft pointer-events-none absolute -left-1/4 -top-1/4 h-[150%] w-2/3"
           />
           <div className="relative">
             <div className="mb-14 max-w-xl">
               <Reveal>
-                <span className="font-mono text-xs uppercase tracking-[0.25em] text-aurora-cyan">
+                <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
                   Live platform signal
                 </span>
               </Reveal>
-              <h2 className="mt-4 text-display-sm font-semibold text-white">
+              <h2 className="mt-4 text-display-sm font-semibold text-porcelain">
                 <SplitText lines={["Trust, measured", "in real numbers"]} />
               </h2>
             </div>
@@ -61,12 +61,12 @@ export function Stats({ stats }: { stats: LiveStats }): React.JSX.Element {
                   viewport={REVEAL_VIEWPORT}
                   transition={{ duration: DURATION.base, ease: EASING.expo, delay: i * STAGGER.base }}
                 >
-                  <div className="font-mono text-4xl font-semibold text-white sm:text-5xl">
+                  <div className="font-brand-mono text-4xl font-semibold text-porcelain sm:text-5xl">
                     {item.node}
                   </div>
-                  <div className="mt-2 flex items-center gap-2 text-sm text-white/55">
+                  <div className="mt-2 flex items-center gap-2 text-sm text-porcelain/55">
                     {item.live && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-aurora-cyan shadow-[0_0_8px_#22d3ee]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-gold shadow-[0_0_8px_#22d3ee]" />
                     )}
                     {item.label}
                   </div>

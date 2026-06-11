@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <!-- SENTINEL — The Open Seal. Two 144° arcs (golden-gnomon gates of 36°), core Ø = stroke width. -->
+  <path d="M194.84 81.86 A84 84 0 0 1 81.86 194.84" stroke="#ECEAE3" stroke-width="32"/>
+  <path d="M45.16 158.14 A84 84 0 0 1 158.14 45.16" stroke="#ECEAE3" stroke-width="32"/>
+  <circle cx="120" cy="120" r="16" fill="#ECEAE3"/>
+</svg>

@@ -24,11 +24,11 @@ import { Footer } from "./sections/Footer";
 export function HomeExperience({ stats }: { stats: LiveStats }): React.JSX.Element {
   return (
     <SmoothScroll>
-      <div className="relative min-h-screen overflow-x-clip bg-void-950 text-white antialiased">
+      <div className="relative min-h-screen overflow-x-clip bg-ink-950 font-brand text-porcelain antialiased">
         {/* Ambient gradient wash beneath every scene. */}
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_0%,rgba(99,102,241,0.12),transparent_60%)]"
+          className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_0%,rgba(231,160,60,0.08),transparent_60%)]"
         />
         <div className="relative z-10">
           <Nav />

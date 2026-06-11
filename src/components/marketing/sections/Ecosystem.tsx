@@ -39,15 +39,15 @@ export function Ecosystem(): React.JSX.Element {
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 max-w-2xl">
           <Reveal>
-            <span className="font-mono text-xs uppercase tracking-[0.25em] text-aurora-cyan">
+            <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
               The ecosystem
             </span>
           </Reveal>
-          <h2 className="mt-4 text-display-sm font-semibold text-white">
+          <h2 className="mt-4 text-display-sm font-semibold text-porcelain">
             <SplitText lines={["One network,", "every participant"]} />
           </h2>
           <Reveal delay={0.15}>
-            <p className="mt-5 text-base text-white/55">
+            <p className="mt-5 text-base text-porcelain/55">
               Developers, buyers, and the trust machinery between them all connect through a single
               settlement and reputation fabric.
             </p>
@@ -76,7 +76,7 @@ export function Ecosystem(): React.JSX.Element {
                   y1={HUB.y}
                   x2={node.x}
                   y2={node.y}
-                  stroke={lit ? "#22d3ee" : "#6366f1"}
+                  stroke={lit ? "#E7A03C" : "#80848F"}
                   strokeWidth={lit ? 0.5 : 0.25}
                   strokeOpacity={lit ? 0.9 : 0.35}
                   strokeDasharray="1.5 2.5"
@@ -89,8 +89,8 @@ export function Ecosystem(): React.JSX.Element {
           {/* Central hub. */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="relative flex h-24 w-24 items-center justify-center rounded-full glass ring-hairline">
-              <span className="absolute inset-0 animate-glow-pulse rounded-full bg-aurora-indigo/30 blur-xl" />
-              <span className="relative text-sm font-semibold text-white">Sentinel</span>
+              <span className="glow-soft absolute -inset-8 rounded-full" />
+              <span className="relative text-sm font-semibold text-porcelain">Sentinel</span>
             </div>
           </div>
 
@@ -115,15 +115,15 @@ export function Ecosystem(): React.JSX.Element {
                   <span
                     className={cn(
                       "absolute inline-flex h-full w-full rounded-full opacity-60",
-                      active === node.id ? "animate-ping bg-aurora-cyan" : "bg-aurora-indigo",
+                      active === node.id ? "animate-ping bg-gold" : "bg-gold",
                     )}
                   />
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-aurora-cyan" />
+                  <span className="relative inline-flex h-3 w-3 rounded-full bg-gold" />
                 </span>
-                <span className="text-sm font-medium text-white">{node.label}</span>
+                <span className="text-sm font-medium text-porcelain">{node.label}</span>
                 <span
                   className={cn(
-                    "max-w-[9rem] text-xs leading-snug text-white/55 transition-opacity duration-300",
+                    "max-w-[9rem] text-xs leading-snug text-porcelain/55 transition-opacity duration-300",
                     active === node.id ? "opacity-100" : "opacity-0",
                   )}
                 >

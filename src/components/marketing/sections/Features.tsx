@@ -48,11 +48,11 @@ export function Features(): React.JSX.Element {
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 text-center">
           <Reveal>
-            <span className="font-mono text-xs uppercase tracking-[0.25em] text-aurora-cyan">
+            <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
               Why Sentinel
             </span>
           </Reveal>
-          <h2 className="mx-auto mt-4 max-w-3xl text-display-sm font-semibold text-white">
+          <h2 className="mx-auto mt-4 max-w-3xl text-display-sm font-semibold text-porcelain">
             <SplitText lines={["Three layers of trust,", "one platform"]} />
           </h2>
         </div>
@@ -67,14 +67,14 @@ export function Features(): React.JSX.Element {
               transition={{ duration: DURATION.base, ease: EASING.expo, delay: i * STAGGER.loose }}
             >
               <TiltCard className="h-full">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-aurora-indigo/30 to-aurora-cyan/20 ring-hairline">
-                  <feature.icon className="h-6 w-6 text-aurora-cyan" />
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/20 ring-hairline">
+                  <feature.icon className="h-6 w-6 text-gold" />
                 </div>
-                <div className="font-mono text-xs uppercase tracking-[0.2em] text-aurora-violet">
+                <div className="font-brand-mono text-xs uppercase tracking-[0.2em] text-graphite">
                   {feature.eyebrow}
                 </div>
-                <h3 className="mt-2 text-xl font-semibold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/55">{feature.description}</p>
+                <h3 className="mt-2 text-xl font-semibold text-porcelain">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-porcelain/55">{feature.description}</p>
               </TiltCard>
             </motion.div>
           ))}

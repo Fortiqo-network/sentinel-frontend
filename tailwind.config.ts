@@ -30,28 +30,41 @@ const config: Config = {
           high: "#22c55e",
           elite: "#10b981",
         },
-        // Cinematic surface scale — the deep-space canvas the marketing
-        // experience is painted on. Distinct from the light-mode app tokens.
-        void: {
-          950: "#04050a",
-          900: "#070811",
-          800: "#0b0d1a",
-          700: "#111426",
-          600: "#1a1e35",
-          500: "#262b47",
+        // Brand surface — the "ink" canvas the cinematic experience is painted
+        // on (Sentinel identity). Distinct from the light-mode app tokens.
+        ink: {
+          950: "#0B0C0F",
+          900: "#0E1014",
+          800: "#111318",
+          700: "#191C23",
+          600: "#23262e",
+          500: "#2c2f38",
         },
-        // Aurora accents — the indigo→violet→cyan triad used for glows,
-        // gradients, and the 3D scene lighting.
-        aurora: {
-          indigo: "#6366f1",
-          violet: "#a78bfa",
-          cyan: "#22d3ee",
-          blush: "#f472b6",
+        // Brand neutrals + the single amber/gold accent (the sealed core).
+        porcelain: "#ECEAE3",
+        graphite: {
+          DEFAULT: "#80848F",
+          dim: "#4A4E58",
+        },
+        gold: {
+          DEFAULT: "#E7A03C",
+          deep: "#B97718",
+        },
+        // Cinematic surface scale (legacy alias → ink) kept for any older refs.
+        void: {
+          950: "#0B0C0F",
+          900: "#0E1014",
+          800: "#111318",
+          700: "#191C23",
+          600: "#23262e",
+          500: "#2c2f38",
         },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        brand: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        "brand-mono": ["var(--font-plex-mono)", "ui-monospace", "monospace"],
       },
       fontSize: {
         // Fluid display sizes that scale with the viewport for full-screen heroes.
@@ -64,11 +77,11 @@ const config: Config = {
       },
       backgroundImage: {
         "aurora-radial":
-          "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,0.35), transparent 70%)",
+          "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(231,160,60,0.18), transparent 70%)",
         "aurora-conic":
-          "conic-gradient(from 180deg at 50% 50%, #6366f1, #a78bfa, #22d3ee, #6366f1)",
+          "conic-gradient(from 180deg at 50% 50%, #E7A03C, #ECEAE3, #B97718, #E7A03C)",
         "grid-fade":
-          "linear-gradient(rgba(255,255,255,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.55) 1px, transparent 1px)",
+          "linear-gradient(rgba(236,234,227,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(236,234,227,0.5) 1px, transparent 1px)",
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",

@@ -2,14 +2,14 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { SceneStage } from "../three/SceneStage";
+import { Seal } from "@/components/brand/Seal";
 import { SplitText } from "../ui/SplitText";
 import { MagneticButton } from "../ui/MagneticButton";
 
 /**
- * Scene 1 — the full-viewport landing. A live WebGL neural field sits behind
- * the headline; on scroll the copy drifts up and dissolves as the next scene
- * arrives, giving the page a cinematic hand-off rather than a hard cut.
+ * Scene 1 — the full-viewport landing, anchored by the Living Mark. The open
+ * seal orbits quietly above the headline (and seals on hover); on scroll the
+ * whole composition drifts up and dissolves into the next scene.
  */
 export function Hero(): React.JSX.Element {
   const ref = useRef<HTMLElement>(null);
@@ -17,43 +17,40 @@ export function Hero(): React.JSX.Element {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-  const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+  const sealScale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
 
   return (
     <section
       ref={ref}
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
-      <motion.div style={{ scale: sceneScale }} className="absolute inset-0">
-        <SceneStage />
-      </motion.div>
-
-      {/* Vignette so the headline always stays legible over the scene. */}
+      {/* Ambient gold wash behind the mark. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,transparent,rgba(4,5,10,0.55)_75%,rgba(4,5,10,0.95))]"
+        className="glow-soft pointer-events-none absolute left-1/2 top-[38%] h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2"
       />
 
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
-        className="relative z-10 mx-auto max-w-4xl px-6 text-center"
+        className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center"
       >
+        <motion.div style={{ scale: sealScale }} className="mb-10">
+          <Seal className="h-36 w-36 sm:h-44 sm:w-44" drawIn interactive />
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mb-7 inline-flex items-center gap-2 rounded-full glass ring-hairline px-4 py-1.5 text-xs font-medium text-white/80"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mb-7 inline-flex items-center gap-2 rounded-full glass ring-hairline px-4 py-1.5 font-brand-mono text-[11px] uppercase tracking-[0.18em] text-porcelain/70"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-aurora-cyan opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-aurora-cyan" />
-          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-gold shadow-[0_0_8px_#E7A03C]" />
           The trust layer for the AI agent economy
         </motion.div>
 
-        <h1 className="text-display font-semibold text-white">
+        <h1 className="font-brand text-display font-semibold text-porcelain">
           <SplitText lines={["Deploy agents", "you can"]} />
           <SplitText lines={["actually trust"]} className="text-aurora" delay={0.25} />
         </h1>
@@ -61,17 +58,17 @@ export function Hero(): React.JSX.Element {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="mx-auto mt-7 max-w-xl text-base text-white/60 sm:text-lg"
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mx-auto mt-7 max-w-xl text-base text-porcelain/55 sm:text-lg"
         >
           Sentinel verifies every AI agent through a four-stage security pipeline, scores it
-          0–100, and settles payouts automatically — so trust is measured, not promised.
+          0–100, and settles credit payouts automatically — so trust is measured, not promised.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.85 }}
+          transition={{ duration: 0.8, delay: 0.95 }}
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
           <MagneticButton href="/register?role=developer" variant="primary">
@@ -88,8 +85,8 @@ export function Hero(): React.JSX.Element {
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2"
         aria-hidden
       >
-        <div className="flex h-10 w-6 items-start justify-center rounded-full border border-white/20 p-1.5">
-          <span className="h-2 w-1 animate-scroll-hint rounded-full bg-white/60" />
+        <div className="flex h-10 w-6 items-start justify-center rounded-full border border-porcelain/20 p-1.5">
+          <span className="h-2 w-1 animate-scroll-hint rounded-full bg-porcelain/60" />
         </div>
       </motion.div>
     </section>

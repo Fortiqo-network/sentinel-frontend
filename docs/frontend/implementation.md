@@ -4,6 +4,21 @@
 > `feat/ui-revamp-balraj`. This is a **presentation-only** revamp — it consumes
 > the existing gateway APIs, authentication, and data models unchanged. For the
 > product/architecture spec see [`../implementation.md`](../implementation.md).
+>
+> **Brand update (supersedes §3/§5 below where they differ):** the experience
+> now uses the official Sentinel identity — surface **ink** `#0B0C0F`, neutral
+> **porcelain** `#ECEAE3`, single accent **gold** `#E7A03C`; typefaces
+> **Archivo** (display/body) + **IBM Plex Mono** (labels). The hero centrepiece
+> is **The Living Mark** (`components/brand/Seal.tsx`) — two arcs that orbit and
+> *seal* into a ring with an igniting gold core — which replaces the earlier
+> WebGL neural field (removed as too heavy). Logo + favicon are wired site-wide
+> via `components/brand/{Seal,Logo}.tsx` and `app/icon.svg`.
+>
+> **Lightness:** ambient glows are baked CSS radial gradients (not `blur()`
+> filters), the fixed nav uses a solid translucent fill (no `backdrop-filter`
+> on scroll), the grain/turbulence filter and infinite glow-pulse loops are
+> gone, and motion is GPU-only (transform/opacity) — matching the restraint of
+> Active Theory / Immersive Garden references.
 
 ---
 

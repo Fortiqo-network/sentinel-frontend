@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
+import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -210,11 +211,7 @@ export function Header(): React.JSX.Element {
       {/* Main bar */}
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-1 flex-shrink-0">
-          <span className="text-lg font-bold text-slate-900 tracking-tight">
-            Sentinel<span className="text-indigo-500">.</span>
-          </span>
-        </Link>
+        <Logo href="/" sealStroke="currentColor" className="flex-shrink-0 text-slate-900" />
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">

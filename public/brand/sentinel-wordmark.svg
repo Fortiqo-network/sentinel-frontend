@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -6 530 84" fill="none">
+  <!-- SENTINEL custom wordmark. Monoline, cap height 72, stroke 12, butt caps, beveled apexes.
+       The S is built from the same two-arc construction as the symbol. -->
+  <g stroke="#ECEAE3" stroke-width="12" stroke-linejoin="bevel">
+    <!-- S -->
+    <path d="M39 21 A15 15 0 1 0 24 36 A15 15 0 1 1 9 51"/>
+    <!-- E -->
+    <g transform="translate(74 0)"><path d="M6 0 V72 M0 6 H44 M0 36 H36 M0 66 H44"/></g>
+    <!-- N -->
+    <g transform="translate(144 0)"><path d="M6 72 V0 L46 72 V0"/></g>
+    <!-- T -->
+    <g transform="translate(222 0)"><path d="M0 6 H52 M26 0 V72"/></g>
+    <!-- I -->
+    <g transform="translate(300 0)"><path d="M6 0 V72"/></g>
+    <!-- N -->
+    <g transform="translate(338 0)"><path d="M6 72 V0 L46 72 V0"/></g>
+    <!-- E -->
+    <g transform="translate(416 0)"><path d="M6 0 V72 M0 6 H44 M0 36 H36 M0 66 H44"/></g>
+    <!-- L -->
+    <g transform="translate(486 0)"><path d="M6 0 V66 H44"/></g>
+  </g>
+</svg>

@@ -19,7 +19,7 @@ interface TiltCardProps {
  * @example
  * <TiltCard><h3>Verification</h3><p>…</p></TiltCard>
  */
-export function TiltCard({ children, className, intensity = 8 }: TiltCardProps): React.JSX.Element {
+export function TiltCard({ children, className, intensity = 5 }: TiltCardProps): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const px = useMotionValue(0.5);
   const py = useMotionValue(0.5);

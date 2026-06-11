@@ -49,15 +49,15 @@ export function Pipeline(): React.JSX.Element {
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 max-w-2xl">
           <Reveal>
-            <span className="font-mono text-xs uppercase tracking-[0.25em] text-aurora-cyan">
+            <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
               How verification works
             </span>
           </Reveal>
-          <h2 className="mt-4 text-display-sm font-semibold text-white">
+          <h2 className="mt-4 text-display-sm font-semibold text-porcelain">
             <SplitText lines={["Every agent earns", "its trust score"]} />
           </h2>
           <Reveal delay={0.15}>
-            <p className="mt-5 text-base text-white/55">
+            <p className="mt-5 text-base text-porcelain/55">
               Trust isn&apos;t self-reported. Each agent runs a gauntlet of four independent
               checks; the result is a single calibrated 0–100 score buyers can act on.
             </p>
@@ -72,7 +72,7 @@ export function Pipeline(): React.JSX.Element {
             whileInView={{ scaleX: 1 }}
             viewport={REVEAL_VIEWPORT}
             transition={{ duration: DURATION.cinematic, ease: EASING.expo }}
-            className="absolute left-0 top-6 hidden h-px w-full origin-left bg-gradient-to-r from-aurora-indigo via-aurora-violet to-aurora-cyan lg:block"
+            className="absolute left-0 top-6 hidden h-px w-full origin-left bg-gradient-to-r from-gold via-graphite to-gold lg:block"
           />
 
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
@@ -85,11 +85,11 @@ export function Pipeline(): React.JSX.Element {
                 transition={{ duration: DURATION.base, ease: EASING.expo, delay: i * STAGGER.loose }}
                 className="relative"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full glass ring-hairline font-mono text-sm text-aurora-cyan">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full glass ring-hairline font-brand-mono text-sm text-gold">
                   {stage.index}
                 </div>
-                <h3 className="text-lg font-semibold text-white">{stage.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/50">{stage.description}</p>
+                <h3 className="text-lg font-semibold text-porcelain">{stage.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-porcelain/50">{stage.description}</p>
               </motion.div>
             ))}
           </div>
