@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
+import { ProofLockup } from "@/components/brand/Logo";
 
 interface FooterColumn {
   heading: string;
@@ -44,7 +44,7 @@ export function Footer(): React.JSX.Element {
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <Logo href="/" sealStroke="#ECEAE3" className="text-porcelain" />
+            <ProofLockup className="text-porcelain" />
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-porcelain/45">
               The verification, settlement, and portable-reputation layer for the AI agent economy.
             </p>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Seal } from "@/components/brand/Seal";
+import { Tessera } from "@/components/brand/Tessera";
 import { Wordmark } from "@/components/brand/Logo";
 
 interface AuthLayoutProps {
@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: AuthLayoutProps): React.JSX.Ele
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12">
       <div className="mb-8 flex flex-col items-center text-center text-slate-900">
         <Link href="/" className="flex flex-col items-center gap-3">
-          <Seal className="h-12 w-12" stroke="currentColor" drawIn interactive />
+          <Tessera className="h-12 w-12" seam="scan" fill="currentColor" />
           <Wordmark className="h-4 text-slate-900" />
         </Link>
         <p className="mt-3 text-sm text-slate-500">Verified AI Agent Marketplace</p>

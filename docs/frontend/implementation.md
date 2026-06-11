@@ -6,13 +6,19 @@
 > product/architecture spec see [`../implementation.md`](../implementation.md).
 >
 > **Brand update (supersedes §3/§5 below where they differ):** the experience
-> now uses the official Sentinel identity — surface **ink** `#0B0C0F`, neutral
+> uses the official Sentinel identity — surface **ink** `#0B0C0F`, neutral
 > **porcelain** `#ECEAE3`, single accent **gold** `#E7A03C`; typefaces
-> **Archivo** (display/body) + **IBM Plex Mono** (labels). The hero centrepiece
-> is **The Living Mark** (`components/brand/Seal.tsx`) — two arcs that orbit and
-> *seal* into a ring with an igniting gold core — which replaces the earlier
-> WebGL neural field (removed as too heavy). Logo + favicon are wired site-wide
-> via `components/brand/{Seal,Logo}.tsx` and `app/icon.svg`.
+> **Archivo** (display/body) + **IBM Plex Mono** (labels). The mark is **The
+> Tessera** (`components/brand/Tessera.tsx`) — two counterpart halves of one
+> token with an amber **seam that scans** top-to-bottom forever (the only
+> permanent animation; no rotation). On the **Proof** (footer `ProofLockup`) the
+> right half pulls away and mirrors (a forged half can't fit), the seam fills,
+> and **SENTINEL writes itself** in amber. The **Mosaic** (`Mosaic.tsx`) is a
+> tessera tile-field used as a card background at ~50% opacity — never the mark
+> as wallpaper. Amber is earned: it appears only in the seam, the proof, and the
+> name. The earlier WebGL neural field was removed as too heavy. Logo + favicon
+> are wired site-wide via `components/brand/*` and `app/icon.svg`. The hero
+> centrepiece animation is being selected from samples.
 >
 > **Lightness:** ambient glows are baked CSS radial gradients (not `blur()`
 > filters), the fixed nav uses a solid translucent fill (no `backdrop-filter`

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Seal } from "@/components/brand/Seal";
+import { Tessera } from "@/components/brand/Tessera";
 import { SplitText } from "../ui/SplitText";
 import { MagneticButton } from "../ui/MagneticButton";
 
@@ -36,8 +36,8 @@ export function Hero(): React.JSX.Element {
         style={{ y: contentY, opacity: contentOpacity }}
         className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center"
       >
-        <motion.div style={{ scale: sealScale }} className="mb-10">
-          <Seal className="h-36 w-36 sm:h-44 sm:w-44" drawIn interactive />
+        <motion.div style={{ scale: sealScale }} className="mb-10 text-porcelain">
+          <Tessera className="h-36 w-36 sm:h-44 sm:w-44" seam="scan" />
         </motion.div>
 
         <motion.div

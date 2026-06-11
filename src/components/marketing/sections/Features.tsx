@@ -4,6 +4,7 @@ import { ShieldCheck, Gauge, Wallet } from "lucide-react";
 import { Reveal } from "../ui/Reveal";
 import { SplitText } from "../ui/SplitText";
 import { TiltCard } from "../ui/TiltCard";
+import { Mosaic } from "@/components/brand/Mosaic";
 import { DURATION, EASING, REVEAL_VIEWPORT, STAGGER } from "@/lib/design/motion";
 import { motion } from "framer-motion";
 
@@ -67,7 +68,8 @@ export function Features(): React.JSX.Element {
               transition={{ duration: DURATION.base, ease: EASING.expo, delay: i * STAGGER.loose }}
             >
               <TiltCard className="h-full">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/20 ring-hairline">
+                <Mosaic className="text-porcelain" opacity={0.5} />
+                <div className="relative mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/30 to-gold/20 ring-hairline">
                   <feature.icon className="h-6 w-6 text-gold" />
                 </div>
                 <div className="font-brand-mono text-xs uppercase tracking-[0.2em] text-graphite">

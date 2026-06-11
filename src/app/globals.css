@@ -166,34 +166,66 @@
   }
 }
 
-/* ── The Living Mark (brand seal) ──────────────────────────────────────────── */
-/* Slow orbit of the open seal's arcs around the core. */
-@keyframes sealOrbit {
+/* ── The Tessera (brand mark) ──────────────────────────────────────────────── */
+/* The Scan — the only permanent animation. An amber line runs through the seam
+   gap, top to bottom, forever. "The system is never asleep." */
+@keyframes tesseraScan {
+  from {
+    stroke-dashoffset: 26;
+  }
   to {
-    transform: rotate(360deg);
+    stroke-dashoffset: -154;
   }
 }
-
-/* Verification pulse that rings outward when the seal closes. */
-@keyframes sealPulse {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.24);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.08);
-  }
+.tessera-scan {
+  stroke-dasharray: 26 154;
+  animation: tesseraScan 1.7s linear infinite;
 }
 
-.seal-orbit {
-  transform-origin: 120px 120px;
-  animation: sealOrbit 54s linear infinite;
-  will-change: transform;
+/* The Proof — the seam fills top-to-bottom, then drains downward. */
+@keyframes tesseraFillDown {
+  from {
+    stroke-dasharray: 0 180;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tesseraDrainDown {
+  from {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: -180;
+  }
+}
+.tessera-fill {
+  animation: tesseraFillDown 1s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+}
+.tessera-drain {
+  animation: tesseraDrainDown 1s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+}
+
+/* The wordmark writes itself, letter by letter, in amber. */
+@keyframes tesseraWrite {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.tessera-write path {
+  animation: tesseraWrite 0.55s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+  animation-delay: var(--d, 0s);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .seal-orbit {
+  .tessera-scan,
+  .tessera-fill,
+  .tessera-drain,
+  .tessera-write path {
     animation: none;
   }
 }
