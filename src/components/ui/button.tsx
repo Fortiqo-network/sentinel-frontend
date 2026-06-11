@@ -8,15 +8,15 @@ import { cn } from "@/lib/utils/cn";
 
 const VARIANTS = {
   primary:
-    "bg-indigo-500 text-white shadow hover:bg-indigo-400 active:bg-indigo-600 focus-visible:ring-indigo-500",
+    "bg-sen-gold text-white shadow hover:bg-violet-500 active:bg-violet-700 focus-visible:ring-sen-gold/40",
   secondary:
-    "bg-slate-100 text-slate-900 shadow-sm hover:bg-slate-200 active:bg-slate-300 focus-visible:ring-slate-400",
+    "bg-sen-surface-2 text-sen-text shadow-sm hover:bg-sen-border hover:text-sen-text active:bg-sen-border focus-visible:ring-sen-border-hi",
   ghost:
-    "text-slate-700 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-slate-400",
+    "text-sen-muted hover:bg-sen-surface-2 hover:text-sen-text active:bg-sen-border focus-visible:ring-sen-border",
   destructive:
-    "bg-red-500 text-white shadow hover:bg-red-400 active:bg-red-600 focus-visible:ring-red-500",
+    "bg-red-600 text-white shadow hover:bg-red-500 active:bg-red-700 focus-visible:ring-red-500",
   outline:
-    "border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50 active:bg-slate-100 focus-visible:ring-slate-400",
+    "border border-sen-border bg-sen-surface text-sen-text shadow-sm hover:bg-sen-surface-2 hover:border-sen-border-hi active:bg-sen-surface-2 focus-visible:ring-sen-border-hi",
 } as const;
 
 type Variant = keyof typeof VARIANTS;
@@ -60,7 +60,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-sen-bg",
           "disabled:pointer-events-none disabled:opacity-50",
           VARIANTS[variant],
           SIZES[size],

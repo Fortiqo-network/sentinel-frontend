@@ -19,15 +19,14 @@ function formatDate(iso: string): string {
 }
 
 const INVOICE_STATUS_STYLES: Record<Invoice["status"], string> = {
-  paid: "bg-emerald-100 text-emerald-700",
-  unpaid: "bg-amber-100 text-amber-700",
-  void: "bg-slate-100 text-slate-500",
+  paid:   "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  unpaid: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+  void:   "bg-sen-surface-2 text-sen-muted border border-sen-border",
 };
 
 /**
- * Billing page. Shows the live points balance, a working top-up (recorded by
- * the placeholder payment store until a real provider is wired in), and the
- * buyer's invoice history — all in points.
+ * Billing page. Shows the live points balance, a working top-up form,
+ * and invoice history — all in points.
  */
 export default function BillingPage(): React.JSX.Element {
   const [balancePoints, setBalancePoints] = React.useState<number | null>(null);
@@ -44,14 +43,10 @@ export default function BillingPage(): React.JSX.Element {
     if (inv.status === "fulfilled") setInvoices(inv.value);
   }, []);
 
-  React.useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  React.useEffect(() => { void refresh(); }, [refresh]);
 
   const effectivePoints: number | null = isCustom
-    ? customAmount
-      ? Math.round(parseFloat(customAmount))
-      : null
+    ? customAmount ? Math.round(parseFloat(customAmount)) : null
     : selectedPreset;
 
   const isValid = effectivePoints !== null && effectivePoints >= 5 && effectivePoints <= 100000;
@@ -79,45 +74,42 @@ export default function BillingPage(): React.JSX.Element {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
-        <p className="mt-1 text-slate-600">Manage points, top up your wallet, and view invoices.</p>
+        <p className="sen-eyebrow mb-1">Buyer Portal</p>
+        <h1 className="text-2xl font-bold text-sen-text">Billing</h1>
+        <p className="mt-1 text-sen-muted">Manage points, top up your wallet, and view invoices.</p>
       </div>
 
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm flex items-center justify-between">
+      {/* Balance hero */}
+      <div className="rounded-xl border border-sen-gold/30 bg-sen-gold/5 p-6 flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-indigo-600 uppercase tracking-wide">Points Balance</p>
-          <p className="mt-1 text-4xl font-bold text-indigo-700">
+          <p className="sen-eyebrow text-sen-gold mb-1">Points Balance</p>
+          <p className="text-4xl font-bold font-mono text-sen-gold">
             {balancePoints === null ? "…" : formatPoints(balancePoints)}
           </p>
-          <p className="mt-1 text-xs text-indigo-500">Points available for agent calls</p>
+          <p className="mt-1 text-xs text-sen-muted">Available for agent calls · 1 point = ₹1</p>
         </div>
-        <div className="hidden sm:block">
-          <div className="h-16 w-16 rounded-full border-4 border-indigo-200 bg-white flex items-center justify-center">
-            <span className="text-xl font-bold text-indigo-600">pts</span>
-          </div>
+        <div className="hidden sm:flex h-16 w-16 rounded-full border-2 border-sen-gold/30 bg-sen-surface items-center justify-center">
+          <span className="text-sm font-bold font-mono text-sen-gold">pts</span>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900 mb-4">Add Points</h2>
+      {/* Add points */}
+      <div className="rounded-xl border border-sen-border bg-sen-surface p-6">
+        <h2 className="text-base font-semibold text-sen-text mb-4">Add Points</h2>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-slate-700">Select Amount</label>
+          <label className="mb-2 block text-sm font-medium text-sen-text">Select Amount</label>
           <div className="flex flex-wrap gap-3">
             {TOP_UP_PRESETS.map((preset) => (
               <button
                 key={preset}
                 type="button"
-                onClick={() => {
-                  setSelectedPreset(preset);
-                  setIsCustom(false);
-                  setCustomAmount("");
-                }}
+                onClick={() => { setSelectedPreset(preset); setIsCustom(false); setCustomAmount(""); }}
                 className={cn(
                   "rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors",
                   selectedPreset === preset && !isCustom
-                    ? "border-indigo-500 bg-indigo-600 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
+                    ? "border-sen-gold bg-sen-gold text-white"
+                    : "border-sen-border bg-sen-surface text-sen-text hover:border-sen-border-hi hover:bg-sen-surface-2",
                 )}
               >
                 {formatPoints(preset)}
@@ -125,15 +117,12 @@ export default function BillingPage(): React.JSX.Element {
             ))}
             <button
               type="button"
-              onClick={() => {
-                setIsCustom(true);
-                setSelectedPreset(null);
-              }}
+              onClick={() => { setIsCustom(true); setSelectedPreset(null); }}
               className={cn(
                 "rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors",
                 isCustom
-                  ? "border-indigo-500 bg-indigo-600 text-white"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
+                  ? "border-sen-gold bg-sen-gold text-white"
+                  : "border-sen-border bg-sen-surface text-sen-text hover:border-sen-border-hi hover:bg-sen-surface-2",
               )}
             >
               Custom
@@ -143,7 +132,7 @@ export default function BillingPage(): React.JSX.Element {
 
         {isCustom && (
           <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom Amount (points)</label>
+            <label className="mb-1.5 block text-sm font-medium text-sen-text">Custom Amount (points)</label>
             <input
               type="number"
               min="5"
@@ -152,15 +141,16 @@ export default function BillingPage(): React.JSX.Element {
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
               placeholder="Enter points"
-              className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+              className="w-full max-w-xs rounded-lg border border-sen-border bg-sen-surface px-3 py-2 text-sm text-sen-text placeholder:text-sen-muted focus:border-sen-gold focus:outline-none focus:ring-1 focus:ring-sen-gold/20"
             />
-            <p className="mt-1 text-xs text-slate-400">Min 5 — Max 100,000 points</p>
+            <p className="mt-1 text-xs text-sen-muted">Min 5 — Max 100,000 points</p>
           </div>
         )}
 
         {effectivePoints !== null && effectivePoints > 0 && (
-          <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700">
-            You will add <span className="font-semibold text-slate-900">{formatPoints(effectivePoints)}</span>.
+          <div className="mb-4 rounded-lg border border-sen-border bg-sen-surface-2 px-4 py-3 text-sm text-sen-text">
+            You will add{" "}
+            <span className="font-semibold text-sen-gold font-mono">{formatPoints(effectivePoints)}</span>.
           </div>
         )}
 
@@ -169,7 +159,9 @@ export default function BillingPage(): React.JSX.Element {
             role="status"
             className={cn(
               "mb-4 rounded-md px-3 py-2 text-sm",
-              feedback.kind === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700",
+              feedback.kind === "ok"
+                ? "bg-emerald-500/10 text-emerald-400"
+                : "bg-red-500/10 text-red-400",
             )}
           >
             {feedback.text}
@@ -180,45 +172,41 @@ export default function BillingPage(): React.JSX.Element {
           type="button"
           disabled={!isValid || submitting}
           onClick={() => void handleTopUp()}
-          className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="sen-btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting ? "Adding points…" : "Add Points"}
         </button>
-        <p className="mt-2 text-xs text-slate-400">
-          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 point = ₹1.
+        <p className="mt-2 text-xs text-sen-muted">
+          Top-ups recorded directly; a card/UPI provider will be added here later.
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">Invoice History</h2>
+      {/* Invoice history */}
+      <div className="rounded-xl border border-sen-border bg-sen-surface overflow-hidden">
+        <div className="border-b border-sen-border px-6 py-4">
+          <h2 className="text-base font-semibold text-sen-text">Invoice History</h2>
         </div>
         {invoices.length === 0 ? (
-          <div className="px-6 py-12 text-center text-sm text-slate-400">No invoices yet.</div>
+          <div className="px-6 py-12 text-center text-sm text-sen-muted">No invoices yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Points</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
+                <tr className="border-b border-sen-border bg-sen-surface-2">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Points</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-sen-border">
                 {invoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-slate-700">{formatDate(invoice.createdAt)}</td>
-                    <td className="px-6 py-4 text-slate-600">Points top-up</td>
-                    <td className="px-6 py-4 font-medium text-slate-900">{formatPoints(invoice.points)}</td>
+                  <tr key={invoice.id} className="hover:bg-sen-surface-2 transition-colors">
+                    <td className="px-6 py-4 text-sen-muted font-mono text-xs">{formatDate(invoice.createdAt)}</td>
+                    <td className="px-6 py-4 text-sen-text">Points top-up</td>
+                    <td className="px-6 py-4 font-medium text-sen-text font-mono">{formatPoints(invoice.points)}</td>
                     <td className="px-6 py-4">
-                      <span
-                        className={cn(
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-                          INVOICE_STATUS_STYLES[invoice.status],
-                        )}
-                      >
+                      <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize", INVOICE_STATUS_STYLES[invoice.status])}>
                         {invoice.status}
                       </span>
                     </td>

@@ -1,414 +1,404 @@
+import * as React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/layout/Header";
+import { AgentCard } from "@/components/marketplace/AgentCard";
+import { FEATURED_AGENTS_MOCK } from "@/lib/api/agents";
 
 export const metadata: Metadata = {
   title: "Sentinel — The Trust Layer for AI Agents",
   description:
-    "Sentinel is the verification, settlement, and portable-reputation layer for the AI agent economy. 4-stage security pipeline, 0–100 trust scores, automatic payouts.",
+    "Sentinel is the verification, settlement, and portable-reputation layer for the AI agent economy. 4-stage security pipeline, 0–100 trust scores.",
 };
 
-interface StatItem {
-  value: string;
-  label: string;
-}
+// ── Static data ───────────────────────────────────────────────────────────────
 
-interface ValueProp {
-  icon: string;
-  title: string;
-  description: string;
-  detail: string;
-}
-
-interface Step {
-  step: string;
-  role: string;
-  title: string;
-  description: string;
-}
-
-const STATS: StatItem[] = [
-  { value: "500+", label: "Agents Verified" },
-  { value: "₹10M+", label: "Settled to Developers" },
-  { value: "99.8%", label: "Platform Uptime" },
-  { value: "0–100", label: "Transparent Trust Scores" },
-];
-
-const VALUE_PROPS: ValueProp[] = [
+const PIPELINE_STAGES = [
   {
-    icon: "🔐",
-    title: "Security",
-    description: "4-Stage Verification Pipeline",
-    detail:
-      "Every agent passes static analysis, dependency scanning, dynamic behavioural testing, and prompt-injection resistance checks before earning a trust score.",
+    key: "static",
+    label: "Static Analysis",
+    detail: "AST scanning, secret detection, dependency CVE audit",
+    delay: "0.1s",
   },
   {
-    icon: "📊",
-    title: "Trust",
-    description: "0–100 Calibrated Trust Scores",
-    detail:
-      "Trust scores update continuously as agents evolve. Know exactly what you are deploying — no black boxes, no promises, just evidence.",
+    key: "supply",
+    label: "Supply Chain",
+    detail: "Package provenance, SBOM generation, license check",
+    delay: "0.35s",
   },
   {
-    icon: "💸",
-    title: "Settlement",
-    description: "Razorpay/Stripe Automatic Payouts",
-    detail:
-      "Built-in payment processing with automatic developer payouts. Buyers top up credits; Sentinel handles billing, disputes, and INR settlement seamlessly.",
+    key: "dynamic",
+    label: "Dynamic Testing",
+    detail: "Sandboxed execution, rate-limit probing, output validation",
+    delay: "0.60s",
   },
-];
+  {
+    key: "redteam",
+    label: "Red-Team Eval",
+    detail: "Prompt injection, jailbreak resistance, adversarial inputs",
+    delay: "0.85s",
+  },
+] as const;
 
-const HOW_IT_WORKS: Step[] = [
+const HOW_IT_WORKS = [
   {
+    role: "For Developers",
     step: "01",
-    role: "Developer",
-    title: "Publish your agent",
-    description:
-      "Submit your agent endpoint, documentation, and pricing. Sentinel registers it in the marketplace and kicks off the verification pipeline automatically.",
+    title: "Submit your agent",
+    body: "Push a manifest, connect your endpoint. The pipeline runs automatically. You see every finding.",
+    icon: "⬡",
   },
   {
+    role: "For Developers",
     step: "02",
-    role: "Sentinel",
-    title: "Verify and score",
-    description:
-      "The 4-stage pipeline analyses your agent for security, correctness, and reliability. A calibrated trust score is generated and published on your listing.",
+    title: "Earn a trust score",
+    body: "A 0–100 score and public report. Higher scores unlock premium tiers and better discovery.",
+    icon: "◎",
   },
   {
+    role: "For Buyers",
     step: "03",
-    role: "Buyer",
-    title: "Invoke with confidence",
-    description:
-      "Buyers browse verified agents with transparent trust scores, invoke via API key or MCP endpoint, and pay-per-task — credits settle automatically.",
+    title: "Deploy with evidence",
+    body: "Every agent ships with a REST endpoint, MCP config, and CLI command. One line to connect.",
+    icon: "⬡",
   },
-];
+  {
+    role: "For Buyers",
+    step: "04",
+    title: "Pay only on success",
+    body: "Points deduct on delivery. Failures are free. The ledger is yours to audit any time.",
+    icon: "◎",
+  },
+] as const;
 
-const FOOTER_COLUMNS = [
-  {
-    heading: "Product",
-    links: [
-      { href: "/agents", label: "Marketplace" },
-      { href: "/playground", label: "Playground" },
-      { href: "/developer", label: "For Developers" },
-      { href: "/docs", label: "Documentation" },
-    ],
-  },
-  {
-    heading: "Trust",
-    links: [
-      { href: "/docs/methodology", label: "Verification Methodology" },
-      { href: "/docs/trust-scores", label: "Trust Score Guide" },
-      { href: "/status", label: "Platform Status" },
-    ],
-  },
-  {
-    heading: "Legal",
-    links: [
-      { href: "/terms", label: "Terms of Service" },
-      { href: "/privacy", label: "Privacy Policy" },
-      { href: "/security", label: "Security" },
-    ],
-  },
-];
+const STATS = [
+  { value: "500+", label: "Verified Agents" },
+  { value: "4-stage", label: "Security Pipeline" },
+  { value: "99.9%", label: "Platform Uptime" },
+  { value: "0–100", label: "Trust Score Range" },
+] as const;
+
+// ── Components ────────────────────────────────────────────────────────────────
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+
+function Hero(): React.JSX.Element {
+  return (
+    <section className="relative overflow-hidden bg-grid py-24 sm:py-32">
+      {/* Radial glow */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(42,78,124,0.35) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
+        {/* Eyebrow */}
+        <p
+          className="sen-eyebrow mb-6"
+          style={{ animation: "scanIn 0.4s ease both", animationDelay: "0s" }}
+        >
+          Trust Infrastructure · Early Access
+        </p>
+
+        {/* Headline */}
+        <h1
+          className="text-4xl font-bold leading-tight tracking-tight text-sen-text sm:text-5xl lg:text-6xl"
+          style={{ animation: "scanIn 0.4s ease both", animationDelay: "0.1s" }}
+        >
+          No black boxes.
+          <br />
+          No promises.
+          <br />
+          <span className="text-sen-gold">Just evidence.</span>
+        </h1>
+
+        {/* Subtext */}
+        <p
+          className="mx-auto mt-6 max-w-xl text-base text-sen-muted sm:text-lg"
+          style={{ animation: "scanIn 0.4s ease both", animationDelay: "0.25s" }}
+        >
+          Every agent on Sentinel passes a four-stage security pipeline before it can be deployed.
+          You see exactly what was checked, what passed, and what didn&apos;t.
+        </p>
+
+        {/* CTAs */}
+        <div
+          className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+          style={{ animation: "scanIn 0.4s ease both", animationDelay: "0.4s" }}
+        >
+          <Link
+            href="/agents"
+            className="sen-btn-primary px-7 py-3 text-base"
+          >
+            Browse Verified Agents
+          </Link>
+          <Link
+            href="/register"
+            className="sen-btn-ghost px-7 py-3 text-base"
+          >
+            Publish Your Agent
+          </Link>
+        </div>
+
+        {/* Pipeline viz */}
+        <div
+          className="mt-16 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+          aria-label="Verification pipeline stages"
+        >
+          {PIPELINE_STAGES.map((stage, i) => (
+            <React.Fragment key={stage.key}>
+              {/* Stage card */}
+              <div
+                className="w-full max-w-[180px] rounded-xl border border-sen-border bg-sen-surface p-4 text-left"
+                style={{
+                  animation: "scanIn 0.45s ease both",
+                  animationDelay: stage.delay,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase tracking-wider text-sen-muted">
+                    Stage {i + 1}
+                  </span>
+                  <span
+                    className="flex h-4 w-4 items-center justify-center rounded-full bg-sen-teal/15 text-sen-teal"
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 12 12" fill="none" className="h-2.5 w-2.5">
+                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-sen-text">{stage.label}</p>
+                <p className="mt-1 text-[11px] text-sen-muted leading-relaxed">{stage.detail}</p>
+              </div>
+
+              {/* Arrow connector */}
+              {i < PIPELINE_STAGES.length - 1 && (
+                <svg
+                  className="hidden h-4 w-6 shrink-0 text-sen-border-hi sm:block"
+                  fill="none"
+                  viewBox="0 0 24 12"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M0 6h20m0 0l-4-4m4 4l-4 4" />
+                </svg>
+              )}
+            </React.Fragment>
+          ))}
+
+          {/* Trust Score result */}
+          <div
+            className="flex w-full max-w-[180px] flex-col items-center justify-center rounded-xl border border-sen-teal/30 bg-sen-teal/5 p-4"
+            style={{
+              animation: "scanIn 0.45s ease both",
+              animationDelay: "1.1s",
+            }}
+          >
+            <span className="text-3xl font-bold font-mono text-sen-teal">91</span>
+            <span className="mt-1 text-[10px] font-mono uppercase tracking-widest text-sen-teal/70">
+              Trust Score
+            </span>
+            <span className="mt-2 rounded-full border border-teal-500/25 bg-teal-500/10 px-2.5 py-0.5 text-xs font-medium text-teal-400">
+              Certified
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Stats strip ───────────────────────────────────────────────────────────────
+
+function StatsStrip(): React.JSX.Element {
+  return (
+    <section className="border-y border-sen-border bg-sen-surface">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-sen-border sm:grid-cols-4 px-4 sm:px-6">
+        {STATS.map(({ value, label }) => (
+          <div key={label} className="py-8 text-center px-4">
+            <p className="text-2xl font-bold font-mono text-sen-text">{value}</p>
+            <p className="mt-1 text-xs font-mono uppercase tracking-wider text-sen-muted">{label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Featured agents ───────────────────────────────────────────────────────────
+
+function FeaturedAgents(): React.JSX.Element {
+  const featured = FEATURED_AGENTS_MOCK.slice(0, 3);
+
+  return (
+    <section className="py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-10">
+          <p className="sen-eyebrow mb-2">Verified on Sentinel</p>
+          <h2 className="text-2xl font-bold text-sen-text sm:text-3xl">
+            Agents you can actually trust
+          </h2>
+          <p className="mt-2 text-sen-muted">
+            Each score is earned, not assigned. Click any agent to read its full pipeline report.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {featured.map((agent) => (
+            <AgentCard key={agent.id} agent={agent} />
+          ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/agents"
+            className="sen-btn-ghost inline-flex"
+          >
+            View all verified agents
+            <svg viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+              <path fillRule="evenodd" d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L9.19 8 6.22 5.03a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── How it works ──────────────────────────────────────────────────────────────
+
+function HowItWorks(): React.JSX.Element {
+  return (
+    <section className="border-t border-sen-border bg-sen-surface py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-12 text-center">
+          <p className="sen-eyebrow mb-2">The Process</p>
+          <h2 className="text-2xl font-bold text-sen-text sm:text-3xl">How Sentinel works</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {HOW_IT_WORKS.map(({ step, role, title, body, icon }) => (
+            <div key={step} className="rounded-xl border border-sen-border bg-sen-bg p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-2xl" aria-hidden="true">{icon}</span>
+                <span className="text-xs font-mono text-sen-muted">{step}</span>
+              </div>
+              <p className="mb-1 text-xs font-mono uppercase tracking-wider text-sen-gold">{role}</p>
+              <h3 className="text-base font-semibold text-sen-text">{title}</h3>
+              <p className="mt-2 text-sm text-sen-muted leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Developer CTA ─────────────────────────────────────────────────────────────
+
+function DeveloperCTA(): React.JSX.Element {
+  return (
+    <section className="border-t border-sen-border py-20 sm:py-24">
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+        <p className="sen-eyebrow mb-3">For Developers</p>
+        <h2 className="text-2xl font-bold text-sen-text sm:text-4xl">
+          Your agents deserve a reputation
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base text-sen-muted">
+          Publish once. Get a trust score, a verified badge, and automatic settlement every time
+          a buyer uses your agent. No invoicing, no contracts, no chasing payments.
+        </p>
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link href="/register" className="sen-btn-primary px-8 py-3 text-base">
+            Start Publishing
+          </Link>
+          <Link href="/docs" className="sen-btn-ghost px-8 py-3 text-base">
+            Read the Docs
+          </Link>
+        </div>
+
+        {/* Mini explainer */}
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {[
+            { label: "Submit manifest", detail: "One YAML file describes your agent's endpoints and capabilities." },
+            { label: "Pass the pipeline", detail: "4-stage automated scan. Full report published on your agent's page." },
+            { label: "Earn on every call", detail: "Points settle instantly on success. Withdraw any time." },
+          ].map(({ label, detail }) => (
+            <div key={label} className="rounded-xl border border-sen-border bg-sen-surface p-5 text-left">
+              <div className="mb-2 h-1.5 w-8 rounded-full bg-sen-gold" aria-hidden="true" />
+              <p className="text-sm font-semibold text-sen-text">{label}</p>
+              <p className="mt-1.5 text-xs text-sen-muted leading-relaxed">{detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+function Footer(): React.JSX.Element {
+  return (
+    <footer className="border-t border-sen-border bg-sen-surface">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+          <div>
+            <span className="text-base font-bold tracking-tight text-sen-text">
+              Sentinel<span className="text-sen-gold">.</span>
+            </span>
+            <p className="mt-1 text-xs text-sen-muted">Verified AI Agent Marketplace</p>
+          </div>
+
+          <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer navigation">
+            {[
+              { href: "/agents", label: "Marketplace" },
+              { href: "/pricing", label: "Pricing" },
+              { href: "/docs", label: "Docs" },
+              { href: "/login", label: "Sign In" },
+              { href: "/register", label: "Register" },
+            ].map(({ href, label }) => (
+              <Link key={href} href={href} className="text-sm text-sen-muted hover:text-sen-text transition-colors">
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        <div className="mt-8 border-t border-sen-border pt-6">
+          <p className="text-xs text-sen-muted">
+            &copy; {new Date().getFullYear()} Sentinel. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 /**
- * Root marketing landing page for Sentinel.
- *
- * Server-rendered for SEO. No client-side interactivity required.
- *
- * @example
- * // Rendered at the root URL "/"
+ * Landing page. Server component — no client JS.
+ * Dark ink-navy theme with gold accents and the pipeline verification hero.
  */
-export default function LandingPage(): React.JSX.Element {
+export default function HomePage(): React.JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      {/* ── Nav ─────────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-1">
-            <span className="text-lg font-bold text-slate-900">
-              Sentinel<span className="text-indigo-500">.</span>
-            </span>
-          </Link>
-          <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">
-            <Link href="/agents" className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900">
-              Marketplace
-            </Link>
-            <Link href="/docs/methodology" className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900">
-              How it Works
-            </Link>
-            <Link href="/developer" className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900">
-              Developers
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" variant="ghost">
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button asChild size="sm" className="bg-indigo-600 hover:bg-indigo-500">
-              <Link href="/register">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <>
+      <Header />
       <main>
-        {/* ── Hero ────────────────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 px-6 pb-24 pt-20 text-center text-white sm:pb-32 sm:pt-28">
-          {/* Background radial highlight */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(99,102,241,0.35),transparent)]"
-          />
-          {/* Grid texture */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-              backgroundSize: "60px 60px",
-            }}
-          />
-
-          <div className="relative mx-auto max-w-4xl">
-            <Badge
-              variant="default"
-              className="mb-6 border-indigo-400/30 bg-indigo-500/20 font-mono text-xs text-indigo-300"
-            >
-              Now in Early Access
-            </Badge>
-
-            <h1 className="mb-6 text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
-              The trust layer
-              <span className="block text-indigo-400">for AI agents</span>
-            </h1>
-
-            <p className="mx-auto mb-4 max-w-2xl text-lg text-slate-300 sm:text-xl">
-              Sentinel verifies every AI agent through a 4-stage security pipeline, assigns a
-              calibrated 0–100 trust score, and handles payment settlement — so you can deploy
-              agents you actually trust.
-            </p>
-            <p className="mx-auto mb-10 max-w-xl text-sm text-slate-400">
-              For developers who build agents. For buyers who rely on them.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-indigo-500 px-8 text-base font-semibold shadow-lg shadow-indigo-900/40 hover:bg-indigo-400"
-              >
-                <Link href="/register?role=developer">Start Publishing</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                className="border border-slate-600 px-8 text-base text-white hover:border-slate-500 hover:bg-slate-800"
-              >
-                <Link href="/agents">Browse Marketplace</Link>
-              </Button>
-            </div>
-
-            {/* Stats strip */}
-            <div className="mt-16 grid grid-cols-2 gap-6 border-t border-slate-700/60 pt-10 sm:grid-cols-4">
-              {STATS.map(({ value, label }) => (
-                <div key={label}>
-                  <div className="font-mono text-2xl font-bold text-white sm:text-3xl">
-                    {value}
-                  </div>
-                  <div className="mt-1 text-xs text-slate-400">{label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── Value Props ──────────────────────────────────────────────────────── */}
-        <section className="px-6 py-20">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-12 text-center">
-              <span className="font-mono text-xs font-medium uppercase tracking-widest text-indigo-500">
-                Why Sentinel
-              </span>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                Built for the AI agent economy
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base text-slate-500">
-                Three pillars that make Sentinel the only platform you need for verified,
-                trusted, and monetised AI agents.
-              </p>
-            </div>
-
-            <div className="grid gap-8 sm:grid-cols-3">
-              {VALUE_PROPS.map(({ icon, title, description, detail }) => (
-                <div
-                  key={title}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-2xl">
-                    {icon}
-                  </div>
-                  <div className="mb-1 font-mono text-xs font-medium uppercase tracking-widest text-indigo-500">
-                    {title}
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-slate-900">{description}</h3>
-                  <p className="text-sm leading-relaxed text-slate-500">{detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── How it Works ─────────────────────────────────────────────────────── */}
-        <section className="bg-slate-50 px-6 py-20">
-          <div className="mx-auto max-w-5xl">
-            <div className="mb-12 text-center">
-              <span className="font-mono text-xs font-medium uppercase tracking-widest text-indigo-500">
-                The Flow
-              </span>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                How Sentinel works
-              </h2>
-            </div>
-
-            <div className="relative">
-              {/* Connector line (desktop) */}
-              <div
-                aria-hidden="true"
-                className="absolute left-[calc(33.33%-1px)] top-8 hidden h-0.5 w-[calc(33.33%+2px)] bg-indigo-200 sm:block"
-                style={{ left: "calc(16.66%)", width: "calc(66.66%)" }}
-              />
-
-              <div className="grid gap-12 sm:grid-cols-3 sm:gap-8">
-                {HOW_IT_WORKS.map(({ step, role, title, description }) => (
-                  <div key={step} className="relative text-center sm:text-left">
-                    <div className="relative mb-4 flex justify-center sm:justify-start">
-                      <div className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full border-2 border-indigo-200 bg-white">
-                        <span className="font-mono text-sm font-bold text-indigo-600">{step}</span>
-                      </div>
-                    </div>
-                    <div className="mb-1 font-mono text-xs font-medium uppercase tracking-widest text-slate-400">
-                      {role}
-                    </div>
-                    <h3 className="mb-2 text-base font-semibold text-slate-900">{title}</h3>
-                    <p className="text-sm leading-relaxed text-slate-500">{description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Social Proof ─────────────────────────────────────────────────────── */}
-        <section className="px-6 py-20">
-          <div className="mx-auto max-w-5xl">
-            <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 px-8 py-14 text-center text-white shadow-xl shadow-indigo-900/30">
-              <span className="mb-3 inline-block font-mono text-xs font-medium uppercase tracking-widest text-indigo-200">
-                Platform Scale
-              </span>
-              <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-                Trusted by developers and buyers worldwide
-              </h2>
-              <p className="mx-auto mb-10 max-w-lg text-base text-indigo-200">
-                Real numbers. Real settlements. Real trust.
-              </p>
-
-              <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-                {[
-                  { value: "500+", label: "Agents Verified" },
-                  { value: "₹10M+", label: "Settled to Devs" },
-                  { value: "99.8%", label: "Uptime SLA" },
-                  { value: "1.2M+", label: "Trust Checks Run" },
-                ].map(({ value, label }) => (
-                  <div key={label}>
-                    <div className="font-mono text-3xl font-extrabold text-white">{value}</div>
-                    <div className="mt-1 text-sm text-indigo-200">{label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA Strip ────────────────────────────────────────────────────────── */}
-        <section className="border-t border-slate-200 bg-slate-50 px-6 py-20">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Ready to join the verified AI agent economy?
-            </h2>
-            <p className="mb-10 text-base text-slate-500">
-              Whether you build agents or rely on them — Sentinel gives you the trust
-              infrastructure to move fast without guessing.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button
-                asChild
-                size="lg"
-                className="bg-indigo-600 px-8 text-base font-semibold hover:bg-indigo-500"
-              >
-                <Link href="/register?role=developer">Start Publishing — Free</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                className="border border-slate-300 px-8 text-base hover:border-slate-400 hover:bg-slate-100"
-              >
-                <Link href="/agents">Browse Marketplace</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
+        <Hero />
+        <StatsStrip />
+        <FeaturedAgents />
+        <HowItWorks />
+        <DeveloperCTA />
       </main>
-
-      {/* ── Footer ──────────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            {/* Brand */}
-            <div className="col-span-2 sm:col-span-1">
-              <Link href="/" className="text-lg font-bold text-slate-900">
-                Sentinel<span className="text-indigo-500">.</span>
-              </Link>
-              <p className="mt-2 max-w-xs text-xs leading-relaxed text-slate-500">
-                The verification, settlement, and portable-reputation layer for the AI agent
-                economy.
-              </p>
-            </div>
-
-            {FOOTER_COLUMNS.map(({ heading, links }) => (
-              <div key={heading}>
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-                  {heading}
-                </h3>
-                <ul className="mt-4 space-y-2">
-                  {links.map(({ href, label }) => (
-                    <li key={href}>
-                      <Link
-                        href={href}
-                        className="text-sm text-slate-600 transition-colors hover:text-slate-900"
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row">
-            <span>&copy; {new Date().getFullYear()} Fortiqo-network. All rights reserved.</span>
-            <div className="flex gap-4">
-              <Link href="/terms" className="hover:text-slate-700">Terms</Link>
-              <Link href="/privacy" className="hover:text-slate-700">Privacy</Link>
-              <Link href="/security" className="hover:text-slate-700">Security</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+      <Footer />
+    </>
   );
 }

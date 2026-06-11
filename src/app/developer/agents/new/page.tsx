@@ -16,8 +16,9 @@ export default function SubmitAgentPage(): React.JSX.Element {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Submit an Agent</h1>
-        <p className="mt-1 text-slate-600">
+        <p className="sen-eyebrow mb-1">Developer Portal</p>
+        <h1 className="text-2xl font-bold text-sen-text">Submit an Agent</h1>
+        <p className="mt-1 text-sen-muted">
           Fill in your agent&apos;s details and endpoint. Sentinel will run the verification pipeline
           automatically and keep scores up to date as your agent evolves.
         </p>

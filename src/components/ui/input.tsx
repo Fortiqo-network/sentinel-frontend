@@ -23,7 +23,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
+          <label htmlFor={inputId} className="text-sm font-medium text-sen-text">
             {label}
           </label>
         )}
@@ -31,12 +31,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "flex h-9 w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900",
-            "placeholder:text-slate-400",
+            "flex h-9 w-full rounded-md border border-sen-border bg-sen-surface px-3 py-1 text-sm text-sen-text",
+            "placeholder:text-sen-muted",
             "transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-0",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sen-gold/30 focus-visible:border-sen-gold",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            error && "border-red-400 focus-visible:ring-red-400",
+            error && "border-sen-danger focus-visible:ring-sen-danger/30",
             className,
           )}
           aria-invalid={error ? true : undefined}
@@ -44,12 +44,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p id={`${inputId}-error`} role="alert" className="text-xs text-red-600">
+          <p id={`${inputId}-error`} role="alert" className="text-xs text-sen-danger">
             {error}
           </p>
         )}
         {hint && !error && (
-          <p id={`${inputId}-hint`} className="text-xs text-slate-500">
+          <p id={`${inputId}-hint`} className="text-xs text-sen-muted">
             {hint}
           </p>
         )}

@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,48 +10,53 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Sentinel brand: slate base + indigo accent
-        sentinel: {
-          50: "#f0f4ff",
-          100: "#e0e9ff",
-          200: "#c7d7fe",
-          300: "#a5bafc",
-          400: "#8193f8",
-          500: "#6366f1", // primary indigo
-          600: "#4f46e5",
-          700: "#4338ca",
-          800: "#3730a3",
-          900: "#312e81",
-          950: "#1e1b4b",
+        // All sen.* tokens backed by CSS variables — swap :root / .dark values
+        // in globals.css to change the entire theme without touching components.
+        sen: {
+          bg:          "rgb(var(--sen-bg) / <alpha-value>)",
+          surface:     "rgb(var(--sen-surface) / <alpha-value>)",
+          "surface-2": "rgb(var(--sen-surface-2) / <alpha-value>)",
+          border:      "rgb(var(--sen-border) / <alpha-value>)",
+          "border-hi": "rgb(var(--sen-border-hi) / <alpha-value>)",
+          gold:        "rgb(var(--sen-gold) / <alpha-value>)",
+          "gold-dim":  "rgb(var(--sen-gold-dim) / <alpha-value>)",
+          teal:        "rgb(var(--sen-teal) / <alpha-value>)",
+          text:        "rgb(var(--sen-text) / <alpha-value>)",
+          muted:       "rgb(var(--sen-muted) / <alpha-value>)",
+          danger:      "rgb(var(--sen-danger) / <alpha-value>)",
         },
         trust: {
-          // Trust score colour bands: 0-39 red, 40-69 amber, 70-89 green, 90-100 emerald
-          low: "#ef4444",
-          medium: "#f59e0b",
-          high: "#22c55e",
-          elite: "#10b981",
+          low:    "#F87171",
+          medium: "#FBBF24",
+          high:   "#4ADE80",
+          elite:  "#22D3EE",
         },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         "4xl": "2rem",
       },
       animation: {
+        "scan-in":    "scanIn 0.45s ease forwards",
+        "fade-up":    "fadeUp 0.5s ease forwards",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "fade-in": "fadeIn 0.2s ease-in-out",
-        "slide-up": "slideUp 0.3s ease-out",
+        "glow-pulse": "glowPulse 2.5s ease-in-out infinite",
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        scanIn: {
+          "0%":   { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        slideUp: {
-          "0%": { transform: "translateY(8px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+        fadeUp: {
+          "0%":   { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        glowPulse: {
+          "0%, 100%": { opacity: "0.35" },
+          "50%":      { opacity: "1" },
         },
       },
     },

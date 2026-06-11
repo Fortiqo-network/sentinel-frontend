@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * Card container — a bordered, rounded surface with optional shadow.
+ * Card container — a bordered, rounded surface using sen.* design tokens.
  * Compose with CardHeader, CardTitle, CardContent, and CardFooter.
  *
  * @example
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils/cn";
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
     <div
-      className={cn("rounded-lg border border-slate-200 bg-white text-slate-900 shadow-sm", className)}
+      className={cn("rounded-xl border border-sen-border bg-sen-surface text-sen-text shadow-sm", className)}
       {...props}
     />
   );
@@ -29,7 +29,7 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>): React.JSX.Element {
   return (
     <h3
-      className={cn("text-base font-semibold leading-none tracking-tight text-slate-900", className)}
+      className={cn("text-base font-semibold leading-none tracking-tight text-sen-text", className)}
       {...props}
     />
   );
@@ -37,7 +37,7 @@ export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHead
 
 /** Card description — muted secondary text below the title. */
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>): React.JSX.Element {
-  return <p className={cn("text-sm text-slate-500", className)} {...props} />;
+  return <p className={cn("text-sm text-sen-muted", className)} {...props} />;
 }
 
 /** Card content area — consistent horizontal padding, no top padding (use pt-* when needed). */
@@ -48,6 +48,6 @@ export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDi
 /** Card footer — flex row with top border for action areas. */
 export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
-    <div className={cn("flex items-center border-t border-slate-100 p-6 pt-4", className)} {...props} />
+    <div className={cn("flex items-center border-t border-sen-border p-6 pt-4", className)} {...props} />
   );
 }

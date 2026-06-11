@@ -6,12 +6,11 @@ interface DashboardLayoutProps {
 }
 
 /**
- * Buyer dashboard layout. Includes the top header and a collapsible sidebar
- * with navigation to all dashboard sections.
+ * Buyer dashboard layout. Dark ink-navy header + sidebar with main content area.
  */
 export default function DashboardLayout({ children }: DashboardLayoutProps): React.JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-sen-bg">
       <Header />
       <div className="flex flex-1">
         <Sidebar mode="buyer" />

@@ -3,8 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -22,6 +24,54 @@ const PUBLIC_NAV: NavLink[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Theme toggle
+// ---------------------------------------------------------------------------
+
+/**
+ * Sun/moon icon button that switches between light and dark mode.
+ * Shows moon when currently light (click to go dark), sun when dark (click to go light).
+ */
+function ThemeToggle(): React.JSX.Element {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        border: isDark ? "1px solid rgba(139,92,246,0.45)" : "1px solid rgba(124,58,237,0.35)",
+        background: isDark ? "rgba(139,92,246,0.12)" : "rgba(124,58,237,0.08)",
+        color: isDark ? "#8B5CF6" : "#7C3AED",
+        cursor: "pointer",
+        flexShrink: 0,
+        transition: "background 0.15s, border-color 0.15s",
+      }}
+    >
+      {isDark ? (
+        /* Sun icon — shown in dark mode */
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </svg>
+      ) : (
+        /* Moon icon — shown in light mode */
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard dropdown
 // ---------------------------------------------------------------------------
 
@@ -29,7 +79,6 @@ function DashboardDropdown(): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   React.useEffect(() => {
     function handleClick(e: MouseEvent): void {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -46,15 +95,17 @@ function DashboardDropdown(): React.JSX.Element {
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors",
-          open && "bg-slate-50 border-indigo-300",
+          "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+          open
+            ? "border-sen-gold/40 bg-sen-surface-2 text-sen-gold"
+            : "border-sen-border bg-sen-surface text-sen-text hover:border-sen-border-hi hover:bg-sen-surface-2",
         )}
         aria-haspopup="true"
         aria-expanded={open}
       >
         Dashboard
         <svg
-          className={cn("h-4 w-4 text-slate-400 transition-transform", open && "rotate-180")}
+          className={cn("h-3.5 w-3.5 text-sen-muted transition-transform", open && "rotate-180")}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -66,14 +117,14 @@ function DashboardDropdown(): React.JSX.Element {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-1.5 w-52 rounded-xl border border-sen-border bg-sen-surface shadow-xl z-50 overflow-hidden">
           <div className="py-1">
             <Link
               href="/dashboard"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sen-text hover:bg-sen-surface-2 hover:text-sen-gold transition-colors"
             >
-              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <svg className="h-4 w-4 text-sen-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
               Buyer Dashboard
@@ -81,19 +132,19 @@ function DashboardDropdown(): React.JSX.Element {
             <Link
               href="/developer"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sen-text hover:bg-sen-surface-2 hover:text-sen-gold transition-colors"
             >
-              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+              <svg className="h-4 w-4 text-sen-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
               </svg>
               Developer Dashboard
             </Link>
           </div>
-          <div className="border-t border-slate-100 py-1">
+          <div className="border-t border-sen-border py-1">
             <Link
               href="/api/auth/logout"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-sen-danger hover:bg-sen-surface-2 transition-colors"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -121,57 +172,37 @@ function MobileMenu({ open, onClose, isAuthenticated }: MobileMenuProps): React.
   if (!open) return null;
 
   return (
-    <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden shadow-sm">
+    <div className="border-t border-sen-border bg-sen-surface px-4 py-4 md:hidden">
       <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
         {PUBLIC_NAV.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
             onClick={onClose}
-            className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            className="rounded-lg px-3 py-2.5 text-sm font-medium text-sen-text hover:bg-sen-surface-2 hover:text-sen-gold transition-colors"
           >
             {label}
           </Link>
         ))}
-        <div className="mt-2 border-t border-slate-100 pt-2">
+        <div className="mt-2 border-t border-sen-border pt-2">
           {isAuthenticated ? (
             <>
-              <Link
-                href="/dashboard"
-                onClick={onClose}
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
+              <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sen-text hover:bg-sen-surface-2">
                 Buyer Dashboard
               </Link>
-              <Link
-                href="/developer"
-                onClick={onClose}
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
+              <Link href="/developer" onClick={onClose} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sen-text hover:bg-sen-surface-2">
                 Developer Dashboard
               </Link>
-              <Link
-                href="/api/auth/logout"
-                onClick={onClose}
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
-              >
+              <Link href="/api/auth/logout" onClick={onClose} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-sen-danger hover:bg-sen-surface-2">
                 Sign Out
               </Link>
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                onClick={onClose}
-                className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
+              <Link href="/login" onClick={onClose} className="block rounded-lg px-3 py-2.5 text-sm font-medium text-sen-text hover:bg-sen-surface-2">
                 Sign In
               </Link>
-              <Link
-                href="/register"
-                onClick={onClose}
-                className="mt-1 block rounded-lg bg-indigo-600 px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-500"
-              >
+              <Link href="/register" onClick={onClose} className="mt-1 block rounded-lg bg-sen-gold px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-violet-500">
                 Get Started
               </Link>
             </>
@@ -187,10 +218,8 @@ function MobileMenu({ open, onClose, isAuthenticated }: MobileMenuProps): React.
 // ---------------------------------------------------------------------------
 
 /**
- * Global navigation header. Shows public nav links (Marketplace, Docs, Pricing),
- * a Dashboard dropdown when authenticated with links to Buyer Dashboard and
- * Developer Dashboard, and Login/Get Started when not authenticated.
- * Includes a mobile-responsive hamburger menu.
+ * Global navigation header. Dark ink-navy base with gold accent.
+ * Shows public nav, authenticated dashboard dropdown, or login/register.
  *
  * @example
  * <Header />
@@ -200,19 +229,17 @@ export function Header(): React.JSX.Element {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  // Close mobile menu on route change
   React.useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
-      {/* Main bar */}
+    <header className="sticky top-0 z-40 border-b border-sen-border bg-sen-bg/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-1 flex-shrink-0">
-          <span className="text-lg font-bold text-slate-900 tracking-tight">
-            Sentinel<span className="text-indigo-500">.</span>
+        <Link href="/" className="flex items-center gap-1 shrink-0">
+          <span className="text-lg font-bold tracking-tight text-sen-text">
+            Sentinel<span className="text-sen-gold">.</span>
           </span>
         </Link>
 
@@ -226,9 +253,7 @@ export function Header(): React.JSX.Element {
                 href={href}
                 className={cn(
                   "text-sm font-medium transition-colors",
-                  isActive
-                    ? "text-indigo-600"
-                    : "text-slate-600 hover:text-slate-900",
+                  isActive ? "text-sen-gold" : "text-sen-muted hover:text-sen-text",
                 )}
               >
                 {label}
@@ -237,11 +262,12 @@ export function Header(): React.JSX.Element {
           })}
         </nav>
 
-        {/* Desktop right-side auth actions */}
+        {/* Desktop auth actions */}
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           {isAuthenticated && user ? (
             <>
-              <span className="text-sm text-slate-500 hidden lg:block">
+              <span className="text-sm text-sen-muted hidden lg:block">
                 {user.displayName ?? user.email}
               </span>
               <DashboardDropdown />
@@ -250,13 +276,13 @@ export function Header(): React.JSX.Element {
             <>
               <Link
                 href="/login"
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-sen-muted hover:text-sen-text transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors"
+                className="rounded-lg bg-sen-gold px-4 py-1.5 text-sm font-semibold text-white hover:bg-violet-500 transition-colors"
               >
                 Get Started
               </Link>
@@ -264,27 +290,29 @@ export function Header(): React.JSX.Element {
           )}
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          className="flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden transition-colors"
-          onClick={() => setMobileOpen((prev) => !prev)}
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? (
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
+        {/* Mobile theme toggle + hamburger */}
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="flex items-center justify-center rounded-md p-2 text-sen-muted hover:bg-sen-surface-2 hover:text-sen-text transition-colors"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile menu */}
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}

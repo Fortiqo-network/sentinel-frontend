@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ToastProvider } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 // ── Font setup ────────────────────────────────────────────────────────────────
 
-const geistSans = Geist({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-space-grotesk",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-jetbrains-mono",
   display: "swap",
+  weight: ["400", "500"],
 });
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
@@ -62,25 +64,31 @@ interface RootLayoutProps {
 }
 
 /**
- * Root application layout. Applies global fonts, metadata, and wraps the
- * tree with the TanStack Query client provider and a toast notification system.
+ * Root application layout. Applies Space Grotesk (UI) and JetBrains Mono (data)
+ * fonts, wraps the tree with TanStack Query and toast providers.
  *
- * Auth state is managed via httpOnly cookies on the BFF layer — no tokens
- * are stored in React context or localStorage.
+ * Auth is managed via httpOnly cookies on the BFF — no tokens in React state.
  */
 export default function RootLayout({ children }: RootLayoutProps): React.JSX.Element {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
+      {/* Runs before paint to restore persisted theme without flash */}
+      <head>
+        {/* Static literal — not user/agent content, safe without sanitization */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem('sen-theme')==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})()` }} />
+      </head>
       <body className="font-sans antialiased">
-        <QueryProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

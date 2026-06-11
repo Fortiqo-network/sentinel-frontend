@@ -4,116 +4,174 @@
 
 /* ── Design tokens ─────────────────────────────────────────────────────────── */
 @layer base {
+  /*
+   * Warm Stone + Violet theme — light mode default.
+   * Accent is violet-700/violet-500, surfaces are warm stone whites.
+   * Very different from cold navy/cyan reference sites.
+   */
   :root {
-    /* Brand colours */
-    --color-brand-primary: 99 102 241;   /* indigo-500 */
-    --color-brand-secondary: 51 65 85;   /* slate-700 */
-
-    /* Surface */
-    --color-surface-base: 255 255 255;
-    --color-surface-raised: 248 250 252; /* slate-50 */
-    --color-surface-overlay: 241 245 249; /* slate-100 */
-
-    /* Text */
-    --color-text-primary: 15 23 42;      /* slate-900 */
-    --color-text-secondary: 71 85 105;   /* slate-600 */
-    --color-text-muted: 148 163 184;     /* slate-400 */
-
-    /* Border */
-    --color-border: 226 232 240;         /* slate-200 */
-    --color-border-strong: 148 163 184;  /* slate-400 */
-
-    /* Trust score bands */
-    --color-trust-low: 239 68 68;        /* red-500 */
-    --color-trust-medium: 245 158 11;    /* amber-500 */
-    --color-trust-high: 34 197 94;       /* green-500 */
-    --color-trust-elite: 16 185 129;     /* emerald-500 */
-
-    /* Spacing / radius */
-    --radius: 0.5rem;
+    --radius:    0.5rem;
     --radius-sm: 0.25rem;
     --radius-lg: 0.75rem;
 
-    /* Typography */
-    --font-sans: var(--font-geist-sans, system-ui, sans-serif);
-    --font-mono: var(--font-geist-mono, ui-monospace, monospace);
+    --sen-bg:         250 250 249;   /* warm white  #FAFAF9  */
+    --sen-surface:    255 255 255;   /* white                */
+    --sen-surface-2:  245 245 244;   /* stone-100   #F5F5F4  */
+    --sen-border:     231 229 228;   /* stone-200   #E7E5E4  */
+    --sen-border-hi:  214 211 209;   /* stone-300   #D6D3D1  */
+    --sen-gold:       124  58 237;   /* violet-700  #7C3AED  */
+    --sen-gold-dim:   109  40 217;   /* violet-800  #6D28D9  */
+    --sen-teal:         5 150 105;   /* emerald-600 #059669  */
+    --sen-text:        28  25  23;   /* stone-900   #1C1917  */
+    --sen-muted:      120 113 108;   /* stone-500   #78716C  */
+    --sen-danger:     220  38  38;   /* red-600     #DC2626  */
   }
 
+  /* Dark mode — warm near-black with violet accent */
   .dark {
-    --color-surface-base: 15 23 42;      /* slate-900 */
-    --color-surface-raised: 30 41 59;    /* slate-800 */
-    --color-surface-overlay: 51 65 85;   /* slate-700 */
-
-    --color-text-primary: 248 250 252;   /* slate-50 */
-    --color-text-secondary: 203 213 225; /* slate-300 */
-    --color-text-muted: 100 116 139;     /* slate-500 */
-
-    --color-border: 51 65 85;            /* slate-700 */
-    --color-border-strong: 100 116 139;  /* slate-500 */
+    --sen-bg:          12  10   9;   /* warm black  #0C0A09  */
+    --sen-surface:     28  25  23;   /* stone-900   #1C1917  */
+    --sen-surface-2:   41  37  36;   /* stone-800   #292524  */
+    --sen-border:      68  64  60;   /* stone-700   #44403C  */
+    --sen-border-hi:   87  83  78;   /* stone-600   #57534E  */
+    --sen-gold:       139  92 246;   /* violet-500  #8B5CF6  */
+    --sen-gold-dim:   124  58 237;   /* violet-700  #7C3AED  */
+    --sen-teal:        52 211 153;   /* emerald-400 #34D399  */
+    --sen-text:       250 250 249;   /* warm white  #FAFAF9  */
+    --sen-muted:      168 162 158;   /* stone-400   #A8A29E  */
+    --sen-danger:     248 113 113;   /* red-400     #F87171  */
   }
 
   * {
-    @apply border-slate-200;
+    box-sizing: border-box;
+    border-color: rgb(var(--sen-border));
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-white text-slate-900 font-sans antialiased;
+    background-color: rgb(var(--sen-bg));
+    color: rgb(var(--sen-text));
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: rgb(var(--sen-gold) / 0.18);
+    color: rgb(var(--sen-text));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--sen-gold));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: rgb(var(--sen-text));
+  }
+
+  a {
+    color: inherit;
   }
 }
 
 /* ── Component utilities ───────────────────────────────────────────────────── */
 @layer components {
-  .sentinel-focus {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2;
+  .sen-card {
+    @apply rounded-xl border border-sen-border bg-sen-surface transition-colors;
+  }
+
+  .sen-card-interactive {
+    @apply sen-card hover:border-sen-border-hi hover:bg-sen-surface-2 cursor-pointer;
   }
 
   .sentinel-card {
-    @apply rounded-lg border border-slate-200 bg-white shadow-sm;
+    @apply rounded-xl border border-sen-border bg-sen-surface transition-colors;
   }
 
-  .sentinel-badge-tier {
-    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  .sen-input {
+    @apply w-full rounded-lg border border-sen-border bg-sen-surface px-3 py-2 text-sm text-sen-text
+           placeholder:text-sen-muted transition-colors
+           focus:border-sen-gold focus:outline-none focus:ring-1 focus:ring-sen-gold/20;
+  }
+
+  .sen-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-sen-gold px-5 py-2.5
+           text-sm font-semibold text-white transition-colors hover:bg-violet-500 active:bg-violet-700;
+  }
+
+  .sen-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-sen-border
+           px-5 py-2.5 text-sm font-medium text-sen-text transition-colors
+           hover:border-sen-border-hi hover:bg-sen-surface-2;
+  }
+
+  .sen-eyebrow {
+    @apply text-xs font-mono uppercase tracking-widest text-sen-muted;
+  }
+
+  .auth-field {
+    @apply block w-full rounded-lg border border-sen-border bg-sen-surface px-3 py-2.5 text-sm
+           text-sen-text placeholder:text-sen-muted transition-colors
+           focus:border-sen-gold focus:outline-none focus:ring-1 focus:ring-sen-gold/20;
   }
 }
 
-/* ── Animations ────────────────────────────────────────────────────────────── */
+/* ── Animations & utilities ────────────────────────────────────────────────── */
 @layer utilities {
-  @keyframes fade-slide-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  @keyframes scanIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-}
 
-/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
-@layer utilities {
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+  }
+
+  .animate-scan-in { animation: scanIn 0.45s ease forwards; }
+  .animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+  .animate-glow    { animation: glowPulse 2.5s ease-in-out infinite; }
+
+  /* Dot-grid hero background */
+  .bg-grid {
+    background-image:
+      radial-gradient(circle at 18% 52%, rgb(var(--sen-gold) / 0.07) 0%, transparent 60%),
+      radial-gradient(1.5px 1.5px at 24px 24px, rgb(var(--sen-gold) / 0.12) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 0px 0px,   rgb(var(--sen-gold) / 0.12) 0%, transparent 100%);
+    background-size: 100% 100%, 48px 48px, 48px 48px;
+  }
+
+  .shadow-gold {
+    box-shadow: 0 0 0 1px rgb(var(--sen-gold) / 0.12), 0 4px 20px rgb(var(--sen-gold) / 0.07);
+  }
+
+  .shadow-gold-hover:hover {
+    box-shadow: 0 0 0 1px rgb(var(--sen-gold) / 0.22), 0 8px 32px rgb(var(--sen-gold) / 0.10);
+  }
+
+  /* Scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgb(var(--color-border-strong)) transparent;
+    scrollbar-color: rgb(var(--sen-border)) transparent;
   }
 
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgb(var(--color-border-strong));
+    background-color: rgb(var(--sen-border));
     border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--sen-border-hi));
   }
 }

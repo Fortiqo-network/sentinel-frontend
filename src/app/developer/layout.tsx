@@ -11,7 +11,7 @@ interface DeveloperLayoutProps {
  */
 export default function DeveloperLayout({ children }: DeveloperLayoutProps): React.JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-sen-bg">
       <Header />
       <div className="flex flex-1">
         <Sidebar mode="developer" />

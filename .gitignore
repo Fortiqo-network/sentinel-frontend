@@ -9,6 +9,7 @@
 /coverage
 playwright-report/
 test-results/
+/.agents/
 
 # Next.js
 /.next/
@@ -57,3 +58,5 @@ next-env.d.ts
 db/.alembic.env
 db/migrate.env
 migrate.env
+
+skills-lock.json

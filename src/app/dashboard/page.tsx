@@ -16,6 +16,7 @@ import { listAgents } from "@/lib/api/agents";
 import type { LedgerEntry } from "@/types/billing";
 import type { Agent } from "@/types/agent";
 import { cn } from "@/lib/utils/cn";
+import { useTheme } from "@/components/ThemeProvider";
 
 function formatPoints(points: number): string {
   return `${points.toLocaleString("en-IN")} points`;
@@ -23,12 +24,7 @@ function formatPoints(points: number): string {
 
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 interface BalancePoint {
@@ -36,7 +32,6 @@ interface BalancePoint {
   balancePoints: number;
 }
 
-/** Build a running-balance series (in points) from ledger entries (oldest → newest). */
 function buildBalanceSeries(entries: LedgerEntry[]): BalancePoint[] {
   const ordered = [...entries].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -62,15 +57,17 @@ function StatCard({ label, value, sub, accent }: StatCardProps): React.JSX.Eleme
   return (
     <div
       className={cn(
-        "rounded-xl border p-5 shadow-sm",
-        accent ? "border-indigo-200 bg-indigo-50" : "border-slate-200 bg-white",
+        "rounded-xl border p-5",
+        accent
+          ? "border-sen-gold/30 bg-sen-gold/5"
+          : "border-sen-border bg-sen-surface",
       )}
     >
-      <div className={cn("text-2xl font-bold", accent ? "text-indigo-700" : "text-slate-900")}>
+      <div className={cn("text-2xl font-bold font-mono", accent ? "text-sen-gold" : "text-sen-text")}>
         {value}
       </div>
-      <div className="mt-1 text-sm font-medium text-slate-500">{label}</div>
-      {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
+      <div className="mt-1 text-sm font-medium text-sen-muted">{label}</div>
+      {sub && <div className="mt-0.5 text-xs text-sen-muted/70">{sub}</div>}
     </div>
   );
 }
@@ -86,18 +83,25 @@ function BalanceTooltip({ active, payload, label }: BalanceTooltipProps): React.
   const item = payload[0];
   if (!item) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-sm font-semibold text-slate-900">{formatPoints(item.value)}</p>
+    <div className="rounded-lg border border-sen-border bg-sen-surface px-3 py-2 shadow-lg">
+      <p className="text-xs text-sen-muted">{label}</p>
+      <p className="text-sm font-semibold text-sen-text font-mono">{formatPoints(item.value)}</p>
     </div>
   );
 }
 
 /**
- * Buyer dashboard home. Every figure is live: the points balance and ledger
- * come from the billing service, and the featured agents from the marketplace.
+ * Buyer dashboard home. Every figure is live: points balance and ledger come
+ * from the billing service, featured agents from the marketplace.
  */
 export default function DashboardPage(): React.JSX.Element {
+  const { theme } = useTheme();
+  const chartColors = {
+    accent: theme === "dark" ? "#8B5CF6" : "#7C3AED",
+    grid:   theme === "dark" ? "#44403C" : "#E7E5E4",
+    muted:  theme === "dark" ? "#A8A29E" : "#78716C",
+  };
+
   const [balancePoints, setBalancePoints] = React.useState(0);
   const [entries, setEntries] = React.useState<LedgerEntry[]>([]);
   const [agents, setAgents] = React.useState<Agent[]>([]);
@@ -116,26 +120,23 @@ export default function DashboardPage(): React.JSX.Element {
       if (ag.status === "fulfilled") setAgents(ag.value.agents);
       setLoading(false);
     });
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
-  const totalAddedPoints = entries
-    .filter((e) => e.type === "credit")
-    .reduce((sum, e) => sum + e.points, 0);
+  const totalAddedPoints = entries.filter((e) => e.type === "credit").reduce((sum, e) => sum + e.points, 0);
   const series = buildBalanceSeries(entries);
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-slate-600">Your points, activity, and verified agents at a glance.</p>
+          <p className="sen-eyebrow mb-1">Buyer Portal</p>
+          <h1 className="text-2xl font-bold text-sen-text">Dashboard</h1>
+          <p className="mt-1 text-sen-muted">Your points, activity, and verified agents at a glance.</p>
         </div>
         <Link
           href="/dashboard/billing"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors whitespace-nowrap"
+          className="sen-btn-primary whitespace-nowrap"
         >
           + Add Points
         </Link>
@@ -152,28 +153,29 @@ export default function DashboardPage(): React.JSX.Element {
         <StatCard label="Transactions" value={loading ? "…" : String(entries.length)} sub="Ledger entries" />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-slate-900">Balance Over Time</h2>
+      {/* Balance chart */}
+      <div className="rounded-xl border border-sen-border bg-sen-surface p-6">
+        <h2 className="mb-4 text-base font-semibold text-sen-text">Balance Over Time</h2>
         <div className="h-56">
           {series.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <p className="text-sm font-medium text-slate-500">No wallet activity yet</p>
-              <p className="mt-1 text-xs text-slate-400">Add points to get started.</p>
+              <p className="text-sm font-medium text-sen-muted">No wallet activity yet</p>
+              <p className="mt-1 text-xs text-sen-muted/60">Add points to get started.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={series} margin={{ top: 4, right: 8, left: 8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: chartColors.muted }} tickLine={false} axisLine={false} />
                 <YAxis
                   tickFormatter={(v: number) => `${v}`}
-                  tick={{ fontSize: 10, fill: "#94a3b8" }}
+                  tick={{ fontSize: 10, fill: chartColors.muted }}
                   tickLine={false}
                   axisLine={false}
                   width={48}
                 />
                 <Tooltip content={<BalanceTooltip />} />
-                <Line type="monotone" dataKey="balancePoints" stroke="#6366f1" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#6366f1" }} />
+                <Line type="monotone" dataKey="balancePoints" stroke={chartColors.accent} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: chartColors.accent }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -181,46 +183,44 @@ export default function DashboardPage(): React.JSX.Element {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Recent Activity</h2>
-            <Link href="/dashboard/billing" className="text-sm text-indigo-600 hover:text-indigo-500">
-              View all
-            </Link>
+        {/* Recent activity */}
+        <div className="lg:col-span-2 rounded-xl border border-sen-border bg-sen-surface overflow-hidden">
+          <div className="flex items-center justify-between border-b border-sen-border px-6 py-4">
+            <h2 className="text-base font-semibold text-sen-text">Recent Activity</h2>
+            <Link href="/dashboard/billing" className="text-sm text-sen-gold hover:text-violet-400">View all</Link>
           </div>
           {entries.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-slate-400">
+            <div className="px-6 py-12 text-center text-sm text-sen-muted">
               {loading ? "Loading…" : "No transactions yet."}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Points</th>
+                  <tr className="border-b border-sen-border bg-sen-surface-2">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sen-muted">Type</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-sen-muted">Points</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-sen-border">
                   {entries.slice(0, 8).map((e) => (
-                    <tr key={e.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-3 font-medium text-slate-900">{e.description}</td>
-                      <td className="px-6 py-3 text-xs text-slate-500 font-mono">{formatDateTime(e.createdAt)}</td>
+                    <tr key={e.id} className="hover:bg-sen-surface-2 transition-colors">
+                      <td className="px-6 py-3 font-medium text-sen-text">{e.description}</td>
+                      <td className="px-6 py-3 text-xs text-sen-muted font-mono">{formatDateTime(e.createdAt)}</td>
                       <td className="px-6 py-3">
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                            e.type === "credit" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600",
-                          )}
-                        >
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                          e.type === "credit"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "bg-sen-surface-2 text-sen-muted",
+                        )}>
                           {e.type === "credit" ? "Credit" : "Debit"}
                         </span>
                       </td>
-                      <td className={cn("px-6 py-3 text-right font-medium", e.type === "credit" ? "text-emerald-600" : "text-slate-700")}>
-                        {e.type === "credit" ? "+" : "−"}
-                        {e.points.toLocaleString("en-IN")}
+                      <td className={cn("px-6 py-3 text-right font-medium font-mono", e.type === "credit" ? "text-emerald-400" : "text-sen-muted")}>
+                        {e.type === "credit" ? "+" : "−"}{e.points.toLocaleString("en-IN")}
                       </td>
                     </tr>
                   ))}
@@ -230,30 +230,34 @@ export default function DashboardPage(): React.JSX.Element {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Top Verified Agents</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Highest trust scores</p>
+        {/* Top agents */}
+        <div className="rounded-xl border border-sen-border bg-sen-surface">
+          <div className="border-b border-sen-border px-6 py-4">
+            <h2 className="text-base font-semibold text-sen-text">Top Verified Agents</h2>
+            <p className="text-xs text-sen-muted mt-0.5">Highest trust scores</p>
           </div>
           {agents.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-slate-400">
+            <div className="px-6 py-12 text-center text-sm text-sen-muted">
               {loading ? "Loading…" : "No agents yet."}
             </div>
           ) : (
-            <ul className="divide-y divide-slate-50">
+            <ul className="divide-y divide-sen-border">
               {agents.map((agent, idx) => (
                 <li key={agent.id} className="px-6 py-4">
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-medium text-slate-400 w-4">{idx + 1}</span>
-                      <Link href={`/agents/${agent.slug}`} className="text-sm font-medium text-slate-800 truncate hover:text-indigo-600">
+                      <span className="text-xs font-mono text-sen-muted w-4">{idx + 1}</span>
+                      <Link href={`/agents/${agent.slug}`} className="text-sm font-medium text-sen-text truncate hover:text-sen-gold transition-colors">
                         {agent.name}
                       </Link>
                     </div>
-                    <span className="text-xs text-slate-500">{agent.trustScore}/100</span>
+                    <span className="text-xs font-mono text-sen-muted">{agent.trustScore}/100</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full rounded-full bg-indigo-400" style={{ width: `${agent.trustScore}%` }} />
+                  <div className="h-1 rounded-full bg-sen-border overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-sen-gold"
+                      style={{ width: `${agent.trustScore}%` }}
+                    />
                   </div>
                 </li>
               ))}

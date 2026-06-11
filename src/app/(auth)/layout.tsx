@@ -6,22 +6,34 @@ interface AuthLayoutProps {
 
 /**
  * Shared layout for authentication pages (login, register, forgot-password).
- * Renders a centred card with the Sentinel brand mark above it.
+ * Dark ink-navy centred layout with Sentinel brand mark.
  */
 export default function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="mb-8 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-sen-bg px-4 py-12">
+      {/* Subtle radial glow */}
+      <div
+        className="pointer-events-none fixed inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(42,78,124,0.20) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative z-10 mb-8 text-center">
         <Link href="/" className="inline-block">
-          <span className="text-2xl font-bold text-slate-900">
-            Sentinel<span className="text-indigo-500">.</span>
+          <span className="text-2xl font-bold tracking-tight text-sen-text">
+            Sentinel<span className="text-sen-gold">.</span>
           </span>
         </Link>
-        <p className="mt-1 text-sm text-slate-500">Verified AI Agent Marketplace</p>
+        <p className="mt-1 text-sm text-sen-muted">Verified AI Agent Marketplace</p>
       </div>
-      <div className="w-full max-w-md">{children}</div>
-      <p className="mt-8 text-center text-xs text-slate-400">
-        &copy; {new Date().getFullYear()} Fortiqo-network. All rights reserved.
+
+      <div className="relative z-10 w-full max-w-md">{children}</div>
+
+      <p className="relative z-10 mt-8 text-center text-xs text-sen-muted">
+        &copy; {new Date().getFullYear()} Sentinel. All rights reserved.
       </p>
     </div>
   );

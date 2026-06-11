@@ -36,7 +36,7 @@ function deriveTrustTier(agent: Agent): TrustTier {
   if (agent.tier === "managed" && agent.trustScore >= 75) return "certified_managed";
   if (agent.trustScore >= 75) return "certified";
   if (agent.trustScore >= 50) return "provisional";
-  return "all"; // below threshold — treated as uncertified
+  return "all";
 }
 
 function applyFilters(agents: Agent[], filters: Filters): Agent[] {
@@ -72,44 +72,66 @@ function applyFilters(agents: Agent[], filters: Filters): Agent[] {
         new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime(),
     );
   }
-  // "popular" uses insertion order as proxy
 
   return result;
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-interface SearchBarProps {
-  value: string;
-  onChange: (v: string) => void;
-}
-
-function SearchBar({ value, onChange }: SearchBarProps): React.JSX.Element {
+function SearchBar({ value, onChange }: { value: string; onChange: (v: string) => void }): React.JSX.Element {
   return (
     <div className="relative">
       <svg
         viewBox="0 0 20 20"
         fill="currentColor"
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sen-muted"
         aria-hidden="true"
       >
-        <path
-          fillRule="evenodd"
-          d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
-          clipRule="evenodd"
-        />
+        <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
       </svg>
       <input
         type="search"
         placeholder="Search agents by name, description or tag…"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        className="h-10 w-full rounded-lg border border-sen-border bg-sen-surface py-2 pl-9 pr-4 text-sm text-sen-text placeholder:text-sen-muted focus:border-sen-gold focus:outline-none focus:ring-1 focus:ring-sen-gold/20"
         aria-label="Search agents"
       />
     </div>
   );
 }
+
+const CATEGORY_OPTIONS: Array<{ value: Category; label: string }> = [
+  { value: "all",        label: "All Categories" },
+  { value: "code",       label: "Code & Dev Tools" },
+  { value: "data",       label: "Data & Analytics" },
+  { value: "research",   label: "Research" },
+  { value: "content",    label: "Content" },
+  { value: "automation", label: "Automation" },
+  { value: "legal",      label: "Legal" },
+  { value: "finance",    label: "Finance" },
+  { value: "support",    label: "Support" },
+];
+
+const TRUST_TIER_OPTIONS: Array<{ value: TrustTier; label: string; colour: string }> = [
+  { value: "all",               label: "All Tiers",            colour: "" },
+  { value: "certified_managed", label: "Certified Managed",    colour: "text-teal-400" },
+  { value: "certified",         label: "Certified (≥75)",      colour: "text-emerald-400" },
+  { value: "provisional",       label: "Provisional (≥50)",    colour: "text-amber-400" },
+];
+
+const PRICING_OPTIONS: Array<{ value: PricingModel; label: string }> = [
+  { value: "all",          label: "All Models" },
+  { value: "per_task",     label: "Per Call" },
+  { value: "per_outcome",  label: "Per Token" },
+  { value: "subscription", label: "Subscription" },
+];
+
+const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
+  { value: "trust_score", label: "Trust Score" },
+  { value: "newest",      label: "Newest" },
+  { value: "popular",     label: "Most Popular" },
+];
 
 interface FilterPanelProps {
   filters: Filters;
@@ -117,67 +139,25 @@ interface FilterPanelProps {
   resultCount: number;
 }
 
-const CATEGORY_OPTIONS: Array<{ value: Category; label: string }> = [
-  { value: "all", label: "All Categories" },
-  { value: "code", label: "Code & Dev Tools" },
-  { value: "data", label: "Data & Analytics" },
-  { value: "research", label: "Research" },
-  { value: "content", label: "Content" },
-  { value: "automation", label: "Automation" },
-  { value: "legal", label: "Legal" },
-  { value: "finance", label: "Finance" },
-  { value: "support", label: "Support" },
-];
-
-const TRUST_TIER_OPTIONS: Array<{ value: TrustTier; label: string; colour: string }> = [
-  { value: "all", label: "All Tiers", colour: "" },
-  { value: "certified_managed", label: "Certified Managed", colour: "text-indigo-700" },
-  { value: "certified", label: "Certified (≥75)", colour: "text-emerald-700" },
-  { value: "provisional", label: "Provisional (≥50)", colour: "text-amber-700" },
-];
-
-const PRICING_OPTIONS: Array<{ value: PricingModel; label: string }> = [
-  { value: "all", label: "All Models" },
-  { value: "per_task", label: "Per Call" },
-  { value: "per_outcome", label: "Per Token" },
-  { value: "subscription", label: "Subscription" },
-];
-
-const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
-  { value: "trust_score", label: "Trust Score" },
-  { value: "newest", label: "Newest" },
-  { value: "popular", label: "Most Popular" },
-];
-
 function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): React.JSX.Element {
   const update = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     onChange({ ...filters, [key]: value });
   };
 
   const hasActiveFilters =
-    filters.category !== "all" ||
-    filters.trustTier !== "all" ||
-    filters.pricingModel !== "all";
+    filters.category !== "all" || filters.trustTier !== "all" || filters.pricingModel !== "all";
 
   return (
     <aside className="w-full space-y-5 lg:w-56 lg:shrink-0">
-      {/* Result count */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-700">
+        <span className="text-sm font-medium text-sen-text">
           {resultCount} {resultCount === 1 ? "agent" : "agents"}
         </span>
         {hasActiveFilters && (
           <button
             type="button"
-            onClick={() =>
-              onChange({
-                ...filters,
-                category: "all",
-                trustTier: "all",
-                pricingModel: "all",
-              })
-            }
-            className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+            onClick={() => onChange({ ...filters, category: "all", trustTier: "all", pricingModel: "all" })}
+            className="text-xs font-medium text-sen-gold hover:text-amber-400"
           >
             Clear filters
           </button>
@@ -186,22 +166,19 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
 
       {/* Category */}
       <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-sen-muted">
           Category
         </legend>
         <div className="space-y-1">
           {CATEGORY_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
+            <label key={value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-sen-text hover:bg-sen-surface-2">
               <input
                 type="radio"
                 name="category"
                 value={value}
                 checked={filters.category === value}
                 onChange={() => update("category", value)}
-                className="accent-indigo-500"
+                className="accent-sen-gold"
               />
               {label}
             </label>
@@ -211,22 +188,19 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
 
       {/* Trust Tier */}
       <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-sen-muted">
           Trust Tier
         </legend>
         <div className="space-y-1">
           {TRUST_TIER_OPTIONS.map(({ value, label, colour }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
+            <label key={value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-sen-text hover:bg-sen-surface-2">
               <input
                 type="radio"
                 name="trustTier"
                 value={value}
                 checked={filters.trustTier === value}
                 onChange={() => update("trustTier", value)}
-                className="accent-indigo-500"
+                className="accent-sen-gold"
               />
               <span className={colour || undefined}>{label}</span>
             </label>
@@ -234,24 +208,21 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
         </div>
       </fieldset>
 
-      {/* Pricing Model */}
+      {/* Pricing */}
       <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-sen-muted">
           Pricing Model
         </legend>
         <div className="space-y-1">
           {PRICING_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
+            <label key={value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-sen-text hover:bg-sen-surface-2">
               <input
                 type="radio"
                 name="pricingModel"
                 value={value}
                 checked={filters.pricingModel === value}
                 onChange={() => update("pricingModel", value)}
-                className="accent-indigo-500"
+                className="accent-sen-gold"
               />
               {label}
             </label>
@@ -261,22 +232,19 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
 
       {/* Sort */}
       <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-sen-muted">
           Sort By
         </legend>
         <div className="space-y-1">
           {SORT_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
+            <label key={value} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-sen-text hover:bg-sen-surface-2">
               <input
                 type="radio"
                 name="sort"
                 value={value}
                 checked={filters.sort === value}
                 onChange={() => update("sort", value)}
-                className="accent-indigo-500"
+                className="accent-sen-gold"
               />
               {label}
             </label>
@@ -287,22 +255,18 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
   );
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
 function EmptyState({ onReset }: { onReset: () => void }): React.JSX.Element {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="text-4xl" aria-hidden="true">
-        🔍
-      </div>
-      <h3 className="mt-4 text-lg font-semibold text-slate-900">No agents match your filters</h3>
-      <p className="mt-2 max-w-sm text-sm text-slate-500">
-        Try adjusting your search query, trust tier, or category to find verified agents.
+      <div className="text-4xl" aria-hidden="true">🔍</div>
+      <h3 className="mt-4 text-lg font-semibold text-sen-text">No agents match your filters</h3>
+      <p className="mt-2 max-w-sm text-sm text-sen-muted">
+        Try adjusting your search query, trust tier, or category.
       </p>
       <button
         type="button"
         onClick={onReset}
-        className="mt-6 inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        className="mt-6 sen-btn-ghost h-9 px-4 text-sm"
       >
         Reset all filters
       </button>
@@ -321,9 +285,8 @@ const DEFAULT_FILTERS: Filters = {
 };
 
 /**
- * Agent discovery page. Fetches live agents from the gateway
- * (`GET /v1/listings`) on mount, then applies filters client-side for instant
- * interaction. The filter panel manages local state, hence "use client".
+ * Agent discovery page. Fetches live agents from the gateway on mount,
+ * applies filters client-side for instant interaction.
  */
 export default function AgentsPage(): React.JSX.Element {
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
@@ -337,10 +300,7 @@ export default function AgentsPage(): React.JSX.Element {
     setLoading(true);
     listAgents({ sort: "trust_desc", pageSize: 100, page: 1 })
       .then((res) => {
-        if (active) {
-          setAgents(res.agents);
-          setError(null);
-        }
+        if (active) { setAgents(res.agents); setError(null); }
       })
       .catch(() => {
         if (active) setError("Could not load agents. Please try again shortly.");
@@ -348,31 +308,24 @@ export default function AgentsPage(): React.JSX.Element {
       .finally(() => {
         if (active) setLoading(false);
       });
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
-  const filteredAgents = React.useMemo(
-    () => applyFilters(agents, filters),
-    [agents, filters],
-  );
-
-  const resetFilters = React.useCallback(() => {
-    setFilters(DEFAULT_FILTERS);
-  }, []);
+  const filteredAgents = React.useMemo(() => applyFilters(agents, filters), [agents, filters]);
+  const resetFilters = React.useCallback(() => setFilters(DEFAULT_FILTERS), []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       {/* Page header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">AI Agent Marketplace</h1>
-        <p className="mt-2 text-slate-500">
+        <p className="sen-eyebrow mb-2">Verified Agents</p>
+        <h1 className="text-3xl font-bold text-sen-text">AI Agent Marketplace</h1>
+        <p className="mt-2 text-sen-muted">
           Every agent is independently verified. Browse by trust tier, category, or price model.
         </p>
       </div>
 
-      {/* Search bar */}
+      {/* Search */}
       <div className="mb-6">
         <SearchBar
           value={filters.query}
@@ -382,7 +335,7 @@ export default function AgentsPage(): React.JSX.Element {
 
       {/* Mobile filter toggle */}
       <div className="mb-4 flex items-center justify-between lg:hidden">
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-sen-muted">
           {filteredAgents.length} {filteredAgents.length === 1 ? "agent" : "agents"}
         </span>
         <button
@@ -391,11 +344,10 @@ export default function AgentsPage(): React.JSX.Element {
           className={cn(
             "inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
             mobileFiltersOpen
-              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+              ? "border-sen-gold/40 bg-sen-gold/8 text-sen-gold"
+              : "border-sen-border bg-sen-surface text-sen-text hover:bg-sen-surface-2",
           )}
           aria-expanded={mobileFiltersOpen}
-          aria-controls="filter-panel"
         >
           <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
             <path d="M1.5 3.75a.75.75 0 0 1 .75-.75h11.5a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1-.75-.75ZM3.5 8a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 3.5 8Zm2 4.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z" />
@@ -404,33 +356,18 @@ export default function AgentsPage(): React.JSX.Element {
         </button>
       </div>
 
-      {/* Mobile filters */}
+      {/* Mobile filters panel */}
       {mobileFiltersOpen && (
-        <div
-          id="filter-panel-mobile"
-          className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-5 lg:hidden"
-        >
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            resultCount={filteredAgents.length}
-          />
+        <div className="mb-6 rounded-xl border border-sen-border bg-sen-surface p-5 lg:hidden">
+          <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} />
         </div>
       )}
 
       {/* Main layout */}
       <div className="flex gap-8">
-        {/* Sidebar — desktop only */}
-        <div
-          id="filter-panel"
-          className="hidden lg:block"
-          aria-label="Filter agents"
-        >
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            resultCount={filteredAgents.length}
-          />
+        {/* Desktop filter sidebar */}
+        <div className="hidden lg:block" aria-label="Filter agents">
+          <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} />
         </div>
 
         {/* Agent grid */}
@@ -438,21 +375,14 @@ export default function AgentsPage(): React.JSX.Element {
           {loading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-44 animate-pulse rounded-xl border border-slate-200 bg-slate-100"
-                />
+                <div key={i} className="h-48 animate-pulse rounded-xl border border-sen-border bg-sen-surface" />
               ))}
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="text-4xl" aria-hidden="true">
-                ⚠️
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                Something went wrong
-              </h3>
-              <p className="mt-2 max-w-sm text-sm text-slate-500">{error}</p>
+              <div className="text-4xl" aria-hidden="true">⚠️</div>
+              <h3 className="mt-4 text-lg font-semibold text-sen-text">Something went wrong</h3>
+              <p className="mt-2 max-w-sm text-sm text-sen-muted">{error}</p>
             </div>
           ) : filteredAgents.length === 0 ? (
             <EmptyState onReset={resetFilters} />

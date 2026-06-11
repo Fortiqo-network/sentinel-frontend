@@ -27,7 +27,7 @@ interface SidebarProps {
 }
 
 // ---------------------------------------------------------------------------
-// Icons (inline SVGs — no dependency needed)
+// Icons
 // ---------------------------------------------------------------------------
 
 function IconGrid(): React.JSX.Element {
@@ -70,10 +70,10 @@ function IconCode(): React.JSX.Element {
   );
 }
 
-function IconCurrencyRupee(): React.JSX.Element {
+function IconCoin(): React.JSX.Element {
   return (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }
@@ -100,18 +100,18 @@ function IconCog(): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 const BUYER_LINKS: SidebarLink[] = [
-  { href: "/dashboard", label: "Dashboard", icon: <IconGrid /> },
-  { href: "/dashboard/usage", label: "Usage", icon: <IconChartBar /> },
-  { href: "/dashboard/billing", label: "Billing", icon: <IconCreditCard /> },
-  { href: "/dashboard/api-keys", label: "API Keys", icon: <IconKey /> },
+  { href: "/dashboard",          label: "Dashboard", icon: <IconGrid /> },
+  { href: "/dashboard/usage",    label: "Usage",     icon: <IconChartBar /> },
+  { href: "/dashboard/billing",  label: "Billing",   icon: <IconCreditCard /> },
+  { href: "/dashboard/api-keys", label: "API Keys",  icon: <IconKey /> },
 ];
 
 const DEVELOPER_LINKS: SidebarLink[] = [
-  { href: "/developer", label: "Dashboard", icon: <IconGrid /> },
-  { href: "/developer/agents", label: "My Agents", icon: <IconCode /> },
-  { href: "/developer/earnings", label: "Earnings", icon: <IconCurrencyRupee /> },
-  { href: "/developer/bonds", label: "Bond", icon: <IconShield /> },
-  { href: "/developer/settings", label: "Settings", icon: <IconCog /> },
+  { href: "/developer",          label: "Dashboard", icon: <IconGrid /> },
+  { href: "/developer/agents",   label: "My Agents", icon: <IconCode /> },
+  { href: "/developer/earnings", label: "Earnings",  icon: <IconCoin /> },
+  { href: "/developer/bonds",    label: "Bond",      icon: <IconShield /> },
+  { href: "/developer/settings", label: "Settings",  icon: <IconCog /> },
 ];
 
 // ---------------------------------------------------------------------------
@@ -119,17 +119,12 @@ const DEVELOPER_LINKS: SidebarLink[] = [
 // ---------------------------------------------------------------------------
 
 /**
- * Dashboard sidebar navigation. Renders developer or buyer nav link sets
- * based on the `mode` prop. Highlights the currently active route.
- * Branding is shown at the top; collapses at mobile viewports.
+ * Dashboard sidebar navigation. Dark ink-navy with gold active state.
+ * Renders buyer or developer nav based on `mode` prop.
  *
  * @example
- * // In a layout:
  * <Sidebar mode="developer" />
  * <Sidebar mode="buyer" />
- *
- * // With custom links (backwards-compatible):
- * <Sidebar links={[{ href: "/foo", label: "Foo" }]} />
  */
 export function Sidebar({ mode = "buyer", className, links: overrideLinks }: SidebarProps): React.JSX.Element {
   const pathname = usePathname();
@@ -150,16 +145,16 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
   return (
     <aside
       className={cn(
-        "hidden w-56 shrink-0 flex-col border-r border-slate-200 bg-slate-50 lg:flex",
+        "hidden w-56 shrink-0 flex-col border-r border-sen-border bg-sen-surface lg:flex",
         className,
       )}
     >
-      {/* Branding + mode indicator */}
-      <div className="flex flex-col gap-0.5 border-b border-slate-200 px-5 py-4">
-        <span className="text-base font-bold text-slate-900 tracking-tight">
-          Sentinel<span className="text-indigo-500">.</span>
+      {/* Brand + mode */}
+      <div className="flex flex-col gap-0.5 border-b border-sen-border px-5 py-4">
+        <span className="text-base font-bold tracking-tight text-sen-text">
+          Sentinel<span className="text-sen-gold">.</span>
         </span>
-        <span className="text-xs font-medium text-indigo-600 uppercase tracking-wide">
+        <span className="text-xs font-mono uppercase tracking-wide text-sen-gold">
           {modeLabel} Portal
         </span>
       </div>
@@ -167,11 +162,10 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
       {/* Nav links */}
       <nav className="flex flex-col gap-0.5 p-3 flex-1" aria-label="Dashboard navigation">
         {resolvedLinks.map(({ href, label, icon }) => {
-          // Exact match for root segments, prefix match for sub-pages
           const isActive =
             pathname === href ||
             (href !== "/dashboard" && href !== "/developer" && pathname.startsWith(href + "/")) ||
-            (pathname === href);
+            pathname === href;
 
           return (
             <Link
@@ -180,17 +174,12 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                  ? "bg-sen-surface-2 text-sen-gold border-l-2 border-sen-gold pl-[10px]"
+                  : "text-sen-muted hover:bg-sen-surface-2 hover:text-sen-text",
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <span
-                className={cn(
-                  "flex-shrink-0",
-                  isActive ? "text-indigo-600" : "text-slate-400",
-                )}
-              >
+              <span className={cn("flex-shrink-0", isActive ? "text-sen-gold" : "text-sen-muted")}>
                 {icon}
               </span>
               {label}
@@ -199,16 +188,16 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
         })}
       </nav>
 
-      {/* Bottom: switch portal link */}
-      <div className="border-t border-slate-200 p-3">
+      {/* Switch portal */}
+      <div className="border-t border-sen-border p-3">
         <Link
           href={mode === "developer" ? "/dashboard" : "/developer"}
-          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-medium text-sen-muted hover:bg-sen-surface-2 hover:text-sen-text transition-colors"
         >
-          <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
-          Switch to {mode === "developer" ? "Buyer" : "Developer"} Portal
+          Switch to {mode === "developer" ? "Buyer" : "Developer"}
         </Link>
       </div>
     </aside>

@@ -11,10 +11,9 @@ import { isSentinelApiError } from "@/lib/api/client";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Login form with live validation and a show/hide-password toggle. Submits to
- * the gateway (`POST /v1/auth/login`), which verifies credentials against
- * core-api and sets the httpOnly session cookie, then redirects to the
- * dashboard.
+ * Login form with live validation and show/hide-password toggle.
+ * Submits to the gateway (`POST /v1/auth/login`), which sets the httpOnly
+ * session cookie, then redirects to the dashboard.
  *
  * @example
  * <LoginForm />
@@ -64,65 +63,74 @@ export function LoginForm(): React.JSX.Element {
   };
 
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4" noValidate>
-      <Input
-        label="Email address"
-        type="email"
-        name="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-        error={(touched.email || submitAttempted) ? emailError : undefined}
-        required
-      />
+    <div className="rounded-2xl border border-sen-border bg-sen-surface p-8">
+      <h1 className="mb-1 text-xl font-bold text-sen-text">Sign in</h1>
+      <p className="mb-6 text-sm text-sen-muted">Welcome back to Sentinel.</p>
 
-      <div className="space-y-1">
+      <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4" noValidate>
         <Input
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          name="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-          error={(touched.password || submitAttempted) ? passwordError : undefined}
+          label="Email address"
+          type="email"
+          name="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+          error={(touched.email || submitAttempted) ? emailError : undefined}
           required
         />
-        <div className="flex items-center justify-between">
-          <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-500">
-            <input
-              type="checkbox"
-              checked={showPassword}
-              onChange={(e) => setShowPassword(e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 accent-indigo-600"
-            />
-            Show password
-          </label>
-          <Link
-            href="/forgot-password"
-            className="text-xs text-slate-500 transition-colors hover:text-indigo-600"
-          >
-            Forgot password?
-          </Link>
+
+        <div className="space-y-1">
+          <Input
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+            error={(touched.password || submitAttempted) ? passwordError : undefined}
+            required
+          />
+          <div className="flex items-center justify-between">
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-sen-muted">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(e) => setShowPassword(e.target.checked)}
+                className="h-3.5 w-3.5 rounded accent-sen-gold border-sen-border"
+              />
+              Show password
+            </label>
+            <Link href="/forgot-password" className="text-xs text-sen-muted hover:text-sen-gold transition-colors">
+              Forgot password?
+            </Link>
+          </div>
         </div>
-      </div>
 
-      {error !== undefined && (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      )}
+        {error !== undefined && (
+          <p role="alert" className="rounded-md bg-red-500/10 px-3 py-2 text-sm text-red-400">
+            {error}
+          </p>
+        )}
 
-      <Button
-        type="submit"
-        className="w-full bg-indigo-600 font-medium hover:bg-indigo-500"
-        disabled={isSubmitting || (submitAttempted && !isValid)}
-      >
-        {isSubmitting ? "Signing in…" : "Sign In"}
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || (submitAttempted && !isValid)}
+        >
+          {isSubmitting ? "Signing in…" : "Sign In"}
+        </Button>
+      </form>
+
+      <p className="mt-5 text-center text-sm text-sen-muted">
+        Don&apos;t have an account?{" "}
+        <Link href="/register" className="font-medium text-sen-gold hover:text-amber-400 transition-colors">
+          Create one
+        </Link>
+      </p>
+    </div>
   );
 }
