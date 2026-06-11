@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 240" fill="none">
+  <!-- SENTINEL primary lockup / light -->
+  <path d="M98 45 H69 A24 24 0 0 0 45 69 V171 A24 24 0 0 0 69 195 H128 V119 H98 Z" fill="#0B0C0F"/>
+  <path d="M112 45 H171 A24 24 0 0 1 195 69 V171 A24 24 0 0 1 171 195 H142 V105 H112 Z" fill="#0B0C0F"/>
+  <g transform="translate(312 72) scale(1.3333)" stroke="#0B0C0F" stroke-width="12" stroke-linejoin="bevel">
+    <path d="M39 21 A15 15 0 1 0 24 36 A15 15 0 1 1 9 51"/>
+    <g transform="translate(74 0)"><path d="M6 0 V72 M0 6 H44 M0 36 H36 M0 66 H44"/></g>
+    <g transform="translate(144 0)"><path d="M6 72 V0 L46 72 V0"/></g>
+    <g transform="translate(222 0)"><path d="M0 6 H52 M26 0 V72"/></g>
+    <g transform="translate(300 0)"><path d="M6 0 V72"/></g>
+    <g transform="translate(338 0)"><path d="M6 72 V0 L46 72 V0"/></g>
+    <g transform="translate(416 0)"><path d="M6 0 V72 M0 6 H44 M0 36 H36 M0 66 H44"/></g>
+    <g transform="translate(486 0)"><path d="M6 0 V66 H44"/></g>
+  </g>
+</svg>

@@ -1,22 +1,22 @@
 /**
  * TypeScript types for Sentinel billing and payments.
- * The system speaks in points only (1 point = ₹1). Never paise/rupees/dollars.
+ * The system speaks in credits only (1 Cr = ₹1). Never paise/rupees/dollars.
  */
 
-/** Current wallet balance for a buyer account, in points. */
+/** Current wallet balance for a buyer account, in credits. */
 export interface CreditBalance {
-  balancePoints: number;
+  balanceCredits: number;
   updatedAt: string;
 }
 
 /** Direction of a ledger entry. */
 export type LedgerEntryType = "credit" | "debit";
 
-/** A single wallet ledger record, in points. */
+/** A single wallet ledger record, in credits. */
 export interface LedgerEntry {
   id: string;
   type: LedgerEntryType;
-  points: number;
+  credits: number;
   description: string;
   /** Set when the entry relates to a specific agent invocation. */
   agentId?: string;
@@ -26,10 +26,10 @@ export interface LedgerEntry {
 /** Invoice status lifecycle. */
 export type InvoiceStatus = "paid" | "unpaid" | "void";
 
-/** A Sentinel invoice (generated for top-ups), in points. */
+/** A Sentinel invoice (generated for top-ups), in credits. */
 export interface Invoice {
   id: string;
-  points: number;
+  credits: number;
   status: InvoiceStatus;
   createdAt: string;
 }

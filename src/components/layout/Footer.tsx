@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import { ProofLockup } from "@/components/brand/Logo";
 
 const FOOTER_LINKS = [
   {
@@ -39,9 +40,7 @@ export function Footer(): React.JSX.Element {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="text-lg font-bold text-slate-900">
-              Sentinel<span className="text-indigo-500">.</span>
-            </Link>
+            <ProofLockup className="text-slate-900" />
             <p className="mt-2 text-xs text-slate-500 leading-relaxed max-w-xs">
               The verification, settlement, and portable-reputation layer for the AI agent economy.
             </p>

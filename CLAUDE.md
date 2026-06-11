@@ -86,6 +86,13 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 3. Export the inferred TypeScript type if consumers need it.
 4. Update `src/types/<domain>.ts` if the shape is new.
 
+## Cinematic marketing layer
+
+- The marketing experience (root `/`) lives in `src/components/marketing/` and is a **scoped dark surface** — it owns its own `void`/`aurora` tokens and white text. It does **not** flip the global theme; the light-mode app (dashboard, marketplace, auth) is unaffected. The "dark mode not yet implemented" note applies to the app shell, not this layer.
+- Animation stack: Lenis (smooth scroll) ↔ GSAP/ScrollTrigger, Framer Motion (reveals, parallax, micro-interactions), React Three Fiber + drei + postprocessing (WebGL). All timing comes from `src/lib/design/motion.ts`.
+- 3D mounts only via `marketing/three/SceneStage.tsx` (`next/dynamic`, `ssr:false`, in-view pausing, device quality tiers). Reduced motion is honoured at every layer.
+- See `docs/frontend/implementation.md` for the full architecture and the skills/dependency reference.
+
 ## Conventions
 
 ### Commits
@@ -100,6 +107,7 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 ### Docs stay in sync (mandatory)
 - Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the master TODO (`sentinel-infra/TODO.md`). Tick completed items, add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
 
-### The system speaks in points — never currency
-- All user- and API-facing values are **points**. Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
-- Conversion: **1 point = ₹1 = 100 paise** (current). 1 USD ≈ 95 points (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses points only.
+### The system speaks in credits — never currency
+- All user- and API-facing values are **credits** (short form **Cr**). Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
+- Conversion: **1 Cr = ₹1 = 100 paise** (current). 1 USD ≈ 95 Cr (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses credits only.
+- API contract fields use the `*Credits` suffix (`priceCredits`, `balanceCredits`, `costCredits`, `payableCredits`, `originalCredits`, `currentCredits`); ledger/invoice/top-up amounts use the `credits` key.

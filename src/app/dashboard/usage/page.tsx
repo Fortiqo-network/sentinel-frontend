@@ -17,13 +17,13 @@ interface AgentBreakdownRow {
   key: string;
   label: string;
   invocations: number;
-  points: number;
+  credits: number;
 }
 
 interface UsageSummary {
   totalInvocations: number;
   thisMonthInvocations: number;
-  totalSpentPoints: number;
+  totalSpentCredits: number;
   series: UsageDataPoint[];
   breakdown: AgentBreakdownRow[];
 }
@@ -37,38 +37,38 @@ function isCurrentMonth(iso: string): boolean {
 function summarizeDebits(entries: LedgerEntry[]): UsageSummary {
   const debits = entries.filter((e) => e.type === "debit");
 
-  const totalSpentPoints = debits.reduce((sum, e) => sum + e.points, 0);
+  const totalSpentCredits = debits.reduce((sum, e) => sum + e.credits, 0);
   const thisMonthInvocations = debits.filter((e) => isCurrentMonth(e.createdAt)).length;
 
-  const byDay = new Map<string, { invocations: number; points: number; sortKey: number }>();
+  const byDay = new Map<string, { invocations: number; credits: number; sortKey: number }>();
   for (const e of debits) {
     const d = new Date(e.createdAt);
     const sortKey = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     const label = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-    const bucket = byDay.get(label) ?? { invocations: 0, points: 0, sortKey };
+    const bucket = byDay.get(label) ?? { invocations: 0, credits: 0, sortKey };
     bucket.invocations += 1;
-    bucket.points += e.points;
+    bucket.credits += e.credits;
     byDay.set(label, bucket);
   }
   const series: UsageDataPoint[] = [...byDay.entries()]
     .sort((a, b) => a[1].sortKey - b[1].sortKey)
-    .map(([date, b]) => ({ date, invocations: b.invocations, spendPaise: b.points }));
+    .map(([date, b]) => ({ date, invocations: b.invocations, spendPaise: b.credits }));
 
   const byAgent = new Map<string, AgentBreakdownRow>();
   for (const e of debits) {
     const key = e.agentId ?? e.description;
     const label = e.description || e.agentId || "Unknown";
-    const row = byAgent.get(key) ?? { key, label, invocations: 0, points: 0 };
+    const row = byAgent.get(key) ?? { key, label, invocations: 0, credits: 0 };
     row.invocations += 1;
-    row.points += e.points;
+    row.credits += e.credits;
     byAgent.set(key, row);
   }
-  const breakdown = [...byAgent.values()].sort((a, b) => b.points - a.points);
+  const breakdown = [...byAgent.values()].sort((a, b) => b.credits - a.credits);
 
   return {
     totalInvocations: debits.length,
     thisMonthInvocations,
-    totalSpentPoints,
+    totalSpentCredits,
     series,
     breakdown,
   };
@@ -115,7 +115,7 @@ export default function UsagePage(): React.JSX.Element {
           { label: "This Month", value: summary.thisMonthInvocations.toLocaleString("en-IN") },
           {
             label: "Total Spent",
-            value: `${summary.totalSpentPoints.toLocaleString("en-IN")} points`,
+            value: `${summary.totalSpentCredits.toLocaleString("en-IN")} credits`,
           },
         ];
 
@@ -192,7 +192,7 @@ export default function UsagePage(): React.JSX.Element {
                         </div>
                       </div>
                       <div className="text-sm font-semibold text-slate-900">
-                        {row.points.toLocaleString("en-IN")} points
+                        {row.credits.toLocaleString("en-IN")} credits
                       </div>
                     </li>
                   ))}

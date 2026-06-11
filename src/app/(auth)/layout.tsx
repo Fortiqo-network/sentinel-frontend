@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Tessera } from "@/components/brand/Tessera";
+import { Wordmark } from "@/components/brand/Logo";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -11,13 +13,12 @@ interface AuthLayoutProps {
 export default function AuthLayout({ children }: AuthLayoutProps): React.JSX.Element {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-12">
-      <div className="mb-8 text-center">
-        <Link href="/" className="inline-block">
-          <span className="text-2xl font-bold text-slate-900">
-            Sentinel<span className="text-indigo-500">.</span>
-          </span>
+      <div className="mb-8 flex flex-col items-center text-center text-slate-900">
+        <Link href="/" className="flex flex-col items-center gap-3">
+          <Tessera className="h-12 w-12" seam="scan" fill="currentColor" />
+          <Wordmark className="h-4 text-slate-900" />
         </Link>
-        <p className="mt-1 text-sm text-slate-500">Verified AI Agent Marketplace</p>
+        <p className="mt-3 text-sm text-slate-500">Verified AI Agent Marketplace</p>
       </div>
       <div className="w-full max-w-md">{children}</div>
       <p className="mt-8 text-center text-xs text-slate-400">

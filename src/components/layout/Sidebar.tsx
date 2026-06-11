@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -156,10 +157,8 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
     >
       {/* Branding + mode indicator */}
       <div className="flex flex-col gap-0.5 border-b border-slate-200 px-5 py-4">
-        <span className="text-base font-bold text-slate-900 tracking-tight">
-          Sentinel<span className="text-indigo-500">.</span>
-        </span>
-        <span className="text-xs font-medium text-indigo-600 uppercase tracking-wide">
+        <Logo href="/" sealStroke="currentColor" className="text-slate-900" />
+        <span className="mt-1 text-xs font-medium text-indigo-600 uppercase tracking-wide">
           {modeLabel} Portal
         </span>
       </div>

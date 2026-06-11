@@ -6,7 +6,7 @@ import type { Agent, AgentListResponse } from "@/types/agent";
 
 export const PricingSchema = z.object({
   model: z.enum(["per_call", "per_task", "per_outcome", "subscription", "credits"]),
-  pricePoints: z.number().int().min(0).optional(),
+  priceCredits: z.number().int().min(0).optional(),
 });
 
 export const AgentSchema = z.object({
@@ -89,8 +89,8 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
 export const UseAgentResultSchema = z.object({
   success: z.boolean(),
   agent: z.string(),
-  costPoints: z.number().int(),
-  balancePoints: z.number().int(),
+  costCredits: z.number().int(),
+  balanceCredits: z.number().int(),
   output: z.object({
     result: z.string(),
     confidence: z.number().optional(),
@@ -102,8 +102,8 @@ export type UseAgentResult = z.infer<typeof UseAgentResultSchema>;
 
 /**
  * Runs an agent (addressed as developer/slug) and charges the caller's wallet
- * in points for one successful call. Throws a SentinelApiError with statusCode
- * 402 when points are insufficient.
+ * in credits for one successful call. Throws a SentinelApiError with statusCode
+ * 402 when credits are insufficient.
  */
 export async function runAgent(developer: string, slug: string): Promise<UseAgentResult> {
   const response = await apiClient.post<unknown>(`/v1/agents/${developer}/${slug}/use`, {});

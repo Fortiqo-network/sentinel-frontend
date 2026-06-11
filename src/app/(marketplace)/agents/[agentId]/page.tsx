@@ -66,7 +66,7 @@ export default async function AgentDetailPage({
   const cert = CERT_CONFIG[certLevel];
   const trustBadgeCert =
     certLevel === "uncertified" ? ("uncertified" as const) : certLevel;
-  const pricePoints = agent.pricing?.pricePoints;
+  const priceCredits = agent.pricing?.priceCredits;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
@@ -126,16 +126,16 @@ export default async function AgentDetailPage({
             <h2 className="text-base font-semibold text-slate-900">Pricing</h2>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="text-3xl font-bold text-slate-900">
-                {pricePoints != null ? `${pricePoints} points` : "Free"}
+                {priceCredits != null ? `${priceCredits} Cr` : "Free"}
               </span>
-              {pricePoints != null && <span className="text-sm text-slate-400">/ call</span>}
+              {priceCredits != null && <span className="text-sm text-slate-400">/ call</span>}
             </div>
             <p className="mt-1 text-xs text-slate-400">Billed from your Sentinel credit wallet (INR). No commitment.</p>
             <div className="mt-5">
               <UseAgentButton
                 developer={agent.developer ?? ""}
                 slug={agent.slug}
-                priceLabel={pricePoints != null ? `${pricePoints} points / call` : "Free"}
+                priceLabel={priceCredits != null ? `${priceCredits} Cr / call` : "Free"}
               />
             </div>
             <Link

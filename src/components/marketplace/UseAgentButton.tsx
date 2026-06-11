@@ -35,7 +35,7 @@ export function UseAgentButton({ developer, slug, priceLabel }: UseAgentButtonPr
       const r = await runAgent(developer, slug);
       setFeedback({
         kind: "ok",
-        text: `${r.output.result} Charged ${r.costPoints} points; balance ${r.balancePoints} points.`,
+        text: `${r.output.result} Charged ${r.costCredits} Cr; balance ${r.balanceCredits} Cr.`,
       });
     } catch (err) {
       if (isSentinelApiError(err) && err.statusCode === 402) setFeedback({ kind: "insufficient" });

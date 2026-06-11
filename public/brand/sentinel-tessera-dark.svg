@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
+  <!-- SENTINEL — The Tessera (for dark backgrounds). Two halves of one token; only true counterparts fit. -->
+  <path d="M98 45 H69 A24 24 0 0 0 45 69 V171 A24 24 0 0 0 69 195 H128 V119 H98 Z" fill="#ECEAE3"/>
+  <path d="M112 45 H171 A24 24 0 0 1 195 69 V171 A24 24 0 0 1 171 195 H142 V105 H112 Z" fill="#ECEAE3"/>
+</svg>

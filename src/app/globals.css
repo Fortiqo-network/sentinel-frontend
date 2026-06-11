@@ -96,6 +96,152 @@
   }
 }
 
+/* ── Cinematic surface (marketing experience) ──────────────────────────────── */
+@layer utilities {
+  /* Porcelain→gold text fill for display headings. */
+  .text-aurora {
+    background-image: linear-gradient(105deg, #ECEAE3 0%, #ECEAE3 55%, #E7A03C 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Panel over the ink canvas. Mostly-opaque fill (cheap) with only a light
+     backdrop blur — heavy backdrop-filter is the main scroll-jank culprit. */
+  .glass {
+    background: rgba(17, 19, 24, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(236, 234, 227, 0.08);
+  }
+
+  /* A static, pre-baked ambient glow — replaces expensive full-screen
+     blur() filters with a cheap radial gradient that never repaints. */
+  .glow-soft {
+    background: radial-gradient(closest-side, rgba(231, 160, 60, 0.16), transparent 75%);
+  }
+  .glow-soft-lg {
+    background: radial-gradient(closest-side, rgba(231, 160, 60, 0.12), transparent 78%);
+  }
+
+  /* Hairline ring used on cards and the cinematic nav. */
+  .ring-hairline {
+    box-shadow: inset 0 0 0 1px rgba(236, 234, 227, 0.08);
+  }
+
+  /* Animated conic border for premium CTA chips. */
+  .glow-ring {
+    position: relative;
+    isolation: isolate;
+  }
+  .glow-ring::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from 180deg, #E7A03C, #ECEAE3, #B97718, #E7A03C);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+    z-index: -1;
+  }
+
+  /* Faint film-grain to kill banding on dark gradients. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* Flowing energy along the ecosystem connector lines. */
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+/* ── The Tessera (brand mark) ──────────────────────────────────────────────── */
+/* The Scan — the only permanent animation. An amber line runs through the seam
+   gap, top to bottom, forever. "The system is never asleep." */
+@keyframes tesseraScan {
+  from {
+    stroke-dashoffset: 26;
+  }
+  to {
+    stroke-dashoffset: -154;
+  }
+}
+.tessera-scan {
+  stroke-dasharray: 26 154;
+  animation: tesseraScan 1.7s linear infinite;
+}
+
+/* The Proof — the seam fills top-to-bottom, then drains downward. */
+@keyframes tesseraFillDown {
+  from {
+    stroke-dasharray: 0 180;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tesseraDrainDown {
+  from {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 180 180;
+    stroke-dashoffset: -180;
+  }
+}
+.tessera-fill {
+  animation: tesseraFillDown 1s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+}
+.tessera-drain {
+  animation: tesseraDrainDown 1s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+}
+
+/* The wordmark writes itself, letter by letter, in amber. */
+@keyframes tesseraWrite {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.tessera-write path {
+  animation: tesseraWrite 0.55s cubic-bezier(0.6, 0, 0.15, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tessera-scan,
+  .tessera-fill,
+  .tessera-drain,
+  .tessera-write path {
+    animation: none;
+  }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────────────────────── */
 @layer utilities {
   .scrollbar-thin {

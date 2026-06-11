@@ -35,6 +35,20 @@
 - [ ] Visual regression suite; performance budgets in CI
 - [ ] Web Vitals reporting to gateway analytics sink
 
+## UI revamp (feat/ui-revamp-balraj) — cinematic brand rollout
+Done: Tessera identity (scan/proof/mosaic), constellation hero (centred +
+interactive Tessera), brand tokens/fonts, lightness pass, credits rename,
+site-wide logo + favicon, shared PageShell, How It Works page, redesigned
+orbital ecosystem.
+
+Remaining:
+- [ ] **Create `/docs/methodology`** page (verification methodology) in the brand system.
+- [ ] **Constellation cursor interactivity** — links connect to the pointer and react as the cursor moves near them.
+- [ ] **Redesign sign-in / sign-up pages** in the brand system (ink + Tessera, proof micro-interaction).
+- [ ] **Align all remaining pages to the brand theme**: marketplace (advanced, dwell-friendly, mosaic cards), agent detail, playground, dashboard, billing, usage, developer console, api-keys, earnings.
+- [ ] Ensure every module shares the same surface, motion tokens, and components (no light-mode SaaS remnants).
+- [ ] Optional: uninstall unused `three` / `@react-three/*` packages.
+
 ## Definition of done
 - [ ] All env vars documented in `.env.example` + README table
 - [ ] Typecheck + lint + unit + E2E smoke green in CI

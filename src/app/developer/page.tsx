@@ -85,14 +85,14 @@ function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
 /**
  * Developer dashboard home. Loads the authenticated developer's agents and
  * payout-eligible earnings from the gateway, then derives headline metrics
- * (total/verified/pending counts, average trust score, payable points) and
+ * (total/verified/pending counts, average trust score, payable credits) and
  * renders the agent list. Earnings can fail for non-developer accounts; that
- * failure is tolerated and treated as zero payable points so the page still
+ * failure is tolerated and treated as zero payable credits so the page still
  * renders the agent data.
  */
 export default function DeveloperPage(): React.JSX.Element {
   const [agents, setAgents] = React.useState<DeveloperAgent[]>([]);
-  const [payablePoints, setPayablePoints] = React.useState<number>(0);
+  const [payableCredits, setPayableCredits] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
@@ -110,7 +110,7 @@ export default function DeveloperPage(): React.JSX.Element {
         setAgents(agentsResult.value);
       }
       if (earningsResult.status === "fulfilled") {
-        setPayablePoints(earningsResult.value.payablePoints);
+        setPayableCredits(earningsResult.value.payableCredits);
       }
       setLoading(false);
     }
@@ -169,7 +169,7 @@ export default function DeveloperPage(): React.JSX.Element {
         />
         <StatCard
           label="Payable Earnings"
-          value={loading ? "…" : `${payablePoints.toLocaleString("en-IN")} points`}
+          value={loading ? "…" : `${payableCredits.toLocaleString("en-IN")} Cr`}
           sub="Eligible for payout"
         />
       </div>

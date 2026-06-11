@@ -65,7 +65,7 @@ export const UpdateAgentRequestSchema = z.object({
 export type UpdateAgentRequest = z.infer<typeof UpdateAgentRequestSchema>;
 
 export const EarningsSchema = z.object({
-  payablePoints: z.number().int().min(0),
+  payableCredits: z.number().int().min(0),
   meetsMinimum: z.boolean(),
   payoutProvider: z.string().nullable().optional(),
 });
@@ -75,8 +75,8 @@ export type Earnings = z.infer<typeof EarningsSchema>;
 export const BondSchema = z.object({
   bondId: z.string(),
   status: z.string(),
-  originalPoints: z.number().int().min(0),
-  currentPoints: z.number().int().min(0),
+  originalCredits: z.number().int().min(0),
+  currentCredits: z.number().int().min(0),
 });
 
 export type Bond = z.infer<typeof BondSchema>;
@@ -122,7 +122,7 @@ export async function submitAgent(id: string): Promise<DeveloperAgent> {
 
 // ── Earnings ─────────────────────────────────────────────────────────────────
 
-/** Returns the developer's payout-eligible earnings, in points. */
+/** Returns the developer's payout-eligible earnings, in credits. */
 export async function getEarnings(): Promise<Earnings> {
   const response = await apiClient.get<unknown>("/v1/developer/earnings");
   return EarningsSchema.parse(response.data);
