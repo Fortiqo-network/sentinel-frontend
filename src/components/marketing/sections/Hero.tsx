@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Tessera } from "@/components/brand/Tessera";
+import { Constellation } from "../Constellation";
 import { SplitText } from "../ui/SplitText";
 import { MagneticButton } from "../ui/MagneticButton";
 
@@ -26,6 +27,9 @@ export function Hero(): React.JSX.Element {
       ref={ref}
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
+      {/* Drifting constellation backdrop. */}
+      <Constellation className="z-0 text-porcelain" />
+
       {/* Ambient gold wash behind the mark. */}
       <div
         aria-hidden
