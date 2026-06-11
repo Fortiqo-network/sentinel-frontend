@@ -8,6 +8,19 @@ import type { User } from "@/types/user";
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8080";
 
+/**
+ * Base URL for all gateway traffic.
+ *
+ * In the browser we route through the same-origin BFF (`/api/*`), which holds
+ * the session JWT in a first-party httpOnly cookie and forwards it upstream as
+ * a Bearer token. This avoids cross-site (third-party) cookie blocking.
+ *
+ * During server rendering there is no browser cookie jar, so server components
+ * call the gateway directly — these are public, unauthenticated reads
+ * (marketplace listings, agent detail).
+ */
+const BASE_URL = typeof window === "undefined" ? GATEWAY_URL : "/api";
+
 // ── Trace ID ──────────────────────────────────────────────────────────────────
 
 /**
@@ -113,7 +126,7 @@ export function isSentinelApiError(err: unknown): err is SentinelApiError {
  * - Wraps all error responses in {@link SentinelApiError} for typed handling.
  */
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: GATEWAY_URL,
+  baseURL: BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

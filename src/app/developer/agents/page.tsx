@@ -3,107 +3,82 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
+import { isSentinelApiError } from "@/lib/api/client";
+import {
+  listMyAgents,
+  deleteAgent,
+  submitAgent,
+  type DeveloperAgent,
+  type DeveloperAgentStatus,
+} from "@/lib/api/developer";
 
 // ---------------------------------------------------------------------------
-// Types
+// Display grouping
 // ---------------------------------------------------------------------------
 
-type AgentStatus = "draft" | "pending_verification" | "verified" | "suspended";
-type AgentTier = "free" | "standard" | "premium" | "enterprise";
+type FilterGroup = "all" | "draft" | "pending" | "verified" | "other";
 
-interface Agent {
-  id: string;
-  name: string;
-  version: string;
-  status: AgentStatus;
-  trustScore: number | null;
-  tier: AgentTier;
-  publishedAt: string | null;
-}
+const GROUP_OF_STATUS: Record<DeveloperAgentStatus, Exclude<FilterGroup, "all">> = {
+  draft: "draft",
+  submitted: "pending",
+  verifying: "pending",
+  verified: "verified",
+  live: "verified",
+  rejected: "other",
+  suspended: "other",
+  retired: "other",
+};
 
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
+const STATUS_STYLES: Record<DeveloperAgentStatus, string> = {
+  draft: "bg-slate-100 text-slate-700 border border-slate-200",
+  submitted: "bg-amber-100 text-amber-700 border border-amber-200",
+  verifying: "bg-amber-100 text-amber-700 border border-amber-200",
+  verified: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  live: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  rejected: "bg-red-100 text-red-700 border border-red-200",
+  suspended: "bg-red-100 text-red-700 border border-red-200",
+  retired: "bg-slate-100 text-slate-500 border border-slate-200",
+};
 
-const MOCK_AGENTS: Agent[] = [
-  {
-    id: "ag_1",
-    name: "TaxBot Pro",
-    version: "1.2.0",
-    status: "verified",
-    trustScore: 91,
-    tier: "premium",
-    publishedAt: "2026-04-10",
-  },
-  {
-    id: "ag_2",
-    name: "Compliance Checker",
-    version: "0.9.1",
-    status: "pending_verification",
-    trustScore: null,
-    tier: "standard",
-    publishedAt: null,
-  },
-  {
-    id: "ag_3",
-    name: "Invoice Extractor",
-    version: "2.0.0",
-    status: "verified",
-    trustScore: 87,
-    tier: "standard",
-    publishedAt: "2026-02-22",
-  },
-  {
-    id: "ag_4",
-    name: "GST Reconciler",
-    version: "1.0.0",
-    status: "draft",
-    trustScore: null,
-    tier: "free",
-    publishedAt: null,
-  },
-  {
-    id: "ag_5",
-    name: "Credit Risk Scorer",
-    version: "3.1.0",
-    status: "suspended",
-    trustScore: 44,
-    tier: "enterprise",
-    publishedAt: "2026-01-05",
-  },
+const TIER_STYLES: Record<DeveloperAgent["tier"], string> = {
+  managed: "bg-purple-100 text-purple-700",
+  proxy: "bg-blue-100 text-blue-700",
+};
+
+const FILTER_OPTIONS: ReadonlyArray<{ value: FilterGroup; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "draft", label: "Draft" },
+  { value: "pending", label: "Pending" },
+  { value: "verified", label: "Verified" },
+  { value: "other", label: "Other" },
 ];
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-const STATUS_STYLES: Record<AgentStatus, string> = {
-  draft: "bg-slate-100 text-slate-700 border border-slate-200",
-  pending_verification: "bg-amber-100 text-amber-700 border border-amber-200",
-  verified: "bg-emerald-100 text-emerald-700 border border-emerald-200",
-  suspended: "bg-red-100 text-red-700 border border-red-200",
-};
+function titleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
-const STATUS_LABELS: Record<AgentStatus, string> = {
-  draft: "Draft",
-  pending_verification: "Pending",
-  verified: "Verified",
-  suspended: "Suspended",
-};
+function formatCreatedAt(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
-const TIER_STYLES: Record<AgentTier, string> = {
-  free: "bg-slate-100 text-slate-600",
-  standard: "bg-blue-100 text-blue-700",
-  premium: "bg-purple-100 text-purple-700",
-  enterprise: "bg-indigo-100 text-indigo-700",
-};
+function errorMessage(err: unknown, fallback: string): string {
+  return isSentinelApiError(err) ? err.displayMessage : fallback;
+}
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
 interface StatusBadgeProps {
-  status: AgentStatus;
+  status: DeveloperAgentStatus;
 }
 
 function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
@@ -114,13 +89,13 @@ function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
         STATUS_STYLES[status],
       )}
     >
-      {STATUS_LABELS[status]}
+      {titleCase(status)}
     </span>
   );
 }
 
 interface TierBadgeProps {
-  tier: AgentTier;
+  tier: DeveloperAgent["tier"];
 }
 
 function TierBadge({ tier }: TierBadgeProps): React.JSX.Element {
@@ -137,34 +112,52 @@ function TierBadge({ tier }: TierBadgeProps): React.JSX.Element {
 }
 
 interface AgentActionsProps {
-  agent: Agent;
+  agent: DeveloperAgent;
+  busy: boolean;
+  error: string | null;
+  onSubmit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-function AgentActions({ agent }: AgentActionsProps): React.JSX.Element {
+function AgentActions({
+  agent,
+  busy,
+  error,
+  onSubmit,
+  onDelete,
+}: AgentActionsProps): React.JSX.Element {
+  const canDelete = agent.status === "draft" || agent.status === "rejected";
   return (
-    <div className="flex items-center gap-2">
-      <Link
-        href={`/developer/agents/${agent.id}`}
-        className="rounded px-2.5 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition-colors border border-indigo-200"
-      >
-        View Details
-      </Link>
-      {(agent.status === "verified" || agent.status === "suspended") && (
-        <button
-          type="button"
-          className="rounded px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-50 transition-colors border border-amber-200"
+    <div className="space-y-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href={`/developer/agents/${agent.id}`}
+          className="rounded px-2.5 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition-colors border border-indigo-200"
         >
-          Re-verify
-        </button>
-      )}
-      {agent.status !== "draft" && agent.status !== "suspended" && (
-        <button
-          type="button"
-          className="rounded px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors border border-red-200"
-        >
-          Deprecate
-        </button>
-      )}
+          View Details
+        </Link>
+        {agent.status === "draft" && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onSubmit(agent.id)}
+            className="rounded px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-50 transition-colors border border-amber-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Submit for verification
+          </button>
+        )}
+        {canDelete && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onDelete(agent.id)}
+            className="rounded px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors border border-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Delete
+          </button>
+        )}
+      </div>
+      {error !== null && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -174,30 +167,101 @@ function AgentActions({ agent }: AgentActionsProps): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 /**
- * Agent management list page. Shows all agents owned by the developer with
- * status badges, trust scores, tier, and inline action buttons.
+ * Agent management list page. Loads the developer's own agents from the gateway
+ * and renders them with status badges, trust scores, tier, and inline lifecycle
+ * actions (submit a draft for verification, delete a draft or rejected agent).
  */
 export default function MyAgentsPage(): React.JSX.Element {
-  const [filterStatus, setFilterStatus] = React.useState<AgentStatus | "all">("all");
+  const [agents, setAgents] = React.useState<DeveloperAgent[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [filterGroup, setFilterGroup] = React.useState<FilterGroup>("all");
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+  const [actionErrors, setActionErrors] = React.useState<Record<string, string>>({});
 
-  const filtered =
-    filterStatus === "all" ? MOCK_AGENTS : MOCK_AGENTS.filter((a) => a.status === filterStatus);
+  const refresh = React.useCallback(async (): Promise<void> => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await listMyAgents();
+      setAgents(data);
+    } catch (err) {
+      setLoadError(errorMessage(err, "Could not load your agents. Please try again."));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const statusCounts: Record<AgentStatus | "all", number> = {
-    all: MOCK_AGENTS.length,
-    draft: MOCK_AGENTS.filter((a) => a.status === "draft").length,
-    pending_verification: MOCK_AGENTS.filter((a) => a.status === "pending_verification").length,
-    verified: MOCK_AGENTS.filter((a) => a.status === "verified").length,
-    suspended: MOCK_AGENTS.filter((a) => a.status === "suspended").length,
-  };
+  React.useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
-  const filterOptions: Array<{ value: AgentStatus | "all"; label: string }> = [
-    { value: "all", label: "All" },
-    { value: "verified", label: "Verified" },
-    { value: "pending_verification", label: "Pending" },
-    { value: "draft", label: "Draft" },
-    { value: "suspended", label: "Suspended" },
-  ];
+  const clearActionError = React.useCallback((id: string): void => {
+    setActionErrors((prev) => {
+      if (!(id in prev)) return prev;
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
+  const handleSubmit = React.useCallback(
+    async (id: string): Promise<void> => {
+      setBusyId(id);
+      clearActionError(id);
+      try {
+        await submitAgent(id);
+        await refresh();
+      } catch (err) {
+        setActionErrors((prev) => ({
+          ...prev,
+          [id]: errorMessage(err, "Could not submit this agent for verification."),
+        }));
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [clearActionError, refresh],
+  );
+
+  const handleDelete = React.useCallback(
+    async (id: string): Promise<void> => {
+      if (!window.confirm("Delete this agent? This action cannot be undone.")) return;
+      setBusyId(id);
+      clearActionError(id);
+      try {
+        await deleteAgent(id);
+        await refresh();
+      } catch (err) {
+        setActionErrors((prev) => ({
+          ...prev,
+          [id]: errorMessage(err, "Could not delete this agent."),
+        }));
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [clearActionError, refresh],
+  );
+
+  const counts = React.useMemo<Record<FilterGroup, number>>(() => {
+    const base: Record<FilterGroup, number> = {
+      all: agents.length,
+      draft: 0,
+      pending: 0,
+      verified: 0,
+      other: 0,
+    };
+    for (const agent of agents) {
+      base[GROUP_OF_STATUS[agent.status]] += 1;
+    }
+    return base;
+  }, [agents]);
+
+  const filtered = React.useMemo<DeveloperAgent[]>(() => {
+    if (filterGroup === "all") return agents;
+    return agents.filter((a) => GROUP_OF_STATUS[a.status] === filterGroup);
+  }, [agents, filterGroup]);
 
   return (
     <div className="space-y-6">
@@ -219,14 +283,14 @@ export default function MyAgentsPage(): React.JSX.Element {
 
       {/* Status filter tabs */}
       <div className="flex flex-wrap gap-2">
-        {filterOptions.map(({ value, label }) => (
+        {FILTER_OPTIONS.map(({ value, label }) => (
           <button
             key={value}
             type="button"
-            onClick={() => setFilterStatus(value)}
+            onClick={() => setFilterGroup(value)}
             className={cn(
               "rounded-full px-3.5 py-1 text-sm font-medium transition-colors",
-              filterStatus === value
+              filterGroup === value
                 ? "bg-indigo-600 text-white"
                 : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
             )}
@@ -235,14 +299,30 @@ export default function MyAgentsPage(): React.JSX.Element {
             <span
               className={cn(
                 "ml-1.5 rounded-full px-1.5 py-0 text-xs",
-                filterStatus === value ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-500",
+                filterGroup === value ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-500",
               )}
             >
-              {statusCounts[value]}
+              {counts[value]}
             </span>
           </button>
         ))}
       </div>
+
+      {/* Load error */}
+      {loadError !== null && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="flex items-center justify-between gap-4">
+            <span>{loadError}</span>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="rounded border border-red-300 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Agents table */}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -254,7 +334,7 @@ export default function MyAgentsPage(): React.JSX.Element {
                   Agent Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Version
+                  Slug
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Status
@@ -266,7 +346,7 @@ export default function MyAgentsPage(): React.JSX.Element {
                   Tier
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Published
+                  Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                   Actions
@@ -274,10 +354,18 @@ export default function MyAgentsPage(): React.JSX.Element {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filtered.length === 0 ? (
+              {loading ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-10 text-center text-sm text-slate-400">
-                    No agents matching this filter.
+                    Loading agents…
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-10 text-center text-sm text-slate-400">
+                    {agents.length === 0
+                      ? "You have not created any agents yet."
+                      : "No agents matching this filter."}
                   </td>
                 </tr>
               ) : (
@@ -291,7 +379,7 @@ export default function MyAgentsPage(): React.JSX.Element {
                         {agent.name}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 font-mono text-xs text-slate-500">{agent.version}</td>
+                    <td className="px-6 py-4 font-mono text-xs text-slate-500">{agent.slug}</td>
                     <td className="px-6 py-4">
                       <StatusBadge status={agent.status} />
                     </td>
@@ -320,11 +408,15 @@ export default function MyAgentsPage(): React.JSX.Element {
                     <td className="px-6 py-4">
                       <TierBadge tier={agent.tier} />
                     </td>
-                    <td className="px-6 py-4 text-slate-500">
-                      {agent.publishedAt ?? <span className="text-slate-400">—</span>}
-                    </td>
+                    <td className="px-6 py-4 text-slate-500">{formatCreatedAt(agent.createdAt)}</td>
                     <td className="px-6 py-4">
-                      <AgentActions agent={agent} />
+                      <AgentActions
+                        agent={agent}
+                        busy={busyId === agent.id}
+                        error={actionErrors[agent.id] ?? null}
+                        onSubmit={(id) => void handleSubmit(id)}
+                        onDelete={(id) => void handleDelete(id)}
+                      />
                     </td>
                   </tr>
                 ))
@@ -335,9 +427,11 @@ export default function MyAgentsPage(): React.JSX.Element {
       </div>
 
       {/* Summary footer */}
-      <p className="text-xs text-slate-400">
-        Showing {filtered.length} of {MOCK_AGENTS.length} agents
-      </p>
+      {!loading && (
+        <p className="text-xs text-slate-400">
+          Showing {filtered.length} of {agents.length} agents
+        </p>
+      )}
     </div>
   );
 }
