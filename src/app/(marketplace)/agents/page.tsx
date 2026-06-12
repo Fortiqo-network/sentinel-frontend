@@ -6,7 +6,7 @@ import { AgentCard } from "@/components/marketplace/AgentCard";
 import { listAgents } from "@/lib/api/agents";
 import { cn } from "@/lib/utils/cn";
 
-// ── Filter/sort types ─────────────────────────────────────────────────────────
+// ── Filter / sort types ───────────────────────────────────────────────────────
 
 type TrustTier = "certified_managed" | "certified" | "provisional" | "all";
 type PricingModel = "per_task" | "per_outcome" | "subscription" | "credits" | "all";
@@ -36,7 +36,7 @@ function deriveTrustTier(agent: Agent): TrustTier {
   if (agent.tier === "managed" && agent.trustScore >= 75) return "certified_managed";
   if (agent.trustScore >= 75) return "certified";
   if (agent.trustScore >= 50) return "provisional";
-  return "all"; // below threshold — treated as uncertified
+  return "all";
 }
 
 function applyFilters(agents: Agent[], filters: Filters): Agent[] {
@@ -72,12 +72,11 @@ function applyFilters(agents: Agent[], filters: Filters): Agent[] {
         new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime(),
     );
   }
-  // "popular" uses insertion order as proxy
 
   return result;
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Search bar ────────────────────────────────────────────────────────────────
 
 interface SearchBarProps {
   value: string;
@@ -90,7 +89,7 @@ function SearchBar({ value, onChange }: SearchBarProps): React.JSX.Element {
       <svg
         viewBox="0 0 20 20"
         fill="currentColor"
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-graphite"
         aria-hidden="true"
       >
         <path
@@ -104,12 +103,14 @@ function SearchBar({ value, onChange }: SearchBarProps): React.JSX.Element {
         placeholder="Search agents by name, description or tag…"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        className="h-10 w-full rounded-lg border border-ink-600 bg-ink-800 py-2 pl-9 pr-4 text-sm text-porcelain placeholder:text-graphite focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-gold/20"
         aria-label="Search agents"
       />
     </div>
   );
 }
+
+// ── Filter panel ──────────────────────────────────────────────────────────────
 
 interface FilterPanelProps {
   filters: Filters;
@@ -118,36 +119,83 @@ interface FilterPanelProps {
 }
 
 const CATEGORY_OPTIONS: Array<{ value: Category; label: string }> = [
-  { value: "all", label: "All Categories" },
-  { value: "code", label: "Code & Dev Tools" },
-  { value: "data", label: "Data & Analytics" },
-  { value: "research", label: "Research" },
-  { value: "content", label: "Content" },
+  { value: "all",        label: "All Categories" },
+  { value: "code",       label: "Code & Dev Tools" },
+  { value: "data",       label: "Data & Analytics" },
+  { value: "research",   label: "Research" },
+  { value: "content",    label: "Content" },
   { value: "automation", label: "Automation" },
-  { value: "legal", label: "Legal" },
-  { value: "finance", label: "Finance" },
-  { value: "support", label: "Support" },
+  { value: "legal",      label: "Legal" },
+  { value: "finance",    label: "Finance" },
+  { value: "support",    label: "Support" },
 ];
 
-const TRUST_TIER_OPTIONS: Array<{ value: TrustTier; label: string; colour: string }> = [
-  { value: "all", label: "All Tiers", colour: "" },
-  { value: "certified_managed", label: "Certified Managed", colour: "text-indigo-700" },
-  { value: "certified", label: "Certified (≥75)", colour: "text-emerald-700" },
-  { value: "provisional", label: "Provisional (≥50)", colour: "text-amber-700" },
+const TRUST_TIER_OPTIONS: Array<{ value: TrustTier; label: string; accent: string }> = [
+  { value: "all",               label: "All Tiers",        accent: "" },
+  { value: "certified_managed", label: "Certified Managed", accent: "text-sentinel-300" },
+  { value: "certified",         label: "Certified (≥75)",   accent: "text-emerald-400" },
+  { value: "provisional",       label: "Provisional (≥50)", accent: "text-amber-400" },
 ];
 
 const PRICING_OPTIONS: Array<{ value: PricingModel; label: string }> = [
-  { value: "all", label: "All Models" },
-  { value: "per_task", label: "Per Call" },
-  { value: "per_outcome", label: "Per Token" },
+  { value: "all",          label: "All Models" },
+  { value: "per_task",     label: "Per Call" },
+  { value: "per_outcome",  label: "Per Token" },
   { value: "subscription", label: "Subscription" },
 ];
 
 const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
   { value: "trust_score", label: "Trust Score" },
-  { value: "newest", label: "Newest" },
-  { value: "popular", label: "Most Popular" },
+  { value: "newest",      label: "Newest" },
+  { value: "popular",     label: "Most Popular" },
 ];
+
+function FilterSection({
+  legend,
+  children,
+}: {
+  legend: string;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <fieldset>
+      <legend className="mb-2.5 font-brand-mono text-xs uppercase tracking-[0.2em] text-gold/80">
+        {legend}
+      </legend>
+      <div className="space-y-0.5">{children}</div>
+    </fieldset>
+  );
+}
+
+function FilterOption({
+  name,
+  value,
+  checked,
+  label,
+  accent,
+  onChange,
+}: {
+  name: string;
+  value: string;
+  checked: boolean;
+  label: string;
+  accent?: string;
+  onChange: () => void;
+}): React.JSX.Element {
+  return (
+    <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-porcelain/65 transition-colors hover:bg-ink-700 hover:text-porcelain/90">
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={onChange}
+        className="accent-gold"
+      />
+      <span className={accent ?? undefined}>{label}</span>
+    </label>
+  );
+}
 
 function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): React.JSX.Element {
   const update = <K extends keyof Filters>(key: K, value: Filters[K]) => {
@@ -160,129 +208,76 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
     filters.pricingModel !== "all";
 
   return (
-    <aside className="w-full space-y-5 lg:w-56 lg:shrink-0">
-      {/* Result count */}
+    <aside className="w-full space-y-5">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-700">
+        <span className="text-sm font-medium text-porcelain/60">
           {resultCount} {resultCount === 1 ? "agent" : "agents"}
         </span>
         {hasActiveFilters && (
           <button
             type="button"
             onClick={() =>
-              onChange({
-                ...filters,
-                category: "all",
-                trustTier: "all",
-                pricingModel: "all",
-              })
+              onChange({ ...filters, category: "all", trustTier: "all", pricingModel: "all" })
             }
-            className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+            className="font-brand-mono text-xs text-gold hover:text-gold/70"
           >
-            Clear filters
+            Clear
           </button>
         )}
       </div>
 
-      {/* Category */}
-      <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Category
-        </legend>
-        <div className="space-y-1">
-          {CATEGORY_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              <input
-                type="radio"
-                name="category"
-                value={value}
-                checked={filters.category === value}
-                onChange={() => update("category", value)}
-                className="accent-indigo-500"
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <FilterSection legend="Category">
+        {CATEGORY_OPTIONS.map(({ value, label }) => (
+          <FilterOption
+            key={value}
+            name="category"
+            value={value}
+            checked={filters.category === value}
+            label={label}
+            onChange={() => update("category", value)}
+          />
+        ))}
+      </FilterSection>
 
-      {/* Trust Tier */}
-      <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Trust Tier
-        </legend>
-        <div className="space-y-1">
-          {TRUST_TIER_OPTIONS.map(({ value, label, colour }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              <input
-                type="radio"
-                name="trustTier"
-                value={value}
-                checked={filters.trustTier === value}
-                onChange={() => update("trustTier", value)}
-                className="accent-indigo-500"
-              />
-              <span className={colour || undefined}>{label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <FilterSection legend="Trust Tier">
+        {TRUST_TIER_OPTIONS.map(({ value, label, accent }) => (
+          <FilterOption
+            key={value}
+            name="trustTier"
+            value={value}
+            checked={filters.trustTier === value}
+            label={label}
+            accent={accent || undefined}
+            onChange={() => update("trustTier", value)}
+          />
+        ))}
+      </FilterSection>
 
-      {/* Pricing Model */}
-      <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Pricing Model
-        </legend>
-        <div className="space-y-1">
-          {PRICING_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              <input
-                type="radio"
-                name="pricingModel"
-                value={value}
-                checked={filters.pricingModel === value}
-                onChange={() => update("pricingModel", value)}
-                className="accent-indigo-500"
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <FilterSection legend="Pricing Model">
+        {PRICING_OPTIONS.map(({ value, label }) => (
+          <FilterOption
+            key={value}
+            name="pricingModel"
+            value={value}
+            checked={filters.pricingModel === value}
+            label={label}
+            onChange={() => update("pricingModel", value)}
+          />
+        ))}
+      </FilterSection>
 
-      {/* Sort */}
-      <fieldset>
-        <legend className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Sort By
-        </legend>
-        <div className="space-y-1">
-          {SORT_OPTIONS.map(({ value, label }) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-sm text-slate-700 hover:bg-slate-50"
-            >
-              <input
-                type="radio"
-                name="sort"
-                value={value}
-                checked={filters.sort === value}
-                onChange={() => update("sort", value)}
-                className="accent-indigo-500"
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <FilterSection legend="Sort By">
+        {SORT_OPTIONS.map(({ value, label }) => (
+          <FilterOption
+            key={value}
+            name="sort"
+            value={value}
+            checked={filters.sort === value}
+            label={label}
+            onChange={() => update("sort", value)}
+          />
+        ))}
+      </FilterSection>
     </aside>
   );
 }
@@ -291,18 +286,21 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
 
 function EmptyState({ onReset }: { onReset: () => void }): React.JSX.Element {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="text-4xl" aria-hidden="true">
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <div
+        className="flex h-16 w-16 items-center justify-center rounded-2xl glass ring-hairline text-3xl"
+        aria-hidden="true"
+      >
         🔍
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-slate-900">No agents match your filters</h3>
-      <p className="mt-2 max-w-sm text-sm text-slate-500">
+      <h3 className="mt-5 text-lg font-semibold text-porcelain">No agents match your filters</h3>
+      <p className="mt-2 max-w-sm text-sm text-porcelain/50">
         Try adjusting your search query, trust tier, or category to find verified agents.
       </p>
       <button
         type="button"
         onClick={onReset}
-        className="mt-6 inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        className="mt-6 inline-flex h-9 items-center gap-2 rounded-lg border border-ink-600 bg-ink-800 px-4 text-sm font-medium text-porcelain/70 transition-colors hover:bg-ink-700 hover:text-porcelain"
       >
         Reset all filters
       </button>
@@ -313,17 +311,17 @@ function EmptyState({ onReset }: { onReset: () => void }): React.JSX.Element {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const DEFAULT_FILTERS: Filters = {
-  query: "",
-  category: "all",
-  trustTier: "all",
+  query:        "",
+  category:     "all",
+  trustTier:    "all",
   pricingModel: "all",
-  sort: "trust_score",
+  sort:         "trust_score",
 };
 
 /**
- * Agent discovery page. Fetches live agents from the gateway
- * (`GET /v1/listings`) on mount, then applies filters client-side for instant
- * interaction. The filter panel manages local state, hence "use client".
+ * Agent discovery page. Fetches live agents from the gateway on mount, then
+ * applies filters client-side for instant interaction. Rendered inside the
+ * cinematic PageShell so it reads as a seamless extension of the homepage.
  */
 export default function AgentsPage(): React.JSX.Element {
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
@@ -353,22 +351,25 @@ export default function AgentsPage(): React.JSX.Element {
     };
   }, []);
 
-  const filteredAgents = React.useMemo(
-    () => applyFilters(agents, filters),
-    [agents, filters],
-  );
+  const filteredAgents = React.useMemo(() => applyFilters(agents, filters), [agents, filters]);
 
   const resetFilters = React.useCallback(() => {
     setFilters(DEFAULT_FILTERS);
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-6xl px-5 pb-24">
       {/* Page header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">AI Agent Marketplace</h1>
-        <p className="mt-2 text-slate-500">
-          Every agent is independently verified. Browse by trust tier, category, or price model.
+      <div className="mb-10">
+        <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
+          Marketplace
+        </span>
+        <h1 className="mt-3 text-4xl font-semibold text-porcelain">
+          AI Agent Marketplace
+        </h1>
+        <p className="mt-3 max-w-2xl text-base text-porcelain/55">
+          Every agent is independently verified. Browse by trust tier, category, or pricing model
+          and invoke through REST, MCP, chat, or A2A.
         </p>
       </div>
 
@@ -382,7 +383,7 @@ export default function AgentsPage(): React.JSX.Element {
 
       {/* Mobile filter toggle */}
       <div className="mb-4 flex items-center justify-between lg:hidden">
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-porcelain/50">
           {filteredAgents.length} {filteredAgents.length === 1 ? "agent" : "agents"}
         </span>
         <button
@@ -391,11 +392,11 @@ export default function AgentsPage(): React.JSX.Element {
           className={cn(
             "inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
             mobileFiltersOpen
-              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
+              ? "border-gold/30 bg-gold/10 text-gold"
+              : "border-ink-600 bg-ink-800 text-porcelain/70 hover:bg-ink-700",
           )}
           aria-expanded={mobileFiltersOpen}
-          aria-controls="filter-panel"
+          aria-controls="filter-panel-mobile"
         >
           <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
             <path d="M1.5 3.75a.75.75 0 0 1 .75-.75h11.5a.75.75 0 0 1 0 1.5H2.25a.75.75 0 0 1-.75-.75ZM3.5 8a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 3.5 8Zm2 4.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75Z" />
@@ -404,33 +405,31 @@ export default function AgentsPage(): React.JSX.Element {
         </button>
       </div>
 
-      {/* Mobile filters */}
+      {/* Mobile filters drawer */}
       {mobileFiltersOpen && (
         <div
           id="filter-panel-mobile"
-          className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-5 lg:hidden"
+          className="mb-6 overflow-hidden rounded-2xl glass ring-hairline p-5 lg:hidden"
         >
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            resultCount={filteredAgents.length}
-          />
+          <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} />
         </div>
       )}
 
-      {/* Main layout */}
+      {/* Main layout: sidebar + grid */}
       <div className="flex gap-8">
         {/* Sidebar — desktop only */}
         <div
           id="filter-panel"
-          className="hidden lg:block"
+          className="hidden shrink-0 lg:block"
           aria-label="Filter agents"
         >
-          <FilterPanel
-            filters={filters}
-            onChange={setFilters}
-            resultCount={filteredAgents.length}
-          />
+          <div className="sticky top-32 w-56 overflow-hidden rounded-2xl glass ring-hairline p-5">
+            <FilterPanel
+              filters={filters}
+              onChange={setFilters}
+              resultCount={filteredAgents.length}
+            />
+          </div>
         </div>
 
         {/* Agent grid */}
@@ -440,26 +439,27 @@ export default function AgentsPage(): React.JSX.Element {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-44 animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+                  className="h-52 animate-pulse rounded-2xl bg-ink-800 ring-hairline"
                 />
               ))}
             </div>
           ) : error ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="text-4xl" aria-hidden="true">
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-2xl glass ring-hairline text-3xl"
+                aria-hidden="true"
+              >
                 ⚠️
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                Something went wrong
-              </h3>
-              <p className="mt-2 max-w-sm text-sm text-slate-500">{error}</p>
+              <h3 className="mt-5 text-lg font-semibold text-porcelain">Something went wrong</h3>
+              <p className="mt-2 max-w-sm text-sm text-porcelain/50">{error}</p>
             </div>
           ) : filteredAgents.length === 0 ? (
             <EmptyState onReset={resetFilters} />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {filteredAgents.map((agent) => (
-                <AgentCard key={agent.id} agent={agent} />
+                <AgentCard key={agent.id} agent={agent} variant="dark" />
               ))}
             </div>
           )}

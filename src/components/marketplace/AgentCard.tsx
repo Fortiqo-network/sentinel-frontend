@@ -7,6 +7,8 @@ import type { Agent } from "@/types/agent";
 interface AgentCardProps {
   agent: Agent;
   className?: string;
+  /** "dark" renders on the cinematic ink surface; "light" on a white card. */
+  variant?: "light" | "dark";
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -20,35 +22,40 @@ function formatPrice(agent: Agent): string {
 
 interface TierBadgeProps {
   tier: Agent["tier"];
+  dark?: boolean;
 }
 
-function TierBadge({ tier }: TierBadgeProps): React.JSX.Element {
-  const config: Record<Agent["tier"], { label: string; className: string }> = {
+function TierBadge({ tier, dark }: TierBadgeProps): React.JSX.Element {
+  const config: Record<Agent["tier"], { label: string; light: string; dark: string }> = {
     verified: {
       label: "Routed",
-      className: "bg-slate-100 text-slate-600 border-slate-200",
+      light: "bg-slate-100 text-slate-600 border-slate-200",
+      dark:  "bg-ink-700 text-porcelain/60 border-porcelain/10",
     },
     managed: {
       label: "Managed",
-      className: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      light: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      dark:  "bg-sentinel-900/50 text-sentinel-300 border-sentinel-700/50",
     },
     registry: {
       label: "Routed",
-      className: "bg-slate-100 text-slate-600 border-slate-200",
+      light: "bg-slate-100 text-slate-600 border-slate-200",
+      dark:  "bg-ink-700 text-porcelain/60 border-porcelain/10",
     },
     proxy: {
       label: "Routed",
-      className: "bg-slate-100 text-slate-600 border-slate-200",
+      light: "bg-slate-100 text-slate-600 border-slate-200",
+      dark:  "bg-ink-700 text-porcelain/60 border-porcelain/10",
     },
   };
 
-  const { label, className } = config[tier];
+  const { label, light: lightCls, dark: darkCls } = config[tier];
 
   return (
     <span
       className={cn(
         "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-        className,
+        dark ? darkCls : lightCls,
       )}
     >
       {label}
@@ -69,39 +76,44 @@ function deriveCertStatus(agent: Agent): CertStatus {
 
 interface CertBadgeProps {
   status: CertStatus;
+  dark?: boolean;
 }
 
-function CertBadge({ status }: CertBadgeProps): React.JSX.Element {
-  const config: Record<CertStatus, { label: string; icon: string; className: string }> = {
+function CertBadge({ status, dark }: CertBadgeProps): React.JSX.Element {
+  const config: Record<CertStatus, { label: string; icon: string; light: string; dark: string }> = {
     certified_managed: {
       label: "Certified Managed",
-      icon: "🛡",
-      className: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      icon:  "🛡",
+      light: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      dark:  "bg-sentinel-900/40 text-sentinel-300 border-sentinel-700/30",
     },
     certified: {
       label: "Certified",
-      icon: "🛡",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      icon:  "🛡",
+      light: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      dark:  "bg-emerald-900/30 text-emerald-400 border-emerald-700/30",
     },
     provisional: {
       label: "Provisional",
-      icon: "🛡",
-      className: "bg-amber-50 text-amber-700 border-amber-200",
+      icon:  "🛡",
+      light: "bg-amber-50 text-amber-700 border-amber-200",
+      dark:  "bg-amber-900/30 text-amber-400 border-amber-700/30",
     },
     uncertified: {
       label: "Uncertified",
-      icon: "🛡",
-      className: "bg-slate-50 text-slate-500 border-slate-200",
+      icon:  "🛡",
+      light: "bg-slate-50 text-slate-500 border-slate-200",
+      dark:  "bg-ink-700 text-porcelain/40 border-porcelain/10",
     },
   };
 
-  const { label, icon, className } = config[status];
+  const { label, icon, light: lightCls, dark: darkCls } = config[status];
 
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
-        className,
+        dark ? darkCls : lightCls,
       )}
     >
       <span aria-hidden="true">{icon}</span>
@@ -114,58 +126,82 @@ function CertBadge({ status }: CertBadgeProps): React.JSX.Element {
 
 /**
  * Marketplace agent card. Shows agent icon, name, slug, description, trust
- * score badge (colour-coded), tier badge, cert status shield, tags as chips,
- * and formatted INR pricing. Links to the agent detail page.
+ * score badge (colour-coded), tier badge, cert status shield, tags, and
+ * formatted credit pricing. Links to the agent detail page.
  *
  * Trust score colouring: emerald ≥ 75, amber ≥ 50, red < 50.
  *
  * @example
  * <AgentCard agent={agent} />
+ * <AgentCard agent={agent} variant="dark" />
  */
-export function AgentCard({ agent, className }: AgentCardProps): React.JSX.Element {
+export function AgentCard({
+  agent,
+  className,
+  variant = "light",
+}: AgentCardProps): React.JSX.Element {
   const certStatus = deriveCertStatus(agent);
   const priceLabel = formatPrice(agent);
+  const dark = variant === "dark";
 
   return (
     <article
       className={cn(
-        "sentinel-card flex flex-col p-5 transition-all hover:shadow-md hover:border-slate-300",
+        "flex flex-col p-5 transition-all",
+        dark
+          ? "glass ring-hairline rounded-2xl hover:bg-ink-800/60"
+          : "sentinel-card hover:shadow-md hover:border-slate-300",
         className,
       )}
     >
       {/* Header row: icon + name + trust badge */}
       <div className="flex items-start gap-3">
-        {/* Icon */}
         <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-2xl"
+          className={cn(
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl",
+            dark ? "bg-ink-700" : "bg-indigo-50",
+          )}
           aria-hidden="true"
         >
           {agent.icon ?? "🤖"}
         </div>
 
-        {/* Name + slug + badges */}
         <div className="min-w-0 flex-1">
           <Link
             href={`/agents/${agent.slug}`}
-            className="block truncate font-semibold text-slate-900 hover:text-indigo-600 transition-colors"
+            className={cn(
+              "block truncate font-semibold transition-colors",
+              dark
+                ? "text-porcelain hover:text-gold"
+                : "text-slate-900 hover:text-indigo-600",
+            )}
           >
             {agent.name}
           </Link>
-          <p className="mt-0.5 truncate text-xs text-slate-400 font-mono">
+          <p
+            className={cn(
+              "mt-0.5 truncate font-mono text-xs",
+              dark ? "text-graphite" : "text-slate-400",
+            )}
+          >
             /{agent.slug}
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <TierBadge tier={agent.tier} />
-            <CertBadge status={certStatus} />
+            <TierBadge tier={agent.tier} dark={dark} />
+            <CertBadge status={certStatus} dark={dark} />
           </div>
         </div>
 
-        {/* Trust score */}
         <TrustBadge score={agent.trustScore} size="sm" />
       </div>
 
       {/* Description */}
-      <p className="mt-3 flex-1 text-sm text-slate-600 leading-relaxed line-clamp-3">
+      <p
+        className={cn(
+          "mt-3 flex-1 text-sm leading-relaxed line-clamp-3",
+          dark ? "text-porcelain/60" : "text-slate-600",
+        )}
+      >
         {agent.description}
       </p>
 
@@ -175,13 +211,21 @@ export function AgentCard({ agent, className }: AgentCardProps): React.JSX.Eleme
           {agent.tags.slice(0, 4).map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                dark ? "bg-ink-700 text-porcelain/70" : "bg-slate-100 text-slate-600",
+              )}
             >
               {tag}
             </span>
           ))}
           {agent.tags.length > 4 && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-400">
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                dark ? "bg-ink-700 text-porcelain/40" : "bg-slate-100 text-slate-400",
+              )}
+            >
               +{agent.tags.length - 4}
             </span>
           )}
@@ -189,15 +233,27 @@ export function AgentCard({ agent, className }: AgentCardProps): React.JSX.Eleme
       )}
 
       {/* Footer: price + CTA */}
-      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-        <div>
-          <span className="text-sm font-semibold text-slate-900">{priceLabel}</span>
-        </div>
+      <div
+        className={cn(
+          "mt-4 flex items-center justify-between border-t pt-4",
+          dark ? "border-porcelain/10" : "border-slate-100",
+        )}
+      >
+        <span
+          className={cn(
+            "text-sm font-semibold",
+            dark ? "text-porcelain" : "text-slate-900",
+          )}
+        >
+          {priceLabel}
+        </span>
         <Link
           href={`/agents/${agent.slug}`}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-            "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200",
+            "inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+            dark
+              ? "border-gold/20 bg-ink-700 text-gold hover:bg-ink-600"
+              : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
           )}
         >
           View Agent

@@ -19,12 +19,16 @@ type Feedback =
 
 /**
  * Runs an agent and charges the signed-in buyer's wallet for one successful
- * call, surfacing the result, the cost, and the remaining balance.
+ * call, surfacing the result, cost, and remaining balance.
  *
  * @example
- * <UseAgentButton slug="codereview-pro" priceLabel="₹5.00 / call" />
+ * <UseAgentButton developer="acme" slug="codereview-pro" priceLabel="5 Cr / call" />
  */
-export function UseAgentButton({ developer, slug, priceLabel }: UseAgentButtonProps): React.JSX.Element {
+export function UseAgentButton({
+  developer,
+  slug,
+  priceLabel,
+}: UseAgentButtonProps): React.JSX.Element {
   const [busy, setBusy] = React.useState(false);
   const [feedback, setFeedback] = React.useState<Feedback | null>(null);
 
@@ -38,9 +42,12 @@ export function UseAgentButton({ developer, slug, priceLabel }: UseAgentButtonPr
         text: `${r.output.result} Charged ${r.costCredits} Cr; balance ${r.balanceCredits} Cr.`,
       });
     } catch (err) {
-      if (isSentinelApiError(err) && err.statusCode === 402) setFeedback({ kind: "insufficient" });
-      else if (isSentinelApiError(err) && err.statusCode === 401) setFeedback({ kind: "login" });
-      else setFeedback({ kind: "error", text: "Could not run the agent. Please try again." });
+      if (isSentinelApiError(err) && err.statusCode === 402)
+        setFeedback({ kind: "insufficient" });
+      else if (isSentinelApiError(err) && err.statusCode === 401)
+        setFeedback({ kind: "login" });
+      else
+        setFeedback({ kind: "error", text: "Could not run the agent. Please try again." });
     } finally {
       setBusy(false);
     }
@@ -52,27 +59,38 @@ export function UseAgentButton({ developer, slug, priceLabel }: UseAgentButtonPr
         type="button"
         onClick={() => void run()}
         disabled={busy}
-        className="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+        className="w-full rounded-xl bg-gold py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/85 disabled:opacity-50"
       >
         {busy ? "Running…" : `Use Agent · ${priceLabel}`}
       </button>
 
       {feedback?.kind === "ok" && (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-700">{feedback.text}</p>
+        <p className="rounded-lg border border-emerald-700/30 bg-emerald-900/25 px-3 py-2 text-xs text-emerald-400">
+          {feedback.text}
+        </p>
       )}
       {feedback?.kind === "insufficient" && (
-        <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
+        <p className="rounded-lg border border-amber-700/30 bg-amber-900/25 px-3 py-2 text-xs text-amber-400">
           Not enough credits.{" "}
-          <Link href="/dashboard/billing" className="font-medium underline">Top up</Link> to continue.
+          <Link href="/dashboard/billing" className="font-medium underline">
+            Top up
+          </Link>{" "}
+          to continue.
         </p>
       )}
       {feedback?.kind === "login" && (
-        <p className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-          Please <Link href="/login" className="font-medium underline">log in</Link> to use this agent.
+        <p className="rounded-lg border border-porcelain/10 bg-ink-700 px-3 py-2 text-xs text-porcelain/60">
+          Please{" "}
+          <Link href="/login" className="font-medium text-gold underline">
+            log in
+          </Link>{" "}
+          to use this agent.
         </p>
       )}
       {feedback?.kind === "error" && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{feedback.text}</p>
+        <p className="rounded-lg border border-red-700/40 bg-red-900/25 px-3 py-2 text-xs text-red-400">
+          {feedback.text}
+        </p>
       )}
     </div>
   );

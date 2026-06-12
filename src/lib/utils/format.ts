@@ -2,6 +2,7 @@
  * Formatting utilities for currency, dates, and Sentinel-specific values.
  * All functions are pure and have no side effects.
  */
+import { trust } from "@/lib/design/colors";
 
 /** INR paise → formatted rupee string (e.g. 150000 → "₹1,500.00") */
 export function formatPaise(paise: number): string {
@@ -49,10 +50,10 @@ export interface TrustScoreLabel {
  * Bands: 0–39 Low (red), 40–69 Medium (amber), 70–89 High (green), 90–100 Elite (emerald).
  */
 export function formatTrustScore(score: number): TrustScoreLabel {
-  if (score >= 90) return { label: "Elite", color: "#10b981", band: "elite" };
-  if (score >= 70) return { label: "High", color: "#22c55e", band: "high" };
-  if (score >= 40) return { label: "Medium", color: "#f59e0b", band: "medium" };
-  return { label: "Low", color: "#ef4444", band: "low" };
+  if (score >= 90) return { label: "Elite", color: trust.elite, band: "elite" };
+  if (score >= 70) return { label: "High", color: trust.high,  band: "high" };
+  if (score >= 40) return { label: "Medium", color: trust.medium, band: "medium" };
+  return { label: "Low", color: trust.low, band: "low" };
 }
 
 /** Truncates a string to maxLength characters, appending "…" if truncated. */

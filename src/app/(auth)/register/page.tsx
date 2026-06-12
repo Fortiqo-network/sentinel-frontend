@@ -9,23 +9,20 @@ export const metadata: Metadata = {
 };
 
 /**
- * Registration page — role selector + account creation form.
+ * Registration page — glass card on the cinematic ink surface.
  * Account creation is proxied through the BFF to the gateway auth endpoint.
- *
- * @example
- * // Rendered at /register (route group: (auth))
  */
 export default function RegisterPage(): React.JSX.Element {
   return (
-    <div className="sentinel-card overflow-hidden">
-      {/* Card header strip */}
-      <div className="border-b border-slate-100 bg-slate-50 px-8 py-5">
-        <h1 className="text-lg font-semibold text-slate-900">Create your account</h1>
-        <p className="mt-0.5 text-sm text-slate-500">
+    <div className="overflow-hidden rounded-2xl glass ring-hairline">
+      {/* Card header */}
+      <div className="border-b border-porcelain/10 bg-ink-800/40 px-8 py-5">
+        <h1 className="text-lg font-semibold text-porcelain">Create your account</h1>
+        <p className="mt-0.5 text-sm text-porcelain/55">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="font-medium text-indigo-600 transition-colors hover:text-indigo-500"
+            className="font-medium text-gold transition-colors hover:text-gold/75"
           >
             Sign in
           </Link>

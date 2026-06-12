@@ -1,5 +1,4 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { PageShell } from "@/components/marketing/PageShell";
 
 interface MarketplaceLayoutProps {
   children: React.ReactNode;
@@ -7,14 +6,9 @@ interface MarketplaceLayoutProps {
 
 /**
  * Layout wrapper for all marketplace pages (agent grid, agent detail).
- * Includes the top navigation header and site footer.
+ * Uses the cinematic marketing shell so the marketplace reads as a natural
+ * extension of the landing experience — same ink surface, Nav, and Footer.
  */
 export default function MarketplaceLayout({ children }: MarketplaceLayoutProps): React.JSX.Element {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">{children}</main>
-      <Footer />
-    </div>
-  );
+  return <PageShell>{children}</PageShell>;
 }

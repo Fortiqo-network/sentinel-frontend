@@ -18,12 +18,11 @@ const PREVIEW_REPLY =
   "Use the marketplace 'Use agent' flow to run a real, charged call.";
 
 /**
- * Client-side playground component. Lists real verified agents from the gateway
- * and lets users compose messages against a selected agent.
+ * Client-side playground component. Lists real verified agents and lets users
+ * compose messages against a selected agent.
  *
- * Live execution is intentionally not wired up: the playground never calls an
- * invoke endpoint, so no credits are charged. Sending a message appends an
- * obvious preview reply instead of a real agent response.
+ * Live execution is intentionally not wired: no credits are charged.
+ * Sending a message appends an obvious preview reply.
  *
  * @example
  * <PlaygroundClient />
@@ -90,20 +89,25 @@ export function PlaygroundClient(): React.JSX.Element {
 
   return (
     <div className="space-y-4">
+      {/* Agent selector */}
       <div>
-        <label htmlFor="agent-select" className="mb-1.5 block text-sm font-medium text-slate-700">
+        <label
+          htmlFor="agent-select"
+          className="mb-1.5 block font-brand-mono text-xs uppercase tracking-[0.18em] text-gold/80"
+        >
           Choose an agent
         </label>
+
         {isFetchingAgents ? (
-          <div className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400">
+          <div className="w-full rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-porcelain/40">
             Loading agents…
           </div>
         ) : fetchError ? (
-          <div className="w-full rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600">
+          <div className="w-full rounded-lg border border-red-700/40 bg-red-900/20 px-3 py-2 text-sm text-red-400">
             {fetchError}
           </div>
         ) : agents.length === 0 ? (
-          <div className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+          <div className="w-full rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-porcelain/40">
             No agents are available yet.
           </div>
         ) : (
@@ -114,7 +118,7 @@ export function PlaygroundClient(): React.JSX.Element {
               setSelectedAgentId(e.target.value);
               setMessages([]);
             }}
-            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="w-full rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-porcelain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
           >
             <option value="">Select an agent…</option>
             {agents.map((agent) => (
@@ -129,9 +133,10 @@ export function PlaygroundClient(): React.JSX.Element {
 
       {selectedAgentId && (
         <>
-          <div className="h-64 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3 scrollbar-thin">
+          {/* Message thread */}
+          <div className="h-64 space-y-3 overflow-y-auto rounded-xl border border-porcelain/10 bg-ink-800/50 p-4 scrollbar-thin">
             {messages.length === 0 && (
-              <p className="text-center text-sm text-slate-400 mt-8">
+              <p className="mt-8 text-center text-sm text-porcelain/35">
                 Send a message to start a conversation with {selectedAgent?.name}.
               </p>
             )}
@@ -142,10 +147,10 @@ export function PlaygroundClient(): React.JSX.Element {
               >
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                    "max-w-[80%] rounded-xl px-3 py-2 text-sm",
                     msg.role === "user"
-                      ? "bg-indigo-500 text-white"
-                      : "bg-white border border-slate-200 text-slate-700"
+                      ? "bg-gold/90 font-medium text-ink-950"
+                      : "border border-porcelain/10 bg-ink-700 text-porcelain/70",
                   )}
                 >
                   {msg.content}
@@ -155,23 +160,26 @@ export function PlaygroundClient(): React.JSX.Element {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* Input row */}
           <div className="flex gap-2">
             <Input
               placeholder="Type a task or question…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              variant="dark"
               className="flex-1"
             />
             <Button
               onClick={() => sendMessage()}
               disabled={!input.trim()}
-              className="bg-indigo-500 hover:bg-indigo-400"
+              className="bg-gold text-ink-950 hover:bg-gold/85 focus-visible:ring-gold"
             >
               Send
             </Button>
           </div>
-          <p className="text-xs text-slate-400">
+
+          <p className="text-xs text-porcelain/35">
             Preview only — the playground does not run agents or charge credits.
           </p>
         </>

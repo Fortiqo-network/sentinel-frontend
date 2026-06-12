@@ -19,20 +19,19 @@ interface RoleOption {
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
-  { id: "buyer", icon: "🛒", title: "I'm a Buyer", subtitle: "I use agents to automate workflows" },
+  { id: "buyer",     icon: "🛒", title: "I'm a Buyer",     subtitle: "I use agents to automate workflows" },
   { id: "developer", icon: "⚙️", title: "I'm a Developer", subtitle: "I build and publish agents" },
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface PasswordStrength {
-  score: number; // 0–4
+  score: number;
   label: string;
   barClass: string;
   textClass: string;
 }
 
-/** Score password strength 0–4 from length and character variety. */
 function scorePassword(pw: string): PasswordStrength {
   let score = 0;
   if (pw.length >= 8) score += 1;
@@ -40,33 +39,33 @@ function scorePassword(pw: string): PasswordStrength {
   if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
   if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score += 1;
   const map: PasswordStrength[] = [
-    { score: 1, label: "Weak", barClass: "bg-red-400", textClass: "text-red-600" },
-    { score: 2, label: "Fair", barClass: "bg-amber-400", textClass: "text-amber-600" },
-    { score: 3, label: "Good", barClass: "bg-lime-500", textClass: "text-lime-600" },
-    { score: 4, label: "Strong", barClass: "bg-emerald-500", textClass: "text-emerald-600" },
+    { score: 1, label: "Weak",   barClass: "bg-red-500",     textClass: "text-red-400" },
+    { score: 2, label: "Fair",   barClass: "bg-amber-500",   textClass: "text-amber-400" },
+    { score: 3, label: "Good",   barClass: "bg-lime-500",    textClass: "text-lime-400" },
+    { score: 4, label: "Strong", barClass: "bg-emerald-500", textClass: "text-emerald-400" },
   ];
   return (
     map[score - 1] ?? {
-      score: 0,
-      label: "Too short",
-      barClass: "bg-slate-200",
-      textClass: "text-slate-400",
+      score:     0,
+      label:     "Too short",
+      barClass:  "bg-ink-600",
+      textClass: "text-porcelain/40",
     }
   );
 }
 
 interface FormValues {
-  displayName: string;
-  email: string;
-  password: string;
+  displayName:     string;
+  email:           string;
+  password:        string;
   confirmPassword: string;
 }
 
 /**
  * Registration form with live validation, a password-strength meter, a
  * show/hide-password toggle, and inline per-field errors. Submits to the
- * gateway (`POST /v1/auth/register`), which creates the account and starts a
- * session, then redirects to the dashboard.
+ * gateway (`POST /v1/auth/register`), creates the account, then redirects to
+ * the dashboard.
  *
  * @example
  * <RegisterForm />
@@ -75,15 +74,15 @@ export function RegisterForm(): React.JSX.Element {
   const router = useRouter();
   const [role, setRole] = React.useState<Role>("buyer");
   const [values, setValues] = React.useState<FormValues>({
-    displayName: "",
-    email: "",
-    password: "",
+    displayName:     "",
+    email:           "",
+    password:        "",
     confirmPassword: "",
   });
   const [touched, setTouched] = React.useState<Record<keyof FormValues, boolean>>({
-    displayName: false,
-    email: false,
-    password: false,
+    displayName:     false,
+    email:           false,
+    password:        false,
     confirmPassword: false,
   });
   const [showPassword, setShowPassword] = React.useState(false);
@@ -123,8 +122,8 @@ export function RegisterForm(): React.JSX.Element {
     setIsSubmitting(true);
     try {
       await register({
-        email: values.email.trim(),
-        password: values.password,
+        email:       values.email.trim(),
+        password:    values.password,
         displayName: values.displayName.trim(),
         role,
       });
@@ -153,7 +152,9 @@ export function RegisterForm(): React.JSX.Element {
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5" noValidate>
       {/* ── Role selector ─────────────────────────────────────────────────── */}
       <fieldset>
-        <legend className="mb-2 text-sm font-medium text-slate-700">I am joining as…</legend>
+        <legend className="mb-2 font-brand-mono text-xs uppercase tracking-[0.18em] text-gold/80">
+          I am joining as…
+        </legend>
         <div className="grid grid-cols-2 gap-3">
           {ROLE_OPTIONS.map(({ id, icon, title, subtitle }) => (
             <button
@@ -162,17 +163,22 @@ export function RegisterForm(): React.JSX.Element {
               onClick={() => setRole(id)}
               aria-pressed={role === id}
               className={cn(
-                "rounded-lg border p-3 text-left text-sm transition-all",
+                "rounded-xl border p-3 text-left text-sm transition-all",
                 role === id
-                  ? "border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500"
-                  : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50",
+                  ? "border-gold/50 bg-gold/10 ring-1 ring-gold/40"
+                  : "border-porcelain/15 hover:border-porcelain/25 hover:bg-ink-700",
               )}
             >
               <span className="mb-1 block text-xl leading-none">{icon}</span>
-              <span className={cn("block font-semibold", role === id ? "text-indigo-700" : "text-slate-900")}>
+              <span
+                className={cn(
+                  "block font-semibold",
+                  role === id ? "text-gold" : "text-porcelain",
+                )}
+              >
                 {title}
               </span>
-              <span className="mt-0.5 block text-xs text-slate-500">{subtitle}</span>
+              <span className="mt-0.5 block text-xs text-porcelain/50">{subtitle}</span>
             </button>
           ))}
         </div>
@@ -188,6 +194,7 @@ export function RegisterForm(): React.JSX.Element {
         onChange={set("displayName")}
         onBlur={blur("displayName")}
         error={show("displayName")}
+        variant="dark"
         required
       />
 
@@ -201,6 +208,7 @@ export function RegisterForm(): React.JSX.Element {
         onChange={set("email")}
         onBlur={blur("email")}
         error={show("email")}
+        variant="dark"
         required
       />
 
@@ -215,9 +223,9 @@ export function RegisterForm(): React.JSX.Element {
           onChange={set("password")}
           onBlur={blur("password")}
           error={show("password")}
+          variant="dark"
           required
         />
-        {/* Strength meter */}
         {values.password.length > 0 && (
           <div className="flex items-center gap-2">
             <div className="flex h-1.5 flex-1 gap-1">
@@ -226,12 +234,14 @@ export function RegisterForm(): React.JSX.Element {
                   key={i}
                   className={cn(
                     "h-full flex-1 rounded-full transition-colors",
-                    i <= strength.score ? strength.barClass : "bg-slate-200",
+                    i <= strength.score ? strength.barClass : "bg-ink-600",
                   )}
                 />
               ))}
             </div>
-            <span className={cn("text-xs font-medium", strength.textClass)}>{strength.label}</span>
+            <span className={cn("text-xs font-medium", strength.textClass)}>
+              {strength.label}
+            </span>
           </div>
         )}
       </div>
@@ -246,15 +256,16 @@ export function RegisterForm(): React.JSX.Element {
         onChange={set("confirmPassword")}
         onBlur={blur("confirmPassword")}
         error={show("confirmPassword")}
+        variant="dark"
         required
       />
 
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-porcelain/60">
         <input
           type="checkbox"
           checked={showPassword}
           onChange={(e) => setShowPassword(e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-indigo-600 accent-indigo-600"
+          className="h-4 w-4 rounded border-ink-600 accent-gold"
         />
         Show passwords
       </label>
@@ -266,34 +277,37 @@ export function RegisterForm(): React.JSX.Element {
           name="acceptTerms"
           checked={acceptTerms}
           onChange={(e) => setAcceptTerms(e.target.checked)}
-          className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 accent-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+          className="mt-0.5 h-4 w-4 rounded border-ink-600 accent-gold focus:ring-2 focus:ring-gold/50 focus:ring-offset-ink-950"
         />
-        <span className="text-sm text-slate-600">
+        <span className="text-sm text-porcelain/60">
           I agree to the{" "}
-          <Link href="/terms" className="font-medium text-indigo-600 underline hover:text-indigo-500">
+          <Link href="/terms" className="font-medium text-gold underline hover:text-gold/75">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="font-medium text-indigo-600 underline hover:text-indigo-500">
+          <Link href="/privacy" className="font-medium text-gold underline hover:text-gold/75">
             Privacy Policy
           </Link>
         </span>
       </label>
       {submitAttempted && !acceptTerms && (
-        <p role="alert" className="text-xs text-red-600">
+        <p role="alert" className="text-xs text-red-400">
           You must accept the Terms and Privacy Policy to continue.
         </p>
       )}
 
       {error !== undefined && (
-        <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-700/40 bg-red-900/25 px-3 py-2 text-sm text-red-400"
+        >
           {error}
         </p>
       )}
 
       <Button
         type="submit"
-        className="w-full bg-indigo-600 font-medium hover:bg-indigo-500"
+        className="w-full bg-gold font-semibold text-ink-950 hover:bg-gold/85 focus-visible:ring-gold focus-visible:ring-offset-ink-950"
         disabled={isSubmitting || (submitAttempted && !isValid)}
       >
         {isSubmitting ? "Creating account…" : "Create Account"}
