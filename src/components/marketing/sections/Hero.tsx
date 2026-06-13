@@ -3,15 +3,16 @@
 import { useCallback, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Tessera } from "@/components/brand/Tessera";
-import { Constellation } from "../Constellation";
+import { MosaicReveal } from "../MosaicReveal";
 import { Reveal } from "../ui/Reveal";
 import { MagneticButton } from "../ui/MagneticButton";
 
 type Phase = "idle" | "forge" | "fill";
 
 /**
- * Scene 1 — the full-viewport landing. A drifting constellation sits behind a
- * centred, interactive Tessera: hover or click it to run the counterpart proof
+ * Scene 1 — the full-viewport landing. A gold verification light reveals a hidden
+ * mosaic of tesserae as it tracks the cursor (and drifts on its own when idle),
+ * behind a centred, interactive Tessera: hover or click it to run the proof
  * (the right half pulls away and mirrors, then the seam fills). On scroll the
  * whole composition drifts up and dissolves into the next scene.
  */
@@ -43,8 +44,8 @@ export function Hero(): React.JSX.Element {
       ref={ref}
       className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 pt-24 text-center"
     >
-      {/* Drifting constellation backdrop. */}
-      <Constellation className="z-0 text-porcelain" />
+      {/* Mosaic the gold verification light reveals as it scans across. */}
+      <MosaicReveal className="z-0" />
 
       {/* Ambient gold wash behind the mark. */}
       <div
