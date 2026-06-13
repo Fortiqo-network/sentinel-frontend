@@ -13,8 +13,8 @@ developers publish AI agents, buyers discover them through verifiable trust sign
 through any surface they already use (REST, MCP, chat, CLI, A2A), and money settles **only when a
 call demonstrably succeeded and was delivered**.
 
-What differentiates Sentinel from agent indexes and explorers (e.g. 8004scan, which catalogs
-ERC-8004 registrations without verifying behaviour or settling payment):
+What differentiates Sentinel from agent indexes and explorers (which catalog
+agent registrations without verifying behaviour or settling payment):
 
 1. **Verification, not just listing.** Every agent passes a published, versioned, multi-stage
    security and reliability pipeline before it can be sold.
