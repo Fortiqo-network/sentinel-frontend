@@ -1,5 +1,14 @@
 # sentinel-frontend — Developer Guide for Claude Code
 
+> **Operating rules — highest priority, read first.** These override convenience and apply to every change in this repo:
+> - **Data is sacred.** Never delete or edit existing records or tables. Corrections are new rows or status changes, never destructive. **Ask permission before deleting any table or data.**
+> - **The database is always Postgres.** Never substitute SQLite or another engine, including in tests.
+> - **Comments:** at most one line and only when genuinely needed — never comment uselessly. Prefer docstrings / JSDoc and keep them thorough and up to date.
+> - **Commits:** a single concise line. **Never push without explicit permission.**
+> - **Code:** clean, reusable, and good-smelling in every manner. Don't overengineer, don't invent requirements, make the smallest change that works, and recommend better approaches over the existing one.
+> - **Always work from a plan and keep in mind what we are building** (this repo's `docs/` and the platform docs).
+
+
 ## Project overview
 
 Next.js 15 App Router frontend for the Sentinel AI agent marketplace. Talks exclusively to `sentinel-gateway`
@@ -112,3 +121,10 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 - All user- and API-facing values are **credits** (short form **Cr**). Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
 - Conversion: **1 Cr = ₹1 = 100 paise** (current). 1 USD ≈ 95 Cr (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses credits only.
 - API contract fields use the `*Credits` suffix (`priceCredits`, `balanceCredits`, `costCredits`, `payableCredits`, `originalCredits`, `currentCredits`); ledger/invoice/top-up amounts use the `credits` key.
+
+
+## Security & architecture references
+
+- **Security & critical flags:** `sentinel-core-api/master-doc/security-todo.md` (severity-ranked, with file:line). Check it before touching auth, money, or proxy paths; tick items when fixed, never remove.
+- **Repo relationship map:** `sentinel-core-api/master-doc/architecture-map.md` (who calls whom, money/trust data-flow, the billing trust-boundary note).
+- Swagger `/docs` + `/redoc` are intentionally **kept exposed for now** — do not disable without owner sign-off.
