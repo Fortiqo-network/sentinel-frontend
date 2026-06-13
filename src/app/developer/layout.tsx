@@ -19,10 +19,10 @@ export default async function DeveloperLayout({ children }: DeveloperLayoutProps
   if (user.role === "buyer") redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader />
-      <div className="flex flex-1">
-        <Sidebar mode="developer" />
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar mode="developer" />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <DashboardHeader />
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
       </div>
     </div>

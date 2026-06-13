@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/brand/Logo";
+import { useUIStore } from "@/store/ui";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -122,10 +123,10 @@ const DEVELOPER_LINKS: SidebarLink[] = [
 /**
  * Dashboard sidebar navigation. Renders developer or buyer nav link sets
  * based on the `mode` prop. Highlights the currently active route.
- * Branding is shown at the top; collapses at mobile viewports.
+ * A hamburger button at the top toggles between expanded (labels visible)
+ * and collapsed (icons only) states.
  *
  * @example
- * // In a layout:
  * <Sidebar mode="developer" />
  * <Sidebar mode="buyer" />
  *
@@ -134,6 +135,7 @@ const DEVELOPER_LINKS: SidebarLink[] = [
  */
 export function Sidebar({ mode = "buyer", className, links: overrideLinks }: SidebarProps): React.JSX.Element {
   const pathname = usePathname();
+  const { sidebarCollapsed: collapsed } = useUIStore();
 
   const resolvedLinks: SidebarLink[] =
     overrideLinks
@@ -151,33 +153,49 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
   return (
     <aside
       className={cn(
-        "hidden w-56 shrink-0 flex-col border-r border-slate-200 bg-slate-50 lg:flex",
+        "hidden shrink-0 flex-col border-r border-slate-200 bg-slate-50 overflow-y-auto transition-all duration-300 lg:flex",
+        collapsed ? "w-14" : "w-56",
         className,
       )}
     >
-      {/* Branding + mode indicator */}
-      <div className="flex flex-col gap-0.5 border-b border-slate-200 px-5 py-4">
-        <Logo href="/" sealStroke="currentColor" className="text-slate-900" />
-        <span className="mt-1 text-xs font-medium text-indigo-600 uppercase tracking-wide">
-          {modeLabel} Portal
-        </span>
+      {/* Branding */}
+      <div
+        className={cn(
+          "flex border-b border-slate-200",
+          collapsed ? "justify-center px-0 py-4" : "flex-col gap-0.5 px-5 py-4",
+        )}
+      >
+        <Logo
+          href="/"
+          sealStroke="currentColor"
+          showWordmark={!collapsed}
+          className="text-slate-900"
+        />
+        {!collapsed && (
+          <span className="mt-1 text-xs font-medium text-indigo-600 uppercase tracking-wide">
+            {modeLabel} Portal
+          </span>
+        )}
       </div>
 
       {/* Nav links */}
-      <nav className="flex flex-col gap-0.5 p-3 flex-1" aria-label="Dashboard navigation">
+      <nav
+        className={cn("flex flex-col gap-0.5 flex-1", collapsed ? "p-2" : "p-3")}
+        aria-label="Dashboard navigation"
+      >
         {resolvedLinks.map(({ href, label, icon }) => {
-          // Exact match for root segments, prefix match for sub-pages
           const isActive =
             pathname === href ||
-            (href !== "/dashboard" && href !== "/developer" && pathname.startsWith(href + "/")) ||
-            (pathname === href);
+            (href !== "/dashboard" && href !== "/developer" && pathname.startsWith(href + "/"));
 
           return (
             <Link
               key={href}
               href={href}
+              title={collapsed ? label : undefined}
               className={cn(
-                "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "flex items-center rounded-lg text-sm font-medium transition-colors",
+                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
                 isActive
                   ? "bg-indigo-100 text-indigo-700"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
@@ -192,12 +210,11 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
               >
                 {icon}
               </span>
-              {label}
+              {!collapsed && label}
             </Link>
           );
         })}
       </nav>
-
     </aside>
   );
 }

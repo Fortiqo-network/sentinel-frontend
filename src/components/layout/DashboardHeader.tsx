@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { Logo } from "@/components/brand/Logo";
+import { useUIStore } from "@/store/ui";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -308,6 +308,7 @@ function ProfileDropdown({ displayName, initial, profileHref }: ProfileDropdownP
  */
 export function DashboardHeader(): React.JSX.Element {
   const { user } = useAuthStore();
+  const { sidebarCollapsed, setSidebarCollapsed } = useUIStore();
 
   const displayName = user?.displayName ?? user?.email ?? "Account";
   const initial = displayName.charAt(0).toUpperCase();
@@ -317,7 +318,17 @@ export function DashboardHeader(): React.JSX.Element {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
       <div className="flex h-14 items-center justify-between px-4 sm:px-6">
-        <Logo href="/" sealStroke="currentColor" className="flex-shrink-0 text-slate-900" />
+        {/* Hamburger — toggles sidebar collapsed state */}
+        <button
+          type="button"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="flex items-center justify-center rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
 
         <div className="flex items-center gap-2">
           <NotificationPanel />
