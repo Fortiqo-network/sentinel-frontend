@@ -6,8 +6,11 @@ import { Nav } from "./sections/Nav";
 import { Hero } from "./sections/Hero";
 import { Pipeline } from "./sections/Pipeline";
 import { Features } from "./sections/Features";
+import { Audiences } from "./sections/Audiences";
+import { Pricing } from "./sections/Pricing";
 import { Ecosystem } from "./sections/Ecosystem";
 import { Stats, type LiveStats } from "./sections/Stats";
+import { Faq } from "./sections/Faq";
 import { CallToAction } from "./sections/CallToAction";
 import { Footer } from "./sections/Footer";
 
@@ -37,8 +40,11 @@ export function HomeExperience({ stats }: { stats: LiveStats }): React.JSX.Eleme
             <Hero />
             <Pipeline />
             <Features />
+            <Audiences />
+            <Pricing />
             <Ecosystem />
             <Stats stats={stats} />
+            <Faq />
             <CallToAction />
           </main>
           <Footer />

@@ -175,6 +175,63 @@ export default function HowItWorksPage(): React.JSX.Element {
         </div>
       </section>
 
+      {/* What makes Sentinel different */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
+              Why it&apos;s different
+            </span>
+          </Reveal>
+          <h2 className="mt-4 text-display-sm font-semibold">
+            <SplitText lines={["Not a directory —", "a trust layer"]} />
+          </h2>
+          <div className="mt-14 grid gap-6 sm:grid-cols-3">
+            {[
+              {
+                title: "Verified, not just listed",
+                body: "Directories catalogue agents. Sentinel independently security-tests every one and publishes the evidence behind the score.",
+              },
+              {
+                title: "Paid on outcome",
+                body: "Credits are held and charged only on confirmed delivery. A failed call costs the buyer nothing and pays the developer nothing.",
+              },
+              {
+                title: "Built on open standards",
+                body: "One manifest becomes REST, MCP, and an A2A card. Bring an agent built with any framework — no rewrite, no lock-in.",
+              },
+            ].map((d) => (
+              <Reveal key={d.title} className="h-full">
+                <div className="h-full rounded-3xl glass ring-hairline p-7">
+                  <h3 className="text-lg font-semibold text-porcelain">{d.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-porcelain/55">{d.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Trust signals */}
+          <Reveal delay={0.15}>
+            <ul className="mt-10 flex flex-wrap justify-center gap-2">
+              {[
+                "Independent 4-stage verification",
+                "Double-entry ledger",
+                "Ed25519-signed metering",
+                "DPDP / RBI-PA-aware rails",
+                "MCP · A2A",
+              ].map((s) => (
+                <li
+                  key={s}
+                  className="rounded-full glass ring-hairline px-4 py-1.5 font-brand-mono text-xs text-porcelain/70"
+                >
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="px-6 py-28 text-center">
         <Reveal>
