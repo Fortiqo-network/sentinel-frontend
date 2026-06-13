@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { login } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
+import { useAuthStore } from "@/store/auth";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -20,6 +21,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export function LoginForm(): React.JSX.Element {
   const router = useRouter();
+  const { setUser } = useAuthStore();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [touched, setTouched] = React.useState({ email: false, password: false });
@@ -40,8 +42,9 @@ export function LoginForm(): React.JSX.Element {
 
     setIsSubmitting(true);
     try {
-      await login({ email: email.trim(), password });
-      router.push("/dashboard");
+      const user = await login({ email: email.trim(), password });
+      setUser(user);
+      router.push(user.role === "developer" ? "/developer" : "/dashboard");
       router.refresh();
     } catch (err) {
       if (isSentinelApiError(err)) {

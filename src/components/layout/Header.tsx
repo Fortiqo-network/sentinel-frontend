@@ -26,7 +26,11 @@ const PUBLIC_NAV: NavLink[] = [
 // Dashboard dropdown
 // ---------------------------------------------------------------------------
 
-function DashboardDropdown(): React.JSX.Element {
+interface DashboardDropdownProps {
+  role: "buyer" | "developer" | "admin";
+}
+
+function DashboardDropdown({ role }: DashboardDropdownProps): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -40,6 +44,10 @@ function DashboardDropdown(): React.JSX.Element {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  const isDeveloper = role === "developer";
+  const portalHref = isDeveloper ? "/developer" : "/dashboard";
+  const portalLabel = isDeveloper ? "Developer Dashboard" : "Buyer Dashboard";
 
   return (
     <div ref={ref} className="relative">
@@ -70,24 +78,14 @@ function DashboardDropdown(): React.JSX.Element {
         <div className="absolute right-0 mt-1.5 w-48 rounded-xl border border-slate-200 bg-white shadow-lg z-50 overflow-hidden">
           <div className="py-1">
             <Link
-              href="/dashboard"
+              href={portalHref}
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
             >
               <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Buyer Dashboard
-            </Link>
-            <Link
-              href="/developer"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors"
-            >
-              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              Developer Dashboard
+              {portalLabel}
             </Link>
           </div>
           <div className="border-t border-slate-100 py-1">
@@ -116,10 +114,15 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   isAuthenticated: boolean;
+  role?: "buyer" | "developer" | "admin";
 }
 
-function MobileMenu({ open, onClose, isAuthenticated }: MobileMenuProps): React.JSX.Element | null {
+function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): React.JSX.Element | null {
   if (!open) return null;
+
+  const isDeveloper = role === "developer";
+  const portalHref = isDeveloper ? "/developer" : "/dashboard";
+  const portalLabel = isDeveloper ? "Developer Dashboard" : "Buyer Dashboard";
 
   return (
     <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden shadow-sm">
@@ -138,18 +141,11 @@ function MobileMenu({ open, onClose, isAuthenticated }: MobileMenuProps): React.
           {isAuthenticated ? (
             <>
               <Link
-                href="/dashboard"
+                href={portalHref}
                 onClick={onClose}
                 className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                Buyer Dashboard
-              </Link>
-              <Link
-                href="/developer"
-                onClick={onClose}
-                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Developer Dashboard
+                {portalLabel}
               </Link>
               <Link
                 href="/api/auth/logout"
@@ -241,7 +237,7 @@ export function Header(): React.JSX.Element {
               <span className="text-sm text-slate-500 hidden lg:block">
                 {user.displayName ?? user.email}
               </span>
-              <DashboardDropdown />
+              <DashboardDropdown role={user.role} />
             </>
           ) : (
             <>
@@ -286,6 +282,7 @@ export function Header(): React.JSX.Element {
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         isAuthenticated={isAuthenticated}
+        role={user?.role}
       />
     </header>
   );

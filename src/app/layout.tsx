@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/ui/toaster";
 
 // ── Font setup ────────────────────────────────────────────────────────────────
@@ -92,9 +93,11 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
     >
       <body className="font-sans antialiased">
         <QueryProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
+          <AuthProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

@@ -198,18 +198,6 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
         })}
       </nav>
 
-      {/* Bottom: switch portal link */}
-      <div className="border-t border-slate-200 p-3">
-        <Link
-          href={mode === "developer" ? "/dashboard" : "/developer"}
-          className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
-        >
-          <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-          </svg>
-          Switch to {mode === "developer" ? "Buyer" : "Developer"} Portal
-        </Link>
-      </div>
     </aside>
   );
 }
