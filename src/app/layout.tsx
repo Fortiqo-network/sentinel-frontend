@@ -89,7 +89,6 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} ${plexMono.variable}`}
-      suppressHydrationWarning
     >
       <body className="font-sans antialiased">
         <QueryProvider>

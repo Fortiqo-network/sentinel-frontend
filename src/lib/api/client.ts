@@ -150,7 +150,12 @@ apiClient.interceptors.response.use(
     const apiError = new SentinelApiError(statusCode, body, traceId);
 
     if (statusCode === 401 && typeof window !== "undefined") {
-      window.location.href = "/login";
+      const { pathname } = window.location;
+      const isProtected =
+        pathname.startsWith("/dashboard") || pathname.startsWith("/developer");
+      if (isProtected) {
+        window.location.href = "/login";
+      }
     }
 
     return Promise.reject(apiError);

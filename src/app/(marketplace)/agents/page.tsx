@@ -409,7 +409,7 @@ export default function AgentsPage(): React.JSX.Element {
       {mobileFiltersOpen && (
         <div
           id="filter-panel-mobile"
-          className="mb-6 overflow-hidden rounded-2xl glass ring-hairline p-5 lg:hidden"
+          className="mb-6 overflow-hidden rounded-2xl glass ring-hairline p-5 lg:hidden shadow-sm"
         >
           <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} />
         </div>

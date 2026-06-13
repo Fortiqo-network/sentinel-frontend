@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { register } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
+import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
 
 type Role = "buyer" | "developer";
@@ -64,14 +65,15 @@ interface FormValues {
 /**
  * Registration form with live validation, a password-strength meter, a
  * show/hide-password toggle, and inline per-field errors. Submits to the
- * gateway (`POST /v1/auth/register`), creates the account, then redirects to
- * the dashboard.
+ * gateway (`POST /v1/auth/register`), creates the account and establishes a
+ * session (same as login), then redirects to the role-appropriate portal.
  *
  * @example
  * <RegisterForm />
  */
 export function RegisterForm(): React.JSX.Element {
   const router = useRouter();
+  const { setUser } = useAuthStore();
   const [role, setRole] = React.useState<Role>("buyer");
   const [values, setValues] = React.useState<FormValues>({
     displayName:     "",
@@ -121,13 +123,14 @@ export function RegisterForm(): React.JSX.Element {
 
     setIsSubmitting(true);
     try {
-      await register({
+      const user = await register({
         email:       values.email.trim(),
         password:    values.password,
         displayName: values.displayName.trim(),
         role,
       });
-      router.push("/dashboard");
+      setUser(user);
+      router.push(user.role === "developer" ? "/developer" : "/dashboard");
       router.refresh();
     } catch (err) {
       if (isSentinelApiError(err)) {
