@@ -3,13 +3,18 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils/cn";
 
+/** The Tessera halves (240 viewBox) used to stamp the logo glyph sprites. */
+const HALF_LEFT = "M98 45 H69 A24 24 0 0 0 45 69 V171 A24 24 0 0 0 69 195 H128 V119 H98 Z";
+const HALF_RIGHT = "M112 45 H171 A24 24 0 0 1 195 69 V171 A24 24 0 0 1 171 195 H142 V105 H112 Z";
+
 const PORCELAIN = "236, 234, 227";
 const GOLD = "231, 160, 60";
 
-const SPACING = 38;
-const TILE = 3.4;
-const RADIUS = 230;
-const BASE_ALPHA = 0.05;
+const SPACING = 66;
+const GLYPH = 30;
+const SPRITE_RES = 84;
+const RADIUS = 240;
+const BASE_ALPHA = 0.06;
 
 interface Tile {
   x: number;
@@ -17,12 +22,29 @@ interface Tile {
   seed: number;
 }
 
+/** Pre-render the Tessera mark once (two halves, no seam) in the given colour. */
+function buildGlyph(color: string): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = SPRITE_RES;
+  c.height = SPRITE_RES;
+  const g = c.getContext("2d");
+  if (!g) return c;
+  const scale = SPRITE_RES / 215;
+  g.translate(SPRITE_RES / 2 - 120 * scale, SPRITE_RES / 2 - 120 * scale);
+  g.scale(scale, scale);
+  g.fillStyle = color;
+  g.fill(new Path2D(HALF_LEFT));
+  g.fill(new Path2D(HALF_RIGHT));
+  return c;
+}
+
 /**
- * Signature hero backdrop — a dark mosaic of tesserae that a gold "verification"
- * light reveals as it moves: it follows the pointer and, when idle, drifts on its
- * own Lissajous path. Tiles inside the light ignite (gold→porcelain), scale up,
- * and fade behind it, as if structure is being scanned into view. One Canvas 2D
- * layer, DPR-capped, paused off-screen, static under reduced motion.
+ * Signature hero backdrop — a faint field of Sentinel marks that a gold
+ * "verification" light reveals as it moves: it follows the pointer and, when
+ * idle, drifts on its own Lissajous path. Marks inside the light ignite
+ * (gold→porcelain) and scale up, then fade behind it, as if structure is being
+ * scanned into view. One Canvas 2D layer with cached glyph sprites, DPR-capped,
+ * paused off-screen, static under reduced motion.
  *
  * @example
  * <MosaicReveal className="z-0" />
@@ -38,6 +60,9 @@ export function MosaicReveal({ className }: { className?: string }): React.JSX.E
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const glyphGold = buildGlyph(`rgba(${GOLD}, 1)`);
+    const glyphPorcelain = buildGlyph(`rgba(${PORCELAIN}, 1)`);
+
     let width = 0;
     let height = 0;
     let tiles: Tile[] = [];
@@ -63,9 +88,11 @@ export function MosaicReveal({ className }: { className?: string }): React.JSX.E
       tiles = [];
       const cols = Math.ceil(width / SPACING) + 1;
       const rows = Math.ceil(height / SPACING) + 1;
+      const offX = (width - (cols - 1) * SPACING) / 2;
+      const offY = (height - (rows - 1) * SPACING) / 2;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          tiles.push({ x: c * SPACING, y: r * SPACING, seed: (c * 31 + r * 17) % 100 });
+          tiles.push({ x: offX + c * SPACING, y: offY + r * SPACING, seed: (c * 31 + r * 17) % 100 });
         }
       }
       lightX = targetX = width / 2;
@@ -73,40 +100,34 @@ export function MosaicReveal({ className }: { className?: string }): React.JSX.E
     };
 
     const drawTile = (t: Tile): void => {
-      const dx = t.x - lightX;
-      const dy = t.y - lightY;
-      const d = Math.hypot(dx, dy);
+      const d = Math.hypot(t.x - lightX, t.y - lightY);
       const intensity = d < RADIUS ? Math.pow(1 - d / RADIUS, 1.6) : 0;
       const shimmer = 0.5 + 0.5 * Math.sin(frame * 0.04 + t.seed);
       const alpha = BASE_ALPHA * (0.6 + 0.4 * shimmer) + intensity * 0.95;
       if (alpha < 0.02) return;
 
-      const size = TILE * (1 + intensity * 1.8);
-      ctx.save();
-      ctx.translate(t.x, t.y);
-      ctx.rotate(Math.PI / 4);
+      const size = GLYPH * (1 + intensity * 1.0);
+      const half = size / 2;
       ctx.globalAlpha = Math.min(alpha, 1);
-      ctx.fillStyle = `rgb(${GOLD})`;
-      ctx.fillRect(-size / 2, -size / 2, size, size);
-      if (intensity > 0.65) {
-        const core = size * 0.5;
-        ctx.globalAlpha = (intensity - 0.65) / 0.35;
-        ctx.fillStyle = `rgb(${PORCELAIN})`;
-        ctx.fillRect(-core / 2, -core / 2, core, core);
+      ctx.drawImage(glyphGold, t.x - half, t.y - half, size, size);
+      if (intensity > 0.62) {
+        ctx.globalAlpha = (intensity - 0.62) / 0.38;
+        ctx.drawImage(glyphPorcelain, t.x - half, t.y - half, size, size);
       }
-      ctx.restore();
     };
 
     const draw = (): void => {
       ctx.clearRect(0, 0, width, height);
 
       const pool = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, RADIUS * 1.15);
-      pool.addColorStop(0, `rgba(${GOLD}, 0.10)`);
+      pool.addColorStop(0, `rgba(${GOLD}, 0.09)`);
       pool.addColorStop(1, `rgba(${GOLD}, 0)`);
       ctx.fillStyle = pool;
       ctx.fillRect(0, 0, width, height);
 
+      ctx.globalAlpha = 1;
       for (const t of tiles) drawTile(t);
+      ctx.globalAlpha = 1;
     };
 
     const tick = (): void => {

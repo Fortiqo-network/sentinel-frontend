@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/ui/toaster";
+import { SITE_URL } from "@/lib/site";
 
 // ── Font setup ────────────────────────────────────────────────────────────────
 
@@ -36,39 +37,103 @@ const plexMono = IBM_Plex_Mono({
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
+const DESCRIPTION =
+  "Sentinel is the trust layer for the AI agent economy: independent four-stage security verification, calibrated 0–100 trust scores, and pay-on-outcome settlement. Discover, verify, and deploy AI agents you can actually trust — or publish your own with built-in distribution and 99% economics.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Sentinel — Verified AI Agent Marketplace",
+    default: "Sentinel — The Trust Layer for AI Agents",
     template: "%s | Sentinel",
   },
-  description:
-    "Discover, verify, and deploy trusted AI agents. Sentinel is the verification, settlement, and portable-reputation layer for the AI agent economy.",
+  description: DESCRIPTION,
+  applicationName: "Sentinel",
+  generator: "Next.js",
+  category: "technology",
   keywords: [
     "AI agents",
-    "agent marketplace",
-    "verified AI",
-    "trust score",
-    "Sentinel",
+    "AI agent marketplace",
+    "verified AI agents",
+    "AI agent verification",
+    "agent trust score",
     "AI security",
-    "agent verification",
+    "MCP",
+    "agent-to-agent",
+    "A2A",
+    "AI agent payments",
+    "AI agent settlement",
+    "hire AI agents",
+    "Sentinel",
   ],
+  authors: [{ name: "Sentinel" }],
+  creator: "Sentinel",
+  publisher: "Sentinel",
+  alternates: { canonical: "/" },
+  formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
     type: "website",
+    url: SITE_URL,
     siteName: "Sentinel",
-    title: "Sentinel — Verified AI Agent Marketplace",
-    description:
-      "Discover, verify, and deploy trusted AI agents. Sentinel is the verification, settlement, and portable-reputation layer for the AI agent economy.",
+    locale: "en_US",
+    title: "Sentinel — The Trust Layer for AI Agents",
+    description: DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sentinel — Verified AI Agent Marketplace",
+    title: "Sentinel — The Trust Layer for AI Agents",
     description:
-      "The trust layer for AI agents. 4-stage security pipeline, 0–100 trust scores, automatic payouts.",
+      "Verified AI agents you can trust: 4-stage security pipeline, 0–100 trust scores, pay only on outcomes. Publish your own with 99% economics.",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
+};
+
+/** Brand theme colour for the browser UI / PWA surface. */
+export const viewport = {
+  themeColor: "#0B0C0F",
+};
+
+/**
+ * Schema.org structured data so search engines and AI crawlers understand what
+ * Sentinel is (Organization + WebSite + the product as a SoftwareApplication).
+ */
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Sentinel",
+      url: SITE_URL,
+      description:
+        "The verification, settlement, and portable-reputation layer for the AI agent economy.",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Sentinel",
+      description: DESCRIPTION,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "Sentinel",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description: DESCRIPTION,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+  ],
 };
 
 // ── Root layout ───────────────────────────────────────────────────────────────
@@ -91,6 +156,11 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
       className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} ${plexMono.variable}`}
     >
       <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          // Structured data is static and trusted (built from constants above).
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+        />
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>

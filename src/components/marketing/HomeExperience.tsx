@@ -1,6 +1,7 @@
 "use client";
 
 import { SmoothScroll } from "./providers/SmoothScroll";
+import { DevelopmentBanner } from "./DevelopmentBanner";
 import { Nav } from "./sections/Nav";
 import { Hero } from "./sections/Hero";
 import { Pipeline } from "./sections/Pipeline";
@@ -42,6 +43,7 @@ export function HomeExperience({ stats }: { stats: LiveStats }): React.JSX.Eleme
           </main>
           <Footer />
         </div>
+        <DevelopmentBanner />
       </div>
     </SmoothScroll>
   );

@@ -45,9 +45,9 @@ const FEATURES: Feature[] = [
  */
 export function Features(): React.JSX.Element {
   return (
-    <section className="relative px-6 py-28 sm:py-36">
+    <section className="relative px-6 py-14 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
+        <div className="mb-10 text-center">
           <Reveal>
             <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
               Why Sentinel

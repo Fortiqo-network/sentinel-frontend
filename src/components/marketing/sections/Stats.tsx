@@ -33,15 +33,15 @@ export function Stats({ stats }: { stats: LiveStats }): React.JSX.Element {
   ];
 
   return (
-    <section className="relative px-6 py-28 sm:py-36">
+    <section className="relative px-6 py-14 sm:py-20">
       <div className="mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-[2.5rem] glass ring-hairline px-8 py-16 sm:px-14">
+        <div className="relative overflow-hidden rounded-[2.5rem] glass ring-hairline px-8 py-12 sm:px-14">
           <div
             aria-hidden
             className="glow-soft pointer-events-none absolute -left-1/4 -top-1/4 h-[150%] w-2/3"
           />
           <div className="relative">
-            <div className="mb-14 max-w-xl">
+            <div className="mb-10 max-w-xl">
               <Reveal>
                 <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
                   Live platform signal
