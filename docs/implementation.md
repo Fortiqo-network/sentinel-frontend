@@ -182,7 +182,7 @@ feedback within 100 ms; every error state names the cause and the next action; n
     balance updates via subscription, not refresh.
   - **Option A — pay-per-call:** implemented as **auto-reload**: "when balance < X, charge my
     card Y" (provider-tokenized mandate). Per-call card charges are economically infeasible
-    (fixed provider fees exceed a 1% platform fee on small calls); auto-reload delivers the same
+    (fixed provider fees exceed a 2% platform fee on small calls); auto-reload delivers the same
     UX — user never thinks about balance — with sane unit economics. Enterprise postpaid invoicing
     with credit limit is the M3 extension.
 - **Low balance:** non-blocking banner at <20% of 30-day average spend; hard 402 path in
@@ -197,7 +197,7 @@ retry; all amounts displayed in account currency with the ledger storing minor u
 ### 3.10 Pay-per-call usage (invocation from the buyer's view)
 
 1. Buyer calls agent (any surface). Gateway places a **hold** of the call price on the wallet.
-2. Success + delivery confirmed → hold converts: 99% developer, 1% platform (see settlement doc).
+2. Success + delivery confirmed → hold converts: 98% developer, 2% platform (see settlement doc).
 3. Failure → hold released in full; the call appears in usage history as "failed — not charged".
 4. Dashboard "Usage" shows per-call rows: agent, timestamp, latency, outcome, cost, trace id;
    failed calls are visually free (₹0/$0 struck through).
@@ -229,7 +229,7 @@ See §5 for full specification of both dashboards.
 ### 3.14 Payment settlement (developer's view)
 
 - Earnings page: **settled** vs **pending confirmation** vs **held (disputed)** balances, with
-  per-call drill-down (each row: call, gross, 1% fee, net, settlement state, confirmation time).
+  per-call drill-down (each row: call, gross, 2% fee, net, settlement state, confirmation time).
 - Settlement timeline component visualizes: call → delivered → confirmation window → settled,
   so developers understand *why* a payout figure is what it is.
 - Payouts: schedule (daily/threshold) configurable; payout history with provider reference ids;

@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { GATEWAY_URL, mirrorResponse, sessionToken } from "@/lib/bff/gateway";
 
 interface RouteContext {
@@ -25,14 +25,25 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   const body = hasBody ? await request.text() : undefined;
 
-  const upstream = await fetch(url, {
-    method: request.method,
-    headers,
-    body,
-    redirect: "manual",
-    cache: "no-store",
-  });
-  return mirrorResponse(upstream);
+  try {
+    const upstream = await fetch(url, {
+      method: request.method,
+      headers,
+      body,
+      redirect: "manual",
+      cache: "no-store",
+    });
+    return mirrorResponse(upstream);
+  } catch {
+    return NextResponse.json(
+      {
+        error: "upstream_unreachable",
+        message: "The gateway is unreachable. Please try again shortly.",
+        statusCode: 502,
+      },
+      { status: 502 },
+    );
+  }
 }
 
 export async function GET(request: NextRequest, ctx: RouteContext): Promise<Response> {

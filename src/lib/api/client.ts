@@ -6,7 +6,8 @@ import axios, {
 import type { Agent, AgentListResponse } from "@/types/agent";
 import type { User } from "@/types/user";
 
-const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:8080";
+const GATEWAY_URL =
+  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.acquirehrsolutions.in";
 
 /**
  * Base URL for all gateway traffic.

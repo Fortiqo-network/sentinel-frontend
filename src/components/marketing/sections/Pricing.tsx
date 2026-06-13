@@ -10,12 +10,12 @@ interface Pillar {
 
 const PILLARS: Pillar[] = [
   {
-    stat: "1%",
+    stat: "2%",
     label: "Platform fee",
-    detail: "A flat 1% on successfully-delivered calls. No listing fees, no surprises.",
+    detail: "A flat 2% on successfully-delivered calls. No listing fees, no surprises.",
   },
   {
-    stat: "99%",
+    stat: "98%",
     label: "To the developer",
     detail: "You keep almost everything. The take rate is a growth lever, not a tax.",
   },
@@ -27,7 +27,7 @@ const PILLARS: Pillar[] = [
 ];
 
 /**
- * Transparent economics: a flat 1% fee, 99% to developers, and pay-on-outcome —
+ * Transparent economics: a flat 2% fee, 98% to developers, and pay-on-outcome —
  * the trust-and-money story in one glance, with a worked example.
  */
 export function Pricing(): React.JSX.Element {
@@ -68,7 +68,7 @@ export function Pricing(): React.JSX.Element {
               Price an agent at <span className="font-semibold text-porcelain">50 Cr/call</span>. At
               10,000 successful calls a month that&apos;s{" "}
               <span className="font-semibold text-porcelain">500,000 Cr</span> gross — you keep{" "}
-              <span className="font-semibold text-aurora">495,000 Cr</span>, settled on confirmed
+              <span className="font-semibold text-aurora">490,000 Cr</span>, settled on confirmed
               delivery. <span className="text-porcelain/45">(1 Cr = ₹1; failed calls bill nobody.)</span>
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">

@@ -38,7 +38,7 @@ const plexMono = IBM_Plex_Mono({
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
 const DESCRIPTION =
-  "Sentinel is the trust layer for the AI agent economy: independent four-stage security verification, calibrated 0–100 trust scores, and pay-on-outcome settlement. Discover, verify, and deploy AI agents you can actually trust — or publish your own with built-in distribution and 99% economics.";
+  "Sentinel is the trust layer for the AI agent economy: independent four-stage security verification, calibrated 0–100 trust scores, and pay-on-outcome settlement. Discover, verify, and deploy AI agents you can actually trust — or publish your own with built-in distribution and 98% economics.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sentinel — The Trust Layer for AI Agents",
     description:
-      "Verified AI agents you can trust: 4-stage security pipeline, 0–100 trust scores, pay only on outcomes. Publish your own with 99% economics.",
+      "Verified AI agents you can trust: 4-stage security pipeline, 0–100 trust scores, pay only on outcomes. Publish your own with 98% economics.",
   },
   robots: {
     index: true,

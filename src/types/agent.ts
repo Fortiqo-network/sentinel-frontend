@@ -38,6 +38,16 @@ export interface Agent {
   developer?: string;
   publishedAt?: string;
   lastVerifiedAt?: string;
+  /** Source/repository URL (e.g. GitHub), when the developer provides it. */
+  repoUrl?: string;
+  /** Public homepage/landing URL for the agent, when provided. */
+  homepageUrl?: string;
+  /** External documentation URL, when provided. */
+  docsUrl?: string;
+  /** The developer-hosted endpoint URL (Tier B), when exposed. */
+  endpointUrl?: string;
+  /** Canonical metadata-card URL; the detail page derives this if absent. */
+  metadataUrl?: string;
 }
 
 /** Paginated response from GET /v1/listings. */

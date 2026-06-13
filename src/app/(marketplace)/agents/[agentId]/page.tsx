@@ -106,6 +106,20 @@ export default async function AgentDetailPage({
   const trustBadgeCert = certLevel === "uncertified" ? ("uncertified" as const) : certLevel;
   const priceCredits = agent.pricing?.priceCredits;
 
+  // Standard integration URLs derived from the agent identity + the public gateway.
+  const GATEWAY = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.acquirehrsolutions.in";
+  const dev = agent.developer ?? "";
+  const metadataUrl = agent.metadataUrl ?? (dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/metadata` : undefined);
+  const restUrl = dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/use` : undefined;
+  const mcpUrl = `${GATEWAY}/agents/${agent.id}/mcp`;
+  const a2aUrl = `${GATEWAY}/agents/${agent.id}/a2a/card`;
+  const externalLinks: Array<{ label: string; href: string }> = [
+    ...(agent.repoUrl ? [{ label: "Source / GitHub", href: agent.repoUrl }] : []),
+    ...(agent.homepageUrl ? [{ label: "Homepage", href: agent.homepageUrl }] : []),
+    ...(agent.docsUrl ? [{ label: "Documentation", href: agent.docsUrl }] : []),
+    ...(agent.endpointUrl ? [{ label: "Developer endpoint", href: agent.endpointUrl }] : []),
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-5 pb-24">
       {/* Breadcrumb */}
@@ -232,6 +246,106 @@ export default async function AgentDetailPage({
           </section>
         </div>
       </div>
+
+      {/* Developer & integration */}
+      <section className="mt-6 glass ring-hairline rounded-2xl p-6">
+        <h2 className="text-base font-semibold text-porcelain">Developer &amp; integration</h2>
+        <p className="mt-0.5 text-xs text-porcelain/40">
+          Identity, source, and the endpoints to call this agent from your own code.
+        </p>
+
+        {/* Identity + external links */}
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-porcelain/40">Developer</dt>
+              <dd className="text-porcelain/80">
+                {agent.developer ? (
+                  <Link href={`/developers/${agent.developer}`} className="text-gold hover:underline">
+                    @{agent.developer}
+                  </Link>
+                ) : (
+                  "—"
+                )}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-porcelain/40">Agent ID</dt>
+              <dd className="font-brand-mono text-xs text-porcelain/60">{agent.id}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-porcelain/40">Tier</dt>
+              <dd className="text-porcelain/80">
+                {agent.tier === "managed" ? "Managed (Tier A)" : "Routed (Tier B)"}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="space-y-2">
+            <div className="font-brand-mono text-[11px] uppercase tracking-wider text-porcelain/35">
+              Links
+            </div>
+            {externalLinks.length > 0 || metadataUrl ? (
+              <ul className="space-y-1.5 text-sm">
+                {externalLinks.map((l) => (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gold hover:underline"
+                    >
+                      {l.label} ↗
+                    </a>
+                  </li>
+                ))}
+                {metadataUrl && (
+                  <li>
+                    <a
+                      href={metadataUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gold hover:underline"
+                    >
+                      Metadata card ↗
+                    </a>
+                  </li>
+                )}
+              </ul>
+            ) : (
+              <p className="text-sm text-porcelain/40">No external links published.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Endpoints */}
+        <div className="mt-5 space-y-3 font-brand-mono text-[11px] leading-relaxed text-porcelain/60">
+          {metadataUrl && (
+            <div>
+              <div className="mb-1 text-porcelain/35">Metadata</div>
+              <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
+                GET {metadataUrl}
+              </code>
+            </div>
+          )}
+          {restUrl && (
+            <div>
+              <div className="mb-1 text-porcelain/35">REST (pay-and-use)</div>
+              <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
+                POST {restUrl}
+              </code>
+            </div>
+          )}
+          <div>
+            <div className="mb-1 text-porcelain/35">MCP (Streamable HTTP)</div>
+            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">{mcpUrl}</code>
+          </div>
+          <div>
+            <div className="mb-1 text-porcelain/35">A2A card</div>
+            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">{a2aUrl}</code>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

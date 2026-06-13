@@ -24,6 +24,13 @@ export const AgentSchema = z.object({
   developer: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
   lastVerifiedAt: z.string().datetime().optional(),
+  // Optional links surfaced on the agent detail page (provided by the gateway
+  // when available; the page also derives standard integration URLs itself).
+  repoUrl: z.string().url().optional(),
+  homepageUrl: z.string().url().optional(),
+  docsUrl: z.string().url().optional(),
+  endpointUrl: z.string().url().optional(),
+  metadataUrl: z.string().url().optional(),
 });
 
 export const AgentListResponseSchema = z.object({
