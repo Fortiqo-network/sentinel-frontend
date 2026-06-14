@@ -144,7 +144,7 @@ or API key (`X-API-Key`). Public routes need neither.
 
 Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
-- **Public/marketing:** `/` (cinematic Tessera home), `/how-it-works`, `/playground`.
+- **Public/marketing:** `/` (cinematic Tessera home), `/how-it-works`, `/playground`, `/terms`, `/privacy`, `/security`, `/status`, `/docs/methodology`, `/docs/trust-scores` (`InfoPage` shell); `(auth)/forgot-password`.
 - **Marketplace:** `/agents` (grid + filters), `/agents/[agentId]` (detail + Developer & integration).
 - **Auth:** `/login`, `/register` (route group `(auth)`; httpOnly-cookie session via BFF; social/EVM sign-in buttons scaffolded — "coming soon").
 - **Buyer dashboard:** `/dashboard`, `/dashboard/{subscriptions,usage,billing,api-keys,profile,settings}` (subscriptions = "My Agents").
@@ -226,9 +226,10 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 - **Postgres always** (never SQLite, incl. tests). **Never delete data** — corrections are new rows/status.
 - **Auditable by design:** every table carries timestamps; sensitive mutations also write an append-only
   `audit_events` row (core-api) and money via the billing ledger. Don't hard-delete records of record.
-- **Deploy always migrates:** the deploy workflow runs `alembic upgrade head` for every backend service
-  **before** restart (idempotent — no-op when at head), then an **API smoke test** must pass or the deploy
-  fails. This prevents "code ahead of schema" 500s. Run migrations manually too: `make migrate` per service.
+- **Schema can't run behind code:** backend services run `alembic upgrade head` **on container startup**
+  (Dockerfile CMD) so every restart brings the DB to head before serving; the deploy workflow then runs an
+  **API smoke test** that fails the deploy on any non-2xx. (core-api done; billing/verify/registry: apply
+  the same self-migrate Dockerfile pattern — tracked.) Manual: `make migrate` per service.
 - **Docs stay in sync in the same commit:** this `structure.md`, the module `docs/`, and
   `master-doc/*-todo.md` (tick `[ ]`→`[x]`, never delete a line).
 - **Commits:** Conventional Commits, one concise line, **no AI/attribution**. Never push without permission.

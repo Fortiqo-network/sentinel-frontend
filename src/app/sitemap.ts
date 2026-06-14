@@ -14,6 +14,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/agents`, lastModified, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/how-it-works`, lastModified, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/playground`, lastModified, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${SITE_URL}/docs/methodology`, lastModified, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/docs/trust-scores`, lastModified, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/security`, lastModified, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${SITE_URL}/status`, lastModified, changeFrequency: "weekly", priority: 0.3 },
+    { url: `${SITE_URL}/terms`, lastModified, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   let agentRoutes: MetadataRoute.Sitemap = [];
