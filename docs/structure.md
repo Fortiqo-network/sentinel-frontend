@@ -103,6 +103,7 @@ or API key (`X-API-Key`). Public routes need neither.
 | POST | `/v1/developer/agents/{id}/submit` | yes | Submit for verification |
 | GET | `/v1/developer/earnings` · `/v1/developer/bond` | yes | Payout-eligible earnings · active bond |
 | GET/POST/DELETE | `/v1/developer/agents/{id}/access-blocks[/{userId}]` | yes | Developer blocks/unblocks a user from an owned agent |
+| POST | `/v1/developer/agents/{id}/pay-listing` · `/retire` | yes | Settle $10 listing fee · disable (retire) the agent |
 | GET/POST | `/v1/buyer/subscriptions` | yes | List · subscribe ("star") an agent → buyer portal |
 | DELETE | `/v1/buyer/subscriptions/{agentId}` | yes | Unsubscribe |
 | GET | `/v1/notifications` · POST `/v1/notifications/read` | yes | List · mark-read user notifications |
@@ -205,7 +206,9 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
-| Developer **listing fee — $10** with a **7-day free trial listing** | **Messaging live** (home Pricing, how-it-works, publish page, docs) · **billing charge + trial-window enforcement = Planned** (agent free for 7 days, then $10 to stay listed) |
+| Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
+| Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected delete; UI confirm modal requires typing DELETE |
+| **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
 | Verify stage 1 (Semgrep+Bandit), dynamic (via runtime), scoring, tiers | **Real** |
 | Verify stage 2 (SBOM/Sigstore), stage 4 (red-team corpus) | **Partial/stub** |
 | Registry artifacts/versioning/SBOM/A2A cards | **Real**; Sigstore verify **advisory** |

@@ -27,6 +27,8 @@ export const DeveloperAgentSchema = z.object({
   trustScore: z.number().int().min(0).max(100).nullable(),
   vertical: z.string().nullable().optional(),
   tags: z.array(z.string()).default([]),
+  trialEndsAt: z.string().nullable().optional(),
+  listingPaid: z.boolean().optional().default(false),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -117,6 +119,18 @@ export async function deleteAgent(id: string): Promise<void> {
 /** Submits a draft agent into the verification pipeline. */
 export async function submitAgent(id: string): Promise<DeveloperAgent> {
   const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/submit`, {});
+  return DeveloperAgentSchema.parse(response.data);
+}
+
+/** Settles the $10 listing fee so the agent stays listed after its free trial. */
+export async function payListing(id: string): Promise<DeveloperAgent> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/pay-listing`, {});
+  return DeveloperAgentSchema.parse(response.data);
+}
+
+/** Disables (retires) an agent — delists it from the marketplace; the record is kept. */
+export async function retireAgent(id: string): Promise<DeveloperAgent> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/retire`, {});
   return DeveloperAgentSchema.parse(response.data);
 }
 
