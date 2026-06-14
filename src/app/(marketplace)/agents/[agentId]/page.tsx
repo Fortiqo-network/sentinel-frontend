@@ -6,6 +6,7 @@ import { TrustBadge } from "@/components/marketplace/TrustBadge";
 import { formatDate } from "@/lib/utils/format";
 import { getAgentBySlug } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
+import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
 import type { Agent } from "@/types/agent";
 
 type CertLevel = "certified_managed" | "certified" | "provisional" | "uncertified";
@@ -44,7 +45,18 @@ export async function generateMetadata({
   const { agentId } = await params;
   const agent = await getAgentBySlug(agentId);
   if (agent == null) return { title: "Agent not found — Sentinel" };
-  return { title: `${agent.name} — Sentinel`, description: agent.description };
+  const trust = `Trust score ${agent.trustScore}/100`;
+  return {
+    title: `${agent.name} — Verified AI Agent (${trust})`,
+    description: `${agent.description} ${trust}, independently verified by Sentinel. Hire it with pay-on-outcome billing — trust you can verify, for buyers and developers alike.`,
+    alternates: { canonical: `/agents/${agentId}` },
+    openGraph: {
+      type: "website",
+      title: `${agent.name} — Verified AI Agent | Sentinel`,
+      description: `${agent.description} ${trust}, independently verified. Pay only on outcomes.`,
+      url: `/agents/${agentId}`,
+    },
+  };
 }
 
 function ScoreMeter({ score }: { score: number }): React.JSX.Element {
@@ -111,8 +123,9 @@ export default async function AgentDetailPage({
   const dev = agent.developer ?? "";
   const metadataUrl = agent.metadataUrl ?? (dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/metadata` : undefined);
   const restUrl = dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/use` : undefined;
-  const mcpUrl = `${GATEWAY}/agents/${agent.id}/mcp`;
-  const a2aUrl = `${GATEWAY}/agents/${agent.id}/a2a/card`;
+  const sseUrl = `${GATEWAY}/v1/agents/${agent.id}/chat`;
+  const mcpUrl = `${GATEWAY}/mcp/a/${agent.id}`;
+  const a2aUrl = `${GATEWAY}/.well-known/agents/${agent.id}/agent-card.json`;
   const externalLinks: Array<{ label: string; href: string }> = [
     ...(agent.repoUrl ? [{ label: "Source / GitHub", href: agent.repoUrl }] : []),
     ...(agent.homepageUrl ? [{ label: "Homepage", href: agent.homepageUrl }] : []),
@@ -243,6 +256,7 @@ export default async function AgentDetailPage({
             >
               Try in Playground
             </Link>
+            <SubscribeButton agentId={agent.id} />
           </section>
         </div>
       </div>
@@ -336,6 +350,12 @@ export default async function AgentDetailPage({
               </code>
             </div>
           )}
+          <div>
+            <div className="mb-1 text-porcelain/35">SSE stream (live response)</div>
+            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
+              POST {sseUrl} · Accept: text/event-stream
+            </code>
+          </div>
           <div>
             <div className="mb-1 text-porcelain/35">MCP (Streamable HTTP)</div>
             <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">{mcpUrl}</code>

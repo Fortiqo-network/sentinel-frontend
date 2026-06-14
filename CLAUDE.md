@@ -148,3 +148,35 @@ markdown — update the matching `docs/` and the relevant `master-doc/*-todo.md`
 delete a TODO line; tick `[ ]`→`[x]`). To find what to change: read `build-sequence.md` top-to-bottom, pick the
 lowest unfinished phase whose ⛔ gates aren't all ticked, then follow `architecture-map.md` to the owning repo
 and file.
+
+---
+
+## 📂 structure.md — read first, keep current (non-negotiable)
+
+Before changing **any** code in this (or any) repo, **read `docs/structure.md` first.** It is the
+platform-wide map of what already exists — every repo's purpose, live APIs/features, real-vs-stubbed
+status, and a **file-based map of where things live** — so you change the right file and don't rebuild
+something that already exists.
+
+- **Start there to locate work:** `structure.md` §4–6 (API surface), §9 (real vs stubbed), §12 (file map).
+- **When you add or edit** an API, feature, page, service, or move a file: **update `structure.md` in the
+  same commit** for the parts you touched. `structure.md` is **identical in all 13 repos** — propagate the
+  edit to every repo's copy so they never diverge.
+- This complements (does not replace) `sentinel-core-api/master-doc/` (`build-sequence.md` = what to build
+  next; `*-todo.md` = the board). `structure.md` = what exists now + where it lives.
+
+---
+
+## ✅ TODO board — update after every task (master-doc only)
+
+All TODOs live **only** in `sentinel-core-api/master-doc/`. There is already **one file per repo**
+(`core-api-todo.md`, `frontend-todo.md`, `gateway-todo.md`, `billing-todo.md`, `verify-todo.md`, …)
+plus `platform-todo.md` and `security-todo.md`. **Never create a new TODO/status file anywhere** (no
+per-repo `docs/TODO.md`, no `status-report.md`) — use the existing file for the matching repo.
+
+After **every** task, in the same commit, update the relevant board to mirror reality:
+- **What we did** → tick `[ ]`→`[x]` (or `[~]` for partial).
+- **What's pending** → add/keep `[ ]` items.
+- **What's listed/deferred** → keep the roadmap items.
+
+**Never delete a line** — tick or append only. Frontend work → `frontend-todo.md`; security → `security-todo.md`; cross-repo → `platform-todo.md`.

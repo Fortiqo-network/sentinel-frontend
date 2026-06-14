@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { SocialSignInButtons } from "@/components/auth/SocialSignInButtons";
 
 export const metadata: Metadata = {
   title: "Sign In",
@@ -31,7 +32,8 @@ export default function LoginPage(): React.JSX.Element {
       </div>
 
       {/* Form body */}
-      <div className="px-8 py-6">
+      <div className="space-y-5 px-8 py-6">
+        <SocialSignInButtons />
         <LoginForm />
       </div>
 

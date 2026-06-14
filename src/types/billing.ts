@@ -19,7 +19,7 @@ export interface LedgerEntry {
   credits: number;
   description: string;
   /** Set when the entry relates to a specific agent invocation. */
-  agentId?: string;
+  agentId?: string | null;
   createdAt: string;
 }
 

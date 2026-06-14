@@ -34,7 +34,14 @@ export function DevelopmentBanner(): React.JSX.Element | null {
       </span>
       <span>
         <span className="font-medium text-porcelain">Early preview</span>
-        {" — "}Sentinel is in active development.
+        {" — "}building the trust layer for AI agents.
+      </span>
+      <span className="hidden h-3 w-px bg-porcelain/20 sm:block" aria-hidden="true" />
+      <span className="hidden sm:inline">
+        Investing soon —{" "}
+        <a href="tel:+917000695135" className="font-medium text-gold hover:underline">
+          +91 70006 95135
+        </a>
       </span>
       <button
         type="button"

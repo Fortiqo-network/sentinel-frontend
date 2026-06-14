@@ -14,7 +14,7 @@ export const LedgerEntrySchema = z.object({
   type: z.enum(["credit", "debit"]),
   credits: z.number().int().min(0),
   description: z.string(),
-  agentId: z.string().uuid().optional(),
+  agentId: z.string().uuid().nullable().optional(),
   createdAt: z.string().datetime(),
 });
 

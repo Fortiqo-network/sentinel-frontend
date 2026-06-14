@@ -4,6 +4,7 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UsageChart } from "@/components/dashboard/UsageChart";
 import { getLedger } from "@/lib/api/billing";
+import { listAgents } from "@/lib/api/agents";
 import type { LedgerEntry } from "@/types/billing";
 import { cn } from "@/lib/utils/cn";
 
@@ -34,7 +35,7 @@ function isCurrentMonth(iso: string): boolean {
   return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
 }
 
-function summarizeDebits(entries: LedgerEntry[]): UsageSummary {
+function summarizeDebits(entries: LedgerEntry[], agentNames: Map<string, string>): UsageSummary {
   const debits = entries.filter((e) => e.type === "debit");
 
   const totalSpentCredits = debits.reduce((sum, e) => sum + e.credits, 0);
@@ -57,7 +58,7 @@ function summarizeDebits(entries: LedgerEntry[]): UsageSummary {
   const byAgent = new Map<string, AgentBreakdownRow>();
   for (const e of debits) {
     const key = e.agentId ?? e.description;
-    const label = e.description || e.agentId || "Unknown";
+    const label = (e.agentId ? agentNames.get(e.agentId) : undefined) ?? (e.description || "Unknown");
     const row = byAgent.get(key) ?? { key, label, invocations: 0, credits: 0 };
     row.invocations += 1;
     row.credits += e.credits;
@@ -86,16 +87,20 @@ export default function UsagePage(): React.JSX.Element {
   React.useEffect(() => {
     let cancelled = false;
     setStatus("loading");
-    getLedger(1, 100)
-      .then(({ entries }) => {
+    void (async () => {
+      try {
+        const [{ entries }, listing] = await Promise.all([
+          getLedger(1, 100),
+          listAgents({ pageSize: 100 }).catch(() => ({ agents: [] as { id: string; name: string }[] })),
+        ]);
         if (cancelled) return;
-        setSummary(summarizeDebits(entries));
+        const names = new Map(listing.agents.map((a) => [a.id, a.name]));
+        setSummary(summarizeDebits(entries, names));
         setStatus("ready");
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setStatus("error");
-      });
+      } catch {
+        if (!cancelled) setStatus("error");
+      }
+    })();
     return () => {
       cancelled = true;
     };

@@ -134,3 +134,37 @@ export async function getBond(): Promise<Bond | null> {
   if (response.data === null) return null;
   return BondSchema.parse(response.data);
 }
+
+// ── Per-agent user access blocks ───────────────────────────────────────────────
+
+export const AccessBlockSchema = z.object({
+  userId: z.string(),
+  email: z.string(),
+  displayName: z.string().nullable().optional(),
+  reason: z.string().nullable().optional(),
+  createdAt: z.string(),
+});
+
+export type AccessBlock = z.infer<typeof AccessBlockSchema>;
+
+const AccessBlockListSchema = z.object({ blocks: z.array(AccessBlockSchema) });
+
+/** Lists the users the developer has blocked from one of their agents. */
+export async function listAccessBlocks(agentId: string): Promise<AccessBlock[]> {
+  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/access-blocks`);
+  return AccessBlockListSchema.parse(response.data).blocks;
+}
+
+/** Blocks a user (by email) from one of the developer's agents. */
+export async function blockUser(agentId: string, email: string, reason?: string): Promise<AccessBlock> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${agentId}/access-blocks`, {
+    email,
+    reason,
+  });
+  return AccessBlockSchema.parse(response.data);
+}
+
+/** Removes a user's block from one of the developer's agents. */
+export async function unblockUser(agentId: string, userId: string): Promise<void> {
+  await apiClient.delete(`/v1/developer/agents/${agentId}/access-blocks/${userId}`);
+}

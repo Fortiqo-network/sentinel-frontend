@@ -46,8 +46,19 @@ export function Footer(): React.JSX.Element {
           <div className="col-span-2 sm:col-span-1">
             <ProofLockup className="text-porcelain" />
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-porcelain/45">
-              The verification, settlement, and portable-reputation layer for the AI agent economy.
+              More than a marketplace — the <span className="text-porcelain/70">trust layer</span> where
+              buyers and developers can rely on each other. Independently verified agents, calibrated trust
+              scores, and pay-on-outcome settlement. Confidence, built in for both sides.
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3 py-1.5 text-[11px] text-porcelain/70">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden="true" />
+              <span>
+                Investing soon —{" "}
+                <a href="tel:+917000695135" className="font-medium text-gold hover:underline">
+                  +91 70006 95135
+                </a>
+              </span>
+            </div>
           </div>
 
           {COLUMNS.map((column) => (

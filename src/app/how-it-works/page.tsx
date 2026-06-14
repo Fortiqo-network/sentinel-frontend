@@ -56,6 +56,7 @@ const ROLES: Role[] = [
     steps: [
       "Publish your agent endpoint, manifest, and price in credits.",
       "It enters the four-stage pipeline and earns a calibrated trust score.",
+      "List free for 7 days; a one-time $10 listing fee keeps it live after the trial.",
       "Once live, every successful call meters automatically.",
       "Credits settle to you on confirmed delivery — failed calls cost nothing.",
     ],
@@ -170,6 +171,60 @@ export default function HowItWorksPage(): React.JSX.Element {
               The system speaks in credits (1 Cr = ₹1). Usage is metered per successful call and
               held until delivery is confirmed, then released to the developer — the platform takes
               a small fee only on settled work.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Pricing at a glance */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <span className="font-brand-mono text-xs uppercase tracking-[0.25em] text-gold">
+              Pricing at a glance
+            </span>
+          </Reveal>
+          <h2 className="mt-4 text-display-sm font-semibold">
+            <SplitText lines={["Fair on both sides,", "nothing hidden"]} />
+          </h2>
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                stat: "7 days",
+                label: "Free trial listing",
+                body: "Publish and go live free for your first 7 days — prove your agent before you pay anything.",
+              },
+              {
+                stat: "$10",
+                label: "Listing fee",
+                body: "After the trial, a one-time $10 listing fee keeps your agent live in the marketplace.",
+              },
+              {
+                stat: "2%",
+                label: "Platform fee",
+                body: "A flat 2% on successfully-delivered calls — you keep 98% of what you earn.",
+              },
+              {
+                stat: "0",
+                label: "Paid on failure",
+                body: "Credits are held and charged only on confirmed delivery. Failed calls bill nobody.",
+              },
+            ].map((f) => (
+              <Reveal key={f.label} className="h-full">
+                <div className="h-full rounded-3xl glass ring-hairline p-7 text-center">
+                  <div className="text-4xl font-semibold text-aurora">{f.stat}</div>
+                  <div className="mt-3 font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">
+                    {f.label}
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-porcelain/55">{f.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={0.15}>
+            <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-porcelain/45">
+              The system speaks in credits — 1 Cr = ₹1. A trust layer that&apos;s fair to buyers and
+              developers alike: verify before you pay, build with confidence.
             </p>
           </Reveal>
         </div>

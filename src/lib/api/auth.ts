@@ -9,7 +9,7 @@ export const UserSchema = z.object({
   email: z.string().email(),
   displayName: z.string().optional(),
   role: z.enum(["buyer", "developer", "admin"]),
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: z.string().optional(),
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
 });
@@ -56,6 +56,22 @@ export async function register(data: RegisterRequest): Promise<User> {
  */
 export async function logout(): Promise<void> {
   await apiClient.post("/v1/auth/logout");
+}
+
+export const UpdateProfileRequestSchema = z.object({
+  displayName: z.string().min(2, "Display name must be at least 2 characters").optional(),
+  avatarUrl: z.string().optional(),
+});
+
+export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
+
+/**
+ * Updates the authenticated user's editable profile (display name, avatar).
+ * The avatar value is either an image URL or a `preset:<id>` reference.
+ */
+export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
+  const response = await apiClient.patch<unknown>("/v1/auth/me", data);
+  return UserSchema.parse(response.data);
 }
 
 /**

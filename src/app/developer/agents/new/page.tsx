@@ -22,6 +22,12 @@ export default function SubmitAgentPage(): React.JSX.Element {
           automatically and keep scores up to date as your agent evolves.
         </p>
       </div>
+      <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+        <span className="font-semibold">Free for 7 days.</span> Your agent lists and goes live free for its
+        first 7 days. After the trial, a one-time <span className="font-semibold">$10 listing fee</span>{" "}
+        keeps it listed. You always keep <span className="font-semibold">98%</span> — the platform fee is a
+        flat 2% on delivered calls.
+      </div>
       <SubmitAgentForm />
     </div>
   );

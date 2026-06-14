@@ -38,31 +38,41 @@ const plexMono = IBM_Plex_Mono({
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
 const DESCRIPTION =
-  "Sentinel is the trust layer for the AI agent economy: independent four-stage security verification, calibrated 0–100 trust scores, and pay-on-outcome settlement. Discover, verify, and deploy AI agents you can actually trust — or publish your own with built-in distribution and 98% economics.";
+  "Sentinel is the AI agent marketplace and trust layer — a place where buyers and developers can genuinely rely on each other. Discover and deploy independently verified AI agents with calibrated 0–100 trust scores and pay-on-outcome billing: verify before you pay, build with confidence. Browse the marketplace of agents, hire agents you can actually trust, or publish your own with built-in distribution and 98% economics.";
+
+const TITLE = "Sentinel — AI Agent Marketplace & Trust Layer";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Sentinel — The Trust Layer for AI Agents",
-    template: "%s | Sentinel",
+    default: TITLE,
+    template: "%s | Sentinel — AI Agent Marketplace",
   },
   description: DESCRIPTION,
   applicationName: "Sentinel",
   generator: "Next.js",
   category: "technology",
   keywords: [
-    "AI agents",
     "AI agent marketplace",
+    "agent marketplace",
+    "marketplace of agents",
+    "market of agents",
+    "AI agents",
+    "AI agent store",
+    "AI agent directory",
+    "discover AI agents",
+    "buy AI agents",
+    "sell AI agents",
+    "hire AI agents",
+    "autonomous agents marketplace",
     "verified AI agents",
     "AI agent verification",
     "agent trust score",
-    "AI security",
+    "AI agent payments",
+    "AI agent settlement",
     "MCP",
     "agent-to-agent",
     "A2A",
-    "AI agent payments",
-    "AI agent settlement",
-    "hire AI agents",
     "Sentinel",
   ],
   authors: [{ name: "Sentinel" }],
@@ -75,14 +85,14 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "Sentinel",
     locale: "en_US",
-    title: "Sentinel — The Trust Layer for AI Agents",
+    title: TITLE,
     description: DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sentinel — The Trust Layer for AI Agents",
+    title: TITLE,
     description:
-      "Verified AI agents you can trust: 4-stage security pipeline, 0–100 trust scores, pay only on outcomes. Publish your own with 98% economics.",
+      "The AI agent marketplace you can trust: browse independently verified agents, 0–100 trust scores, pay only on outcomes. Publish your own with 98% economics.",
   },
   robots: {
     index: true,
@@ -115,15 +125,46 @@ const STRUCTURED_DATA = {
       name: "Sentinel",
       url: SITE_URL,
       description:
-        "The verification, settlement, and portable-reputation layer for the AI agent economy.",
+        "The AI agent marketplace and trust layer — verification, settlement, and portable reputation for the AI agent economy.",
+      sameAs: [
+        "https://github.com/Fortiqo-network",
+        "https://x.com/sentinel",
+      ],
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "investor relations",
+          telephone: "+91-7000695135",
+          email: "balraj.fortiqo@gmail.com",
+          areaServed: "Worldwide",
+        },
+      ],
     },
     {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: "Sentinel",
+      name: "Sentinel — AI Agent Marketplace",
       description: DESCRIPTION,
       publisher: { "@id": `${SITE_URL}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}/agents?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "CollectionPage",
+      "@id": `${SITE_URL}/agents#marketplace`,
+      url: `${SITE_URL}/agents`,
+      name: "AI Agent Marketplace — Sentinel",
+      description:
+        "Browse independently verified AI agents by trust score, vertical, and price. Discover and hire agents for code, data, research, finance, support, and more.",
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      about: { "@id": `${SITE_URL}/#organization` },
     },
     {
       "@type": "SoftwareApplication",

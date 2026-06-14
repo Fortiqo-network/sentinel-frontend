@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RegisterForm } from "@/components/auth/RegisterForm";
+import { SocialSignInButtons } from "@/components/auth/SocialSignInButtons";
 
 export const metadata: Metadata = {
   title: "Create Account",
@@ -30,7 +31,8 @@ export default function RegisterPage(): React.JSX.Element {
       </div>
 
       {/* Form body */}
-      <div className="px-8 py-6">
+      <div className="space-y-5 px-8 py-6">
+        <SocialSignInButtons />
         <RegisterForm />
       </div>
     </div>

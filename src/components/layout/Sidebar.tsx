@@ -97,124 +97,187 @@ function IconCog(): React.JSX.Element {
   );
 }
 
+function IconStar(): React.JSX.Element {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
+  );
+}
+
+function IconClose(): React.JSX.Element {
+  return (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Nav configurations
 // ---------------------------------------------------------------------------
 
 const BUYER_LINKS: SidebarLink[] = [
-  { href: "/dashboard", label: "Dashboard", icon: <IconGrid /> },
+  { href: "/dashboard", label: "Overview", icon: <IconGrid /> },
+  { href: "/dashboard/subscriptions", label: "My Agents", icon: <IconStar /> },
   { href: "/dashboard/usage", label: "Usage", icon: <IconChartBar /> },
   { href: "/dashboard/billing", label: "Billing", icon: <IconCreditCard /> },
   { href: "/dashboard/api-keys", label: "API Keys", icon: <IconKey /> },
+  { href: "/dashboard/settings", label: "Settings", icon: <IconCog /> },
 ];
 
 const DEVELOPER_LINKS: SidebarLink[] = [
-  { href: "/developer", label: "Dashboard", icon: <IconGrid /> },
+  { href: "/developer", label: "Overview", icon: <IconGrid /> },
   { href: "/developer/agents", label: "My Agents", icon: <IconCode /> },
   { href: "/developer/earnings", label: "Earnings", icon: <IconCurrencyRupee /> },
-  { href: "/developer/bonds", label: "Bond", icon: <IconShield /> },
+  { href: "/developer/bonds", label: "Bonds", icon: <IconShield /> },
   { href: "/developer/settings", label: "Settings", icon: <IconCog /> },
 ];
+
+function resolveLinks(
+  mode: SidebarMode,
+  overrideLinks?: SidebarProps["links"],
+): SidebarLink[] {
+  if (overrideLinks) {
+    return overrideLinks.map((l) => ({
+      href: l.href,
+      label: l.label,
+      icon: (l.icon as React.JSX.Element) ?? <IconGrid />,
+    }));
+  }
+  return mode === "developer" ? DEVELOPER_LINKS : BUYER_LINKS;
+}
+
+// ---------------------------------------------------------------------------
+// Shared nav body
+// ---------------------------------------------------------------------------
+
+interface SidebarNavProps {
+  links: SidebarLink[];
+  collapsed: boolean;
+  onNavigate?: () => void;
+}
+
+function isLinkActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  const isRoot = href === "/dashboard" || href === "/developer";
+  return !isRoot && pathname.startsWith(href + "/");
+}
+
+function SidebarNav({ links, collapsed, onNavigate }: SidebarNavProps): React.JSX.Element {
+  const pathname = usePathname();
+  return (
+    <nav
+      className={cn("flex flex-1 flex-col gap-0.5", collapsed ? "p-2" : "p-3")}
+      aria-label="Portal navigation"
+    >
+      {links.map(({ href, label, icon }) => {
+        const active = isLinkActive(pathname, href);
+        return (
+          <Link
+            key={href}
+            href={href}
+            onClick={onNavigate}
+            title={collapsed ? label : undefined}
+            className={cn(
+              "flex items-center rounded-lg text-sm font-medium transition-colors",
+              collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
+              active
+                ? "bg-indigo-100 text-indigo-700"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+            )}
+            aria-current={active ? "page" : undefined}
+          >
+            <span className={cn("flex-shrink-0", active ? "text-indigo-600" : "text-slate-400")}>
+              {icon}
+            </span>
+            {!collapsed && label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Sidebar
 // ---------------------------------------------------------------------------
 
 /**
- * Dashboard sidebar navigation. Renders developer or buyer nav link sets
- * based on the `mode` prop. Highlights the currently active route.
- * A hamburger button at the top toggles between expanded (labels visible)
- * and collapsed (icons only) states.
+ * Portal sidebar navigation. Renders developer or buyer nav sets based on
+ * `mode`. On large screens it is a persistent rail that collapses to icons via
+ * the header hamburger (`sidebarCollapsed`). On small screens it is hidden and
+ * instead appears as an overlay drawer driven by `mobileSidebarOpen`.
  *
  * @example
  * <Sidebar mode="developer" />
- * <Sidebar mode="buyer" />
- *
- * // With custom links (backwards-compatible):
- * <Sidebar links={[{ href: "/foo", label: "Foo" }]} />
  */
 export function Sidebar({ mode = "buyer", className, links: overrideLinks }: SidebarProps): React.JSX.Element {
-  const pathname = usePathname();
-  const { sidebarCollapsed: collapsed } = useUIStore();
-
-  const resolvedLinks: SidebarLink[] =
-    overrideLinks
-      ? overrideLinks.map((l) => ({
-          href: l.href,
-          label: l.label,
-          icon: (l.icon as React.JSX.Element) ?? <IconGrid />,
-        }))
-      : mode === "developer"
-      ? DEVELOPER_LINKS
-      : BUYER_LINKS;
-
+  const { sidebarCollapsed: collapsed, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
+  const links = resolveLinks(mode, overrideLinks);
   const modeLabel = mode === "developer" ? "Developer" : "Buyer";
 
+  const closeMobile = React.useCallback(() => setMobileSidebarOpen(false), [setMobileSidebarOpen]);
+
+  React.useEffect(() => {
+    function onKey(e: KeyboardEvent): void {
+      if (e.key === "Escape") closeMobile();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [closeMobile]);
+
   return (
-    <aside
-      className={cn(
-        "hidden shrink-0 flex-col border-r border-slate-200 bg-slate-50 overflow-y-auto transition-all duration-300 lg:flex",
-        collapsed ? "w-14" : "w-56",
-        className,
-      )}
-    >
-      {/* Branding */}
-      <div
+    <>
+      {/* Desktop rail */}
+      <aside
         className={cn(
-          "flex border-b border-slate-200",
-          collapsed ? "justify-center px-0 py-4" : "flex-col gap-0.5 px-5 py-4",
+          "hidden shrink-0 flex-col border-r border-slate-200 bg-slate-50 overflow-y-auto transition-all duration-300 lg:flex",
+          collapsed ? "w-14" : "w-56",
+          className,
         )}
       >
-        <Logo
-          href="/"
-          sealStroke="currentColor"
-          showWordmark={!collapsed}
-          className="text-slate-900"
-        />
-        {!collapsed && (
-          <span className="mt-1 text-xs font-medium text-indigo-600 uppercase tracking-wide">
-            {modeLabel} Portal
-          </span>
-        )}
-      </div>
+        <div
+          className={cn(
+            "flex border-b border-slate-200",
+            collapsed ? "justify-center px-0 py-4" : "flex-col gap-0.5 px-5 py-4",
+          )}
+        >
+          <Logo href="/" sealStroke="currentColor" showWordmark={!collapsed} className="text-slate-900" />
+          {!collapsed && (
+            <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600">
+              {modeLabel} Portal
+            </span>
+          )}
+        </div>
+        <SidebarNav links={links} collapsed={collapsed} />
+      </aside>
 
-      {/* Nav links */}
-      <nav
-        className={cn("flex flex-col gap-0.5 flex-1", collapsed ? "p-2" : "p-3")}
-        aria-label="Dashboard navigation"
-      >
-        {resolvedLinks.map(({ href, label, icon }) => {
-          const isActive =
-            pathname === href ||
-            (href !== "/dashboard" && href !== "/developer" && pathname.startsWith(href + "/"));
-
-          return (
-            <Link
-              key={href}
-              href={href}
-              title={collapsed ? label : undefined}
-              className={cn(
-                "flex items-center rounded-lg text-sm font-medium transition-colors",
-                collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
-                isActive
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-              )}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <span
-                className={cn(
-                  "flex-shrink-0",
-                  isActive ? "text-indigo-600" : "text-slate-400",
-                )}
+      {/* Mobile drawer */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={closeMobile} aria-hidden="true" />
+          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-slate-200 bg-white shadow-xl animate-slide-up">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <div className="flex flex-col gap-0.5">
+                <Logo href="/" sealStroke="currentColor" className="text-slate-900" />
+                <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600">
+                  {modeLabel} Portal
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={closeMobile}
+                aria-label="Close menu"
+                className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
               >
-                {icon}
-              </span>
-              {!collapsed && label}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+                <IconClose />
+              </button>
+            </div>
+            <SidebarNav links={links} collapsed={false} onNavigate={closeMobile} />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

@@ -12,7 +12,7 @@ const PILLARS: Pillar[] = [
   {
     stat: "2%",
     label: "Platform fee",
-    detail: "A flat 2% on successfully-delivered calls. No listing fees, no surprises.",
+    detail: "A flat 2% on successfully-delivered calls — developers keep 98%. No surprises.",
   },
   {
     stat: "98%",
@@ -70,6 +70,11 @@ export function Pricing(): React.JSX.Element {
               <span className="font-semibold text-porcelain">500,000 Cr</span> gross — you keep{" "}
               <span className="font-semibold text-aurora">490,000 Cr</span>, settled on confirmed
               delivery. <span className="text-porcelain/45">(1 Cr = ₹1; failed calls bill nobody.)</span>
+            </p>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-porcelain/55">
+              List your first agent <span className="font-semibold text-porcelain">free for 7 days</span>, then a
+              one-time <span className="font-semibold text-porcelain">$10 listing fee</span> keeps it live. After
+              that, the flat 2% is the only cut on what you earn.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <MagneticButton href="/register?role=developer" variant="primary">
