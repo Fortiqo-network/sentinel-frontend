@@ -7,7 +7,7 @@ import type { Agent, AgentListResponse } from "@/types/agent";
 import type { User } from "@/types/user";
 
 const GATEWAY_URL =
-  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.acquirehrsolutions.in";
+  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.fortiqo.xyz";
 
 /**
  * Base URL for all gateway traffic.

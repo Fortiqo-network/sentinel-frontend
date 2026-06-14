@@ -19,7 +19,7 @@ interface RunMeta {
   note?: string;
 }
 
-const API_BASE = "https://sentinel-api.acquirehrsolutions.in";
+const API_BASE = "https://sentinel-api.fortiqo.xyz";
 
 const SAMPLE_PROMPTS = [
   "Summarise this quarter's support tickets into 5 themes.",

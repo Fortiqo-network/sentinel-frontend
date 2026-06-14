@@ -16,7 +16,7 @@ import { type NextRequest, NextResponse } from "next/server";
  * the server too, so the BFF needs no extra environment variable.
  */
 export const GATEWAY_URL: string =
-  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.acquirehrsolutions.in";
+  process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.fortiqo.xyz";
 
 /** Name of the first-party session cookie this BFF issues and reads. */
 export const SESSION_COOKIE = "sentinel_session";

@@ -57,7 +57,7 @@ export default function OpengraphImage(): ImageResponse {
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ color: "rgba(236,234,227,0.5)", fontSize: 24 }}>sentinel-frontend-eosin.vercel.app</div>
+          <div style={{ color: "rgba(236,234,227,0.5)", fontSize: 24 }}>sentinel.fortiqo.xyz</div>
           <div style={{ height: 4, width: 220, backgroundColor: "#E7A03C", borderRadius: 4 }} />
         </div>
       </div>

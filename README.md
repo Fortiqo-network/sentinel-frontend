@@ -108,7 +108,7 @@ Copy `.env.example` → `.env.local`. Never commit secrets.
 | Variable | Required | Example | Purpose |
 |---|---|---|---|
 | `NEXT_PUBLIC_GATEWAY_URL` | ✅ | `https://api.sentinel.xyz` | Base URL for the API edge |
-| `NEXT_PUBLIC_APP_URL` | ✅ | `https://app.sentinel.xyz` | Self URL for redirects |
+| `NEXT_PUBLIC_APP_URL` | ✅ | `https://sentinel.fortiqo.xyz` | Self URL for redirects |
 | `NEXT_PUBLIC_OIDC_CLIENT_ID` | ✅ | `sentinel-web` | Public OIDC client id (PKCE) |
 | `OIDC_ISSUER` | ✅ | `https://auth.sentinel.xyz` | OIDC issuer (server-side) |
 | `OIDC_CLIENT_SECRET` | ✅ (server) | `***` | Confidential client secret (BFF token exchange) |

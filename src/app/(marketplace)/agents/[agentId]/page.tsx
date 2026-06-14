@@ -107,7 +107,7 @@ export default async function AgentDetailPage({
   const priceCredits = agent.pricing?.priceCredits;
 
   // Standard integration URLs derived from the agent identity + the public gateway.
-  const GATEWAY = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.acquirehrsolutions.in";
+  const GATEWAY = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.fortiqo.xyz";
   const dev = agent.developer ?? "";
   const metadataUrl = agent.metadataUrl ?? (dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/metadata` : undefined);
   const restUrl = dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/use` : undefined;
