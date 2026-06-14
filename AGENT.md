@@ -213,3 +213,26 @@ After **every** task, in the same commit, update the relevant board to mirror re
 - **What's listed/deferred** → keep the roadmap items.
 
 **Never delete a line** — tick or append only. Frontend work → `frontend-todo.md`; security → `security-todo.md`; cross-repo → `platform-todo.md`.
+
+---
+
+## 🗃️ DB schema change → migration BEFORE push (non-negotiable)
+
+If a change touches the database schema — any new/changed/removed table, column,
+index, or constraint, or any new ORM model/field — you MUST ship a matching
+**Alembic migration in the same commit, and it must be applied before/at deploy.
+Never push a model change without its migration.** Deployed code that runs ahead
+of the DB schema 500s every query that hits the changed table (this has bitten us).
+
+- Write an **idempotent** migration (`ADD COLUMN IF NOT EXISTS`, `CREATE TABLE IF
+  NOT EXISTS`, …) chained to the current head (`down_revision`).
+- Update the ORM model, `docs/structure.md`, and the `master-doc/*-todo.md` in the
+  same commit.
+- Verify it applies cleanly: `make migrate` / `alembic upgrade head` (or `alembic
+  current` to check the revision).
+- Backend services run `alembic upgrade head` on container start and the deploy
+  runs an API smoke test — that is a safety net, **not** a substitute for shipping
+  the migration.
+- No-database repos (frontend, docs, infra, contracts, sdk, shared,
+  agent-templates): still applies to any cross-repo schema/contract change — land
+  the owning service's migration first.
