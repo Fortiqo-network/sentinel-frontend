@@ -16,6 +16,7 @@ import {
   getMyAgent,
   payListing,
   retireAgent,
+  restoreAgent,
   deleteAgent,
   getAgentMetrics,
   getAgentAudience,
@@ -70,6 +71,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
   const [paying, setPaying] = React.useState(false);
   const [disableOpen, setDisableOpen] = React.useState(false);
   const [disabling, setDisabling] = React.useState(false);
+  const [restoring, setRestoring] = React.useState(false);
 
   const [audience, setAudience] = React.useState<AudienceUser[]>([]);
   const [audienceTotal, setAudienceTotal] = React.useState(0);
@@ -119,6 +121,15 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
       setAgent(await payListing(agentId));
     } finally {
       setPaying(false);
+    }
+  }
+
+  async function handleRestore(): Promise<void> {
+    setRestoring(true);
+    try {
+      setAgent(await restoreAgent(agentId));
+    } finally {
+      setRestoring(false);
     }
   }
 
@@ -216,6 +227,24 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
         </div>
         {agent.description && <p className="relative mt-5 max-w-2xl text-sm leading-relaxed text-porcelain/60">{agent.description}</p>}
       </div>
+
+      {/* Archived banner */}
+      {agent.isDeleted && (
+        <Card className="border-amber-300 bg-amber-50">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
+            <div>
+              <p className="font-semibold text-amber-800">This agent is archived</p>
+              <p className="text-sm text-amber-700">
+                It&apos;s hidden from the marketplace. Re-enable it via listing — live instantly if the
+                listing fee is paid, otherwise it gets a fresh 7-day free trial.
+              </p>
+            </div>
+            <Button onClick={handleRestore} disabled={restoring}>
+              {restoring ? "Re-enabling…" : "Re-enable agent"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

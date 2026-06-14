@@ -29,6 +29,7 @@ export const DeveloperAgentSchema = z.object({
   tags: z.array(z.string()).default([]),
   trialEndsAt: z.string().nullable().optional(),
   listingPaid: z.boolean().optional().default(false),
+  isDeleted: z.boolean().optional().default(false),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -131,6 +132,12 @@ export async function payListing(id: string): Promise<DeveloperAgent> {
 /** Disables (retires) an agent — delists it from the marketplace; the record is kept. */
 export async function retireAgent(id: string): Promise<DeveloperAgent> {
   const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/retire`, {});
+  return DeveloperAgentSchema.parse(response.data);
+}
+
+/** Re-enables a soft-deleted / retired agent via the listing flow (live instantly if paid). */
+export async function restoreAgent(id: string): Promise<DeveloperAgent> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/restore`, {});
   return DeveloperAgentSchema.parse(response.data);
 }
 

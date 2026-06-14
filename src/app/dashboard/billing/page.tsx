@@ -185,7 +185,9 @@ export default function BillingPage(): React.JSX.Element {
           {submitting ? "Adding credits…" : "Add Credits"}
         </button>
         <p className="mt-2 text-xs text-slate-400">
-          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 Cr = ₹1.
+          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 Cr = ₹1.{" "}
+          <span className="font-medium text-slate-500">Credits are non-refundable once added</span> — you&apos;re
+          only charged on successful calls.
         </p>
       </div>
 

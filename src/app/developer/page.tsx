@@ -146,6 +146,7 @@ export default function DeveloperPage(): React.JSX.Element {
                     {agent.trustScore !== null && <TrustScore score={agent.trustScore} size="sm" />}
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                    {agent.isDeleted && <Badge variant="warning">Archived</Badge>}
                     <Badge variant={STATUS_VARIANT[agent.status]}>{agent.status}</Badge>
                     <Badge variant="info">{agent.tier}</Badge>
                     {agent.vertical && <Badge>{agent.vertical}</Badge>}

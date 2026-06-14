@@ -103,7 +103,7 @@ or API key (`X-API-Key`). Public routes need neither.
 | POST | `/v1/developer/agents/{id}/submit` | yes | Submit for verification |
 | GET | `/v1/developer/earnings` · `/v1/developer/bond` | yes | Payout-eligible earnings · active bond |
 | GET/POST/DELETE | `/v1/developer/agents/{id}/access-blocks[/{userId}]` | yes | Developer blocks/unblocks a user from an owned agent |
-| POST | `/v1/developer/agents/{id}/pay-listing` · `/retire` | yes | Settle $10 listing fee · disable (retire) the agent |
+| POST | `/v1/developer/agents/{id}/pay-listing` · `/retire` · `/restore` | yes | Settle $10 listing fee · disable (retire) · re-enable (restore) the agent |
 | GET | `/v1/developer/agents/{id}/metrics` · `/audience` | yes | Per-agent metrics (unique users real; invocations/earnings pending) · paginated audience + block state |
 | GET/POST | `/v1/buyer/subscriptions` | yes | List · subscribe ("star") an agent → buyer portal |
 | DELETE | `/v1/buyer/subscriptions/{agentId}` | yes | Unsubscribe |
@@ -208,7 +208,10 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
 | Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
-| Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected delete; UI confirm modal requires typing DELETE |
+| Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected soft-delete; UI confirm modal requires typing DELETE |
+| **Soft-delete everywhere** (nothing hard-deleted) | **Real** — `is_deleted`/`deleted_at` on users, agents, subscriptions, notifications, access-blocks (migration `0005`); all reads filter deleted; unstar/unblock/agent-delete are soft. Keys soft-deactivate via `is_active`; agent versions are immutable; audit log is append-only. |
+| Agent **restore / re-enable** | **Real** — `POST /v1/agents/{id}/restore`: clears delete, live instantly if listing paid, else fresh 7-day trial; UI "Re-enable" on archived agents. |
+| Buyer **usage/payments/credits** metrics | **Real** — wallet hero + spent/invocations/top-ups (from ledger) on `/dashboard`; `/dashboard/usage` per-agent; top-ups **non-refundable** (stated in UI). |
 | **Audit log** (append-only `audit_events`) | **Real** — records agent retire / listing-paid / access block & unblock (actor, action, entity, details, time); money movements audited via the billing ledger. Migration `0004`. |
 | **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
 | Verify stage 1 (Semgrep+Bandit), dynamic (via runtime), scoring, tiers | **Real** |
@@ -224,7 +227,9 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 ## 10. Conventions every repo shares
 
 - **Credits only** in any user/API-facing value (`*Credits` fields; `1 Cr = ₹1`). Platform fee **2%**.
-- **Postgres always** (never SQLite, incl. tests). **Never delete data** — corrections are new rows/status.
+- **Postgres always** (never SQLite, incl. tests). **Never hard-delete** — record tables carry
+  `is_deleted`/`deleted_at`; deletes flag + hide, and all reads filter `is_deleted=False`. Deleted agents
+  are restorable via the listing flow. Audit log + ledger are append-only.
 - **Auditable by design:** every table carries timestamps; sensitive mutations also write an append-only
   `audit_events` row (core-api) and money via the billing ledger. Don't hard-delete records of record.
 - **Schema can't run behind code:** backend services run `alembic upgrade head` **on container startup**

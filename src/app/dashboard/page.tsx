@@ -124,32 +124,43 @@ export default function DashboardPage(): React.JSX.Element {
   const totalAddedCredits = entries
     .filter((e) => e.type === "credit")
     .reduce((sum, e) => sum + e.credits, 0);
+  const totalSpentCredits = entries
+    .filter((e) => e.type === "debit")
+    .reduce((sum, e) => sum + e.credits, 0);
+  const invocations = entries.filter((e) => e.type === "debit").length;
   const series = buildBalanceSeries(entries);
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="mt-1 text-slate-600">Your credits, activity, and verified agents at a glance.</p>
+      {/* Cinematic wallet header */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-ink-950 p-6 text-porcelain sm:p-8">
+        <div className="pointer-events-none absolute inset-0 bg-aurora-radial opacity-60" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Your wallet</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-porcelain">
+              {loading ? "…" : formatCredits(balanceCredits)}
+            </h1>
+            <p className="mt-1 text-sm text-porcelain/55">
+              Credits available to spend · 1 Cr = ₹1. Top-ups are non-refundable; you&apos;re only charged on
+              successful calls.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/billing"
+            className="rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/90 whitespace-nowrap"
+          >
+            + Add credits
+          </Link>
         </div>
-        <Link
-          href="/dashboard/billing"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors whitespace-nowrap"
-        >
-          + Add Credits
-        </Link>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Credits Balance"
-          value={loading ? "…" : formatCredits(balanceCredits)}
-          sub="Available to spend"
-          accent
-        />
-        <StatCard label="Total Added" value={loading ? "…" : formatCredits(totalAddedCredits)} sub="All-time top-ups" />
-        <StatCard label="Transactions" value={loading ? "…" : String(entries.length)} sub="Ledger entries" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Credits balance" value={loading ? "…" : formatCredits(balanceCredits)} sub="Available to spend" accent />
+        <StatCard label="Total spent" value={loading ? "…" : formatCredits(totalSpentCredits)} sub="On agent calls" />
+        <StatCard label="Invocations" value={loading ? "…" : invocations.toLocaleString("en-IN")} sub="Successful calls" />
+        <StatCard label="Total added" value={loading ? "…" : formatCredits(totalAddedCredits)} sub="All-time top-ups" />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
