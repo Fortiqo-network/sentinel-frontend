@@ -208,6 +208,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
 | Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
 | Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected delete; UI confirm modal requires typing DELETE |
+| **Audit log** (append-only `audit_events`) | **Real** — records agent retire / listing-paid / access block & unblock (actor, action, entity, details, time); money movements audited via the billing ledger. Migration `0004`. |
 | **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
 | Verify stage 1 (Semgrep+Bandit), dynamic (via runtime), scoring, tiers | **Real** |
 | Verify stage 2 (SBOM/Sigstore), stage 4 (red-team corpus) | **Partial/stub** |
@@ -223,6 +224,11 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 - **Credits only** in any user/API-facing value (`*Credits` fields; `1 Cr = ₹1`). Platform fee **2%**.
 - **Postgres always** (never SQLite, incl. tests). **Never delete data** — corrections are new rows/status.
+- **Auditable by design:** every table carries timestamps; sensitive mutations also write an append-only
+  `audit_events` row (core-api) and money via the billing ledger. Don't hard-delete records of record.
+- **Deploy always migrates:** the deploy workflow runs `alembic upgrade head` for every backend service
+  **before** restart (idempotent — no-op when at head), then an **API smoke test** must pass or the deploy
+  fails. This prevents "code ahead of schema" 500s. Run migrations manually too: `make migrate` per service.
 - **Docs stay in sync in the same commit:** this `structure.md`, the module `docs/`, and
   `master-doc/*-todo.md` (tick `[ ]`→`[x]`, never delete a line).
 - **Commits:** Conventional Commits, one concise line, **no AI/attribution**. Never push without permission.
