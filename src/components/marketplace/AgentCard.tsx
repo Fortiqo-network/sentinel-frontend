@@ -1,6 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { TrustBadge } from "./TrustBadge";
+import { SubscribeButton } from "./SubscribeButton";
 import { cn } from "@/lib/utils/cn";
 import type { Agent } from "@/types/agent";
 
@@ -247,6 +248,8 @@ export function AgentCard({
         >
           {priceLabel}
         </span>
+        <div className="flex items-center gap-2">
+        <SubscribeButton agentId={agent.id} compact dark={dark} />
         <Link
           href={`/agents/${agent.slug}`}
           className={cn(
@@ -265,6 +268,7 @@ export function AgentCard({
             />
           </svg>
         </Link>
+        </div>
       </div>
     </article>
   );

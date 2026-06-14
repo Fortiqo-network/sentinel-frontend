@@ -199,7 +199,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Auth (register/login/me/logout), API keys, profile update + avatar | **Real** |
 | Marketplace listings + agent metadata card (+ `/metadata` alias) | **Real** (9 seed agents, all `live`) |
 | Buyer subscriptions ("star" agents → portal) + user notifications | **Real** (core-api tables + gateway proxy; migration `0002`) |
-| Developer per-agent user access restriction (block a misusing user) | **Real** (`agent_access_blocks` table + owner-scoped endpoints; gateway enforces 403 in pay-and-use; developer UI) |
+| Developer per-agent user access restriction (block a misusing user) | **Real** (`agent_access_blocks` table + owner-scoped endpoints; gateway enforces 403 in pay-and-use, invoke, and chat; developer UI) |
 | Buyer wallet: balance/ledger/invoices, ledger double-entry | **Real** |
 | Buy credits (top-up) — grants credits + records payment JSON | **Real (mock)** — UI at `/dashboard/billing`; real Razorpay/Stripe capture swaps in later |
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
