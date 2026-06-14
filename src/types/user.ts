@@ -13,7 +13,7 @@ export interface User {
   email: string;
   displayName?: string;
   role: UserRole;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   createdAt: string;
   emailVerified: boolean;
 }

@@ -9,7 +9,7 @@ export const UserSchema = z.object({
   email: z.string().email(),
   displayName: z.string().optional(),
   role: z.enum(["buyer", "developer", "admin"]),
-  avatarUrl: z.string().optional(),
+  avatarUrl: z.string().nullable().optional(),
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
 });

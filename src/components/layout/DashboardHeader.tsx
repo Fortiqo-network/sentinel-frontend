@@ -178,7 +178,7 @@ function NotificationPanel(): React.JSX.Element {
 interface ProfileDropdownProps {
   displayName: string;
   email: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   profileHref: string;
   settingsHref: string;
   onLogout: () => void;
