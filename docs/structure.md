@@ -104,6 +104,7 @@ or API key (`X-API-Key`). Public routes need neither.
 | GET | `/v1/developer/earnings` · `/v1/developer/bond` | yes | Payout-eligible earnings · active bond |
 | GET/POST/DELETE | `/v1/developer/agents/{id}/access-blocks[/{userId}]` | yes | Developer blocks/unblocks a user from an owned agent |
 | POST | `/v1/developer/agents/{id}/pay-listing` · `/retire` | yes | Settle $10 listing fee · disable (retire) the agent |
+| GET | `/v1/developer/agents/{id}/metrics` · `/audience` | yes | Per-agent metrics (unique users real; invocations/earnings pending) · paginated audience + block state |
 | GET/POST | `/v1/buyer/subscriptions` | yes | List · subscribe ("star") an agent → buyer portal |
 | DELETE | `/v1/buyer/subscriptions/{agentId}` | yes | Unsubscribe |
 | GET | `/v1/notifications` · POST `/v1/notifications/read` | yes | List · mark-read user notifications |

@@ -182,3 +182,57 @@ export async function blockUser(agentId: string, email: string, reason?: string)
 export async function unblockUser(agentId: string, userId: string): Promise<void> {
   await apiClient.delete(`/v1/developer/agents/${agentId}/access-blocks/${userId}`);
 }
+
+/** Blocks a specific user (by id) from an agent — used from the audience table. */
+export async function blockUserId(agentId: string, userId: string): Promise<void> {
+  await apiClient.post(`/v1/developer/agents/${agentId}/access-blocks`, { user_id: userId });
+}
+
+// ── Per-agent metrics + audience ──────────────────────────────────────────────
+
+export const AgentMetricsSchema = z.object({
+  uniqueUsers: z.number().int().min(0),
+  invocations30d: z.number().int().min(0),
+  invocationsTotal: z.number().int().min(0),
+  earningsTotalCredits: z.number().int().min(0),
+  earnings30dCredits: z.number().int().min(0),
+});
+
+export type AgentMetrics = z.infer<typeof AgentMetricsSchema>;
+
+/** Returns headline metrics for one of the developer's agents. */
+export async function getAgentMetrics(agentId: string): Promise<AgentMetrics> {
+  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/metrics`);
+  return AgentMetricsSchema.parse(response.data);
+}
+
+export const AudienceUserSchema = z.object({
+  userId: z.string(),
+  email: z.string(),
+  displayName: z.string().nullable().optional(),
+  blocked: z.boolean(),
+  since: z.string(),
+});
+
+export type AudienceUser = z.infer<typeof AudienceUserSchema>;
+
+export const AudienceResponseSchema = z.object({
+  users: z.array(AudienceUserSchema),
+  total: z.number().int().min(0),
+  page: z.number().int().min(1),
+  pageSize: z.number().int().min(1),
+});
+
+export type AudienceResponse = z.infer<typeof AudienceResponseSchema>;
+
+/** Returns a paginated page of the agent's audience (users + block state). */
+export async function getAgentAudience(
+  agentId: string,
+  page = 1,
+  pageSize = 10,
+): Promise<AudienceResponse> {
+  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/audience`, {
+    params: { page, pageSize },
+  });
+  return AudienceResponseSchema.parse(response.data);
+}

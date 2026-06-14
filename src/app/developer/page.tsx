@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils/cn";
+import { useAuthStore } from "@/store/auth";
+import { StatCard } from "@/components/ui/stat-card";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TrustScore } from "@/components/ui/trust-score";
+import { Avatar } from "@/components/ui/avatar";
 import {
   listMyAgents,
   getEarnings,
@@ -10,250 +17,142 @@ import {
   type DeveloperAgentStatus,
 } from "@/lib/api/developer";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const STATUS_STYLES: Record<DeveloperAgentStatus, string> = {
-  draft: "bg-slate-100 text-slate-700",
-  submitted: "bg-amber-100 text-amber-700",
-  verifying: "bg-amber-100 text-amber-700",
-  verified: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-red-100 text-red-700",
-  live: "bg-emerald-100 text-emerald-700",
-  suspended: "bg-red-100 text-red-700",
-  retired: "bg-slate-100 text-slate-500",
+const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warning" | "destructive"> = {
+  draft: "default",
+  submitted: "warning",
+  verifying: "warning",
+  verified: "success",
+  rejected: "destructive",
+  live: "success",
+  suspended: "destructive",
+  retired: "default",
 };
-
-const STATUS_LABELS: Record<DeveloperAgentStatus, string> = {
-  draft: "Draft",
-  submitted: "Submitted",
-  verifying: "Verifying",
-  verified: "Verified",
-  rejected: "Rejected",
-  live: "Live",
-  suspended: "Suspended",
-  retired: "Retired",
-};
-
-const TIER_LABELS: Record<DeveloperAgent["tier"], string> = {
-  managed: "Managed",
-  proxy: "Proxy",
-};
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-interface StatCardProps {
-  label: string;
-  value: string;
-  sub?: string;
-}
-
-function StatCard({ label, value, sub }: StatCardProps): React.JSX.Element {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="text-2xl font-bold text-slate-900">{value}</div>
-      <div className="mt-1 text-sm font-medium text-slate-500">{label}</div>
-      {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
-    </div>
-  );
-}
-
-interface StatusBadgeProps {
-  status: DeveloperAgentStatus;
-}
-
-function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-        STATUS_STYLES[status],
-      )}
-    >
-      {STATUS_LABELS[status]}
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 /**
- * Developer dashboard home. Loads the authenticated developer's agents and
- * payout-eligible earnings from the gateway, then derives headline metrics
- * (total/verified/pending counts, average trust score, payable credits) and
- * renders the agent list. Earnings can fail for non-developer accounts; that
- * failure is tolerated and treated as zero payable credits so the page still
- * renders the agent data.
+ * Developer portal home. A cinematic header over the developer's headline metrics,
+ * quick actions, and an agent card grid linking into each agent's detail page.
+ * Earnings degrade gracefully (zero) when billing is unavailable.
  */
 export default function DeveloperPage(): React.JSX.Element {
+  const { user } = useAuthStore();
   const [agents, setAgents] = React.useState<DeveloperAgent[]>([]);
-  const [payableCredits, setPayableCredits] = React.useState<number>(0);
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [payableCredits, setPayableCredits] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     let cancelled = false;
-
-    async function load(): Promise<void> {
-      const [agentsResult, earningsResult] = await Promise.allSettled([
-        listMyAgents(),
-        getEarnings(),
-      ]);
-
+    void (async () => {
+      const [a, e] = await Promise.allSettled([listMyAgents(), getEarnings()]);
       if (cancelled) return;
-
-      if (agentsResult.status === "fulfilled") {
-        setAgents(agentsResult.value);
-      }
-      if (earningsResult.status === "fulfilled") {
-        setPayableCredits(earningsResult.value.payableCredits);
-      }
+      if (a.status === "fulfilled") setAgents(a.value);
+      if (e.status === "fulfilled") setPayableCredits(e.value.payableCredits);
       setLoading(false);
-    }
-
-    void load();
-
+    })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const totalCount = agents.length;
-  const verifiedLiveCount = agents.filter(
-    (a) => a.status === "verified" || a.status === "live",
-  ).length;
-  const pendingCount = agents.filter(
-    (a) => a.status === "submitted" || a.status === "verifying",
-  ).length;
-
-  const scoredAgents = agents.filter((a) => a.trustScore !== null);
+  const total = agents.length;
+  const liveCount = agents.filter((x) => x.status === "verified" || x.status === "live").length;
+  const pending = agents.filter((x) => x.status === "submitted" || x.status === "verifying").length;
+  const scored = agents.filter((x) => x.trustScore !== null);
   const avgTrust =
-    scoredAgents.length > 0
-      ? String(
-          Math.round(
-            scoredAgents.reduce((sum, a) => sum + (a.trustScore ?? 0), 0) /
-              scoredAgents.length,
-          ),
-        )
-      : "—";
+    scored.length > 0 ? Math.round(scored.reduce((s, x) => s + (x.trustScore ?? 0), 0) / scored.length) : null;
+  const firstName = (user?.displayName ?? "there").split(" ")[0];
 
   return (
     <div className="space-y-8">
-      {/* Page heading */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Developer Portal</h1>
-        <p className="mt-1 text-slate-600">Publish agents, track verification, and manage payouts.</p>
+      {/* Cinematic header */}
+      <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-ink-950 p-6 text-porcelain sm:p-8">
+        <div className="pointer-events-none absolute inset-0 bg-aurora-radial opacity-60" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Developer portal</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-porcelain">Welcome back, {firstName}</h1>
+            <p className="mt-1 max-w-xl text-sm text-porcelain/55">
+              Publish agents, watch them earn trust, and get paid on delivery. You keep 98% — the platform fee is a flat 2%.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/developer/agents/new"
+              className="rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/90"
+            >
+              + Publish agent
+            </Link>
+            <Link
+              href="/developer/earnings"
+              className="rounded-lg border border-porcelain/20 px-4 py-2.5 text-sm font-medium text-porcelain/80 transition-colors hover:bg-porcelain/10"
+            >
+              Earnings
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="Total Agents" value={loading ? "…" : String(totalCount)} sub="All agents" />
+      {/* Metrics */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total agents" value={loading ? "…" : String(total)} sub="All statuses" accent="indigo" />
+        <StatCard label="Verified / live" value={loading ? "…" : String(liveCount)} sub="In the marketplace" accent="emerald" />
+        <StatCard label="Pending verification" value={loading ? "…" : String(pending)} sub="In pipeline" accent="amber" />
         <StatCard
-          label="Verified / Live"
-          value={loading ? "…" : String(verifiedLiveCount)}
-          sub="In the marketplace"
-        />
-        <StatCard
-          label="Pending Verification"
-          value={loading ? "…" : String(pendingCount)}
-          sub="In pipeline"
-        />
-        <StatCard
-          label="Avg Trust Score"
-          value={loading ? "…" : avgTrust !== "—" ? `${avgTrust}/100` : "—"}
-          sub="Across scored agents"
-        />
-        <StatCard
-          label="Payable Earnings"
+          label="Payable earnings"
           value={loading ? "…" : `${payableCredits.toLocaleString("en-IN")} Cr`}
-          sub="Eligible for payout"
+          sub={avgTrust !== null ? `Avg trust ${avgTrust}/100` : "Eligible for payout"}
+          accent="amber"
         />
       </div>
 
-      {/* Quick actions */}
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href="/developer/agents/new"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors"
-        >
-          + Publish New Agent
-        </Link>
-        <Link
-          href="/developer/earnings"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
-        >
-          View Earnings
-        </Link>
-        <Link
-          href="/developer/bonds"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
-        >
-          Manage Bonds
-        </Link>
-      </div>
-
-      {/* Agents table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">Your Agents</h2>
-          <Link href="/developer/agents" className="text-sm text-indigo-600 hover:text-indigo-500">
-            View all
-          </Link>
+      {/* Agents grid */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-900">Your agents</h2>
+          {agents.length > 0 && (
+            <Button asChild variant="outline" size="sm">
+              <Link href="/developer/agents">Manage all</Link>
+            </Button>
+          )}
         </div>
 
         {loading ? (
-          <div className="px-6 py-12 text-center text-sm text-slate-500">Loading your agents…</div>
-        ) : agents.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <p className="text-sm font-medium text-slate-700">No agents yet</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Publish your first agent to start earning.
-            </p>
-            <Link
-              href="/developer/agents/new"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors"
-            >
-              + Publish New Agent
-            </Link>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-40 animate-pulse rounded-xl bg-slate-100" />
+            ))}
           </div>
+        ) : agents.length === 0 ? (
+          <Card>
+            <EmptyState
+              title="No agents yet"
+              description="Publish your first agent to start earning. Your first 7 days are free."
+              action={<Button asChild><Link href="/developer/agents/new">+ Publish your first agent</Link></Button>}
+            />
+          </Card>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Tier</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-slate-500">Trust Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {agents.map((agent) => (
-                  <tr key={agent.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-3 font-medium text-slate-900">
-                      <Link href={`/developer/agents/${agent.id}`} className="hover:text-indigo-600">
-                        {agent.name}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-3 text-slate-500">{TIER_LABELS[agent.tier]}</td>
-                    <td className="px-6 py-3">
-                      <StatusBadge status={agent.status} />
-                    </td>
-                    <td className="px-6 py-3 text-slate-700">
-                      {agent.trustScore !== null ? (
-                        `${agent.trustScore}/100`
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {agents.map((agent) => (
+              <Link key={agent.id} href={`/developer/agents/${agent.id}`} className="group">
+                <Card className="flex h-full flex-col p-5 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:border-slate-300">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar src={agent.slug} name={agent.name} size="md" />
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-slate-900 group-hover:text-indigo-600">{agent.name}</p>
+                        <p className="truncate font-mono text-xs text-slate-400">/{agent.slug}</p>
+                      </div>
+                    </div>
+                    {agent.trustScore !== null && <TrustScore score={agent.trustScore} size="sm" />}
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                    <Badge variant={STATUS_VARIANT[agent.status]}>{agent.status}</Badge>
+                    <Badge variant="info">{agent.tier}</Badge>
+                    {agent.vertical && <Badge>{agent.vertical}</Badge>}
+                  </div>
+                </Card>
+              </Link>
+            ))}
           </div>
         )}
       </div>
