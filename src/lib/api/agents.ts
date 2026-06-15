@@ -91,6 +91,53 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
   }
 }
 
+// ── Trust report ──────────────────────────────────────────────────────────────
+
+export const ReportDimensionSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  score: z.number().int().min(0).max(100).nullable(),
+  status: z.enum(["assessed", "pending", "deferred"]),
+  weight: z.number().int().optional(),
+});
+
+export const AgentReportSchema = z.object({
+  agentId: z.string(),
+  scoreDisplay: z.number().int().min(0).max(100),
+  certStatus: z.enum(["certified_managed", "certified", "provisional", "uncertified"]),
+  rubricVersion: z.string().optional(),
+  dimensions: z.array(ReportDimensionSchema).default([]),
+  findingsSummary: z
+    .object({
+      critical: z.number().int(),
+      high: z.number().int(),
+      medium: z.number().int(),
+      low: z.number().int(),
+      info: z.number().int(),
+    })
+    .partial()
+    .optional(),
+  stagesDeferred: z.array(z.string()).default([]),
+  generatedAt: z.string().optional(),
+});
+
+export type ReportDimension = z.infer<typeof ReportDimensionSchema>;
+export type AgentReport = z.infer<typeof AgentReportSchema>;
+
+/**
+ * Fetches the full trust report for an agent. Returns null when no report API
+ * is available yet (the agent page then renders the average score with honest
+ * per-dimension "pending" states rather than a blank or fabricated breakdown).
+ */
+export async function getAgentReport(slug: string): Promise<AgentReport | null> {
+  try {
+    const response = await apiClient.get<unknown>(`/v1/listings/slug/${slug}/report`);
+    return AgentReportSchema.parse(response.data);
+  } catch {
+    return null;
+  }
+}
+
 // ── Use (pay-and-use) ─────────────────────────────────────────────────────────
 
 export const UseAgentResultSchema = z.object({

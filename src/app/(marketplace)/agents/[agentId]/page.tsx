@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { TrustBadge } from "@/components/marketplace/TrustBadge";
 import { formatDate } from "@/lib/utils/format";
-import { getAgentBySlug } from "@/lib/api/agents";
+import { getAgentBySlug, getAgentReport } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
+import { TrustReportPanel } from "@/components/marketplace/TrustReportPanel";
 import type { Agent } from "@/types/agent";
 
 type CertLevel = "certified_managed" | "certified" | "provisional" | "uncertified";
@@ -113,6 +114,7 @@ export default async function AgentDetailPage({
   const agent = await getAgentBySlug(agentId);
   if (agent == null) notFound();
 
+  const report = await getAgentReport(agent.slug);
   const certLevel = deriveCert(agent);
   const cert = CERT_CONFIG[certLevel];
   const trustBadgeCert = certLevel === "uncertified" ? ("uncertified" as const) : certLevel;
@@ -225,6 +227,15 @@ export default async function AgentDetailPage({
               </p>
             </div>
             <TrustBadge score={agent.trustScore} size="md" certLevel={trustBadgeCert} />
+          </div>
+          <div className="mt-4">
+            <TrustReportPanel
+              agentName={agent.name}
+              trustScore={agent.trustScore}
+              certLabel={cert.label}
+              lastVerifiedAt={agent.lastVerifiedAt}
+              report={report}
+            />
           </div>
         </section>
 

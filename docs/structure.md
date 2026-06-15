@@ -148,7 +148,7 @@ Ownership proof (Phase A): `POST /internal/ownership/challenge` (issue token), `
 Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 - **Public/marketing:** `/` (cinematic Tessera home), `/how-it-works`, `/playground`, `/terms`, `/privacy`, `/security`, `/status`, `/docs/methodology`, `/docs/trust-scores` (`InfoPage` shell); `(auth)/forgot-password`.
-- **Marketplace:** `/agents` (grid + filters), `/agents/[agentId]` (detail + Developer & integration).
+- **Marketplace:** `/agents` (grid + filters), `/agents/[agentId]` (detail + Developer & integration + **Trust report** modal: average score + per-dimension status).
 - **Auth:** `/login`, `/register` (route group `(auth)`; httpOnly-cookie session via BFF; social/EVM sign-in buttons scaffolded — "coming soon").
 - **Buyer dashboard:** `/dashboard`, `/dashboard/{subscriptions,usage,billing,api-keys,profile,settings}` (subscriptions = "My Agents").
 - **Developer portal:** `/developer`, `/developer/{agents,agents/[agentId],agents/new,earnings,profile,bonds,settings}` (agent detail hosts per-agent access control).
@@ -303,7 +303,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 **sentinel-frontend** (`src/`)
 - `app/` — routes (groups `(auth)`, `(marketplace)`; `dashboard/*`, `developer/*`, `playground`, `how-it-works`); `app/api/[...path]/route.ts` (BFF proxy) + `app/api/v1/auth/*`
 - `lib/api/{client,agents,auth,billing,keys,developer,subscriptions,notifications,server-auth}.ts` (typed wrappers + zod) · `lib/bff/gateway.ts` · `lib/{site,avatars}.ts`
-- `components/ui/*` (kit: button,card,badge,input,select,dialog,skeleton,toaster,avatar,stat-card,page-header,trust-score,empty-state) · `components/portal/{ProfileSettingsCard,ConnectedAccountsCard,AccessControlCard}.tsx` · `components/auth/SocialSignInButtons.tsx` · `components/marketplace/SubscribeButton.tsx` · `components/layout/{Sidebar,DashboardHeader,Header,Footer}.tsx` · `components/marketing/*` · `components/brand/*` · `store/{auth,ui}.ts` · `types/{agent,user,billing,index}.ts` · `app/globals.css` + `tailwind.config.ts` (design tokens)
+- `components/ui/*` (kit: button,card,badge,input,select,dialog,skeleton,toaster,avatar,stat-card,page-header,trust-score,empty-state) · `components/portal/{ProfileSettingsCard,ConnectedAccountsCard,AccessControlCard}.tsx` · `components/auth/SocialSignInButtons.tsx` · `components/marketplace/{SubscribeButton,TrustReportPanel}.tsx` (report = avg score + dimension states; `getAgentReport` in `lib/api/agents.ts`) · `components/layout/{Sidebar,DashboardHeader,Header,Footer}.tsx` · `components/marketing/*` · `components/brand/*` · `store/{auth,ui}.ts` · `types/{agent,user,billing,index}.ts` · `app/globals.css` + `tailwind.config.ts` (design tokens)
 
 **sentinel-contracts** — `contracts/src/{SentinelAgentRegistry,SentinelBond}.sol` + `interfaces/` · `scripts/deploy.ts` · `test/`
 **sentinel-agent-templates** — `templates/{python,typescript}/*` · `fixtures/golden-tasks/*`
