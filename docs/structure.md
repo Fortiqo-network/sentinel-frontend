@@ -42,7 +42,7 @@ user-facing unit (**1 Cr = ₹1 = 100 paise**; never show paise/₹/$).
 | **sentinel-contracts** | On-chain identity (ERC-8004) + staked bonds | Solidity · Hardhat | **Scaffolded** (M9+) |
 | **sentinel-agent-templates** | Starter agents (Py/TS) + golden-task fixtures for verification calibration | Python + TypeScript | **Built** |
 | **sentinel-infra** | IaC: docker-compose (local), Terraform (AWS), Helm (k8s), CI/CD | Terraform · Helm · GH Actions | **Built** |
-| **sentinel-docs** | Public docs **content** (markdown-only; `nav.json` manifest) — rendered by the frontend at `/docs` | Markdown (Mintlify removed) | **Live** |
+| **sentinel-docs** | Standalone docs **site** (markdown + thin Next renderer; `nav.json`) at `docs.fortiqo.xyz` | Next.js (Mintlify removed) | **Live** |
 
 ---
 
@@ -191,9 +191,9 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
   verify:8001, billing:8002, registry:8003; Terraform modules (vpc/rds/redis/ecs/s3) + dev/staging/prod;
   Helm charts (gateway/core-api/verify/billing); GH Actions CI + deploy-dev (self-hosted runner).
   Prod edge is a **Cloudflare tunnel** to the gateway (`sentinel-api.fortiqo.xyz`); frontend on Vercel.
-- **docs** — markdown-only content (Mintlify removed); the **frontend** renders it at
-  `https://sentinel.fortiqo.xyz/docs` (in-house framework, cinematic theme). Content reads at build
-  time from `SENTINEL_DOCS_PATH` (default sibling `../sentinel-docs`); nav from `nav.json`.
+- **docs** — standalone Next.js site (Mintlify removed) deployed to `https://docs.fortiqo.xyz`
+  (own Vercel project + Cloudflare DNS). Markdown content + `nav.json`, rendered by an in-repo
+  `app/[[...slug]]` renderer (cinematic theme). `sentinel.fortiqo.xyz/docs` → 302 → `docs.fortiqo.xyz`.
 
 ---
 
@@ -308,8 +308,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 **sentinel-contracts** — `contracts/src/{SentinelAgentRegistry,SentinelBond}.sol` + `interfaces/` · `scripts/deploy.ts` · `test/`
 **sentinel-agent-templates** — `templates/{python,typescript}/*` · `fixtures/golden-tasks/*`
 **sentinel-infra** — `docker/docker-compose*.yml` · `terraform/{modules,environments}/` · `helm/sentinel-*/` · `.github/workflows/`
-**sentinel-docs** — `nav.json` (nav manifest) · `docs/**/*.{md,mdx}` (markdown-only; no build)
-**sentinel-frontend docs renderer** — `src/app/docs/[[...slug]]/page.tsx` · `src/lib/docs/index.ts` (loader) · `src/components/docs/{mdx-components,DocsSidebar,DocsToc}.tsx`
+**sentinel-docs** (standalone Next site) — `nav.json` · `docs/**/*.{md,mdx}` + `index.mdx`/`quickstart.mdx` (content) · `app/[[...slug]]/page.tsx` + `app/layout.tsx` · `lib/docs.ts` · `components/{mdx-components,DocsSidebar,DocsToc}.tsx` · `tailwind.config.ts`
 
 ---
 

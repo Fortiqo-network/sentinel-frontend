@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Documentation lives on the standalone docs site (docs.fortiqo.xyz).
+  async redirects() {
+    return [{ source: "/docs", destination: "https://docs.fortiqo.xyz", permanent: false }];
+  },
+
   // Security headers — CSP is set here as a baseline; tighten per route in middleware
   async headers() {
     return [
