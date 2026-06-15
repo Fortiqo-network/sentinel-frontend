@@ -218,3 +218,24 @@
     border-radius: 3px;
   }
 }
+
+/* ── Docs syntax highlighting (rehype-highlight / hljs) — cinematic dark ── */
+.docs-content .hljs-comment,
+.docs-content .hljs-quote { color: #6b7280; font-style: italic; }
+.docs-content .hljs-keyword,
+.docs-content .hljs-selector-tag,
+.docs-content .hljs-literal,
+.docs-content .hljs-built_in { color: #E7A03C; }
+.docs-content .hljs-string,
+.docs-content .hljs-attr,
+.docs-content .hljs-template-tag { color: #22c55e; }
+.docs-content .hljs-number,
+.docs-content .hljs-symbol { color: #8193f8; }
+.docs-content .hljs-title,
+.docs-content .hljs-section,
+.docs-content .hljs-name { color: #ECEAE3; font-weight: 600; }
+.docs-content .hljs-meta,
+.docs-content .hljs-type,
+.docs-content .hljs-attribute { color: #80848F; }
+.docs-content .hljs-deletion { color: #ef4444; }
+.docs-content .hljs-addition { color: #10b981; }

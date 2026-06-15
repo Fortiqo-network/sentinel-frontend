@@ -42,7 +42,7 @@ user-facing unit (**1 Cr = ₹1 = 100 paise**; never show paise/₹/$).
 | **sentinel-contracts** | On-chain identity (ERC-8004) + staked bonds | Solidity · Hardhat | **Scaffolded** (M9+) |
 | **sentinel-agent-templates** | Starter agents (Py/TS) + golden-task fixtures for verification calibration | Python + TypeScript | **Built** |
 | **sentinel-infra** | IaC: docker-compose (local), Terraform (AWS), Helm (k8s), CI/CD | Terraform · Helm · GH Actions | **Built** |
-| **sentinel-docs** | Public developer/user docs site | Mintlify (MDX) | **Written** |
+| **sentinel-docs** | Public docs **content** (markdown-only; `nav.json` manifest) — rendered by the frontend at `/docs` | Markdown (Mintlify removed) | **Live** |
 
 ---
 
@@ -132,6 +132,8 @@ or API key (`X-API-Key`). Public routes need neither.
 
 **verify** (`:8001`): `/api/v1/verify` (enqueue), `/api/v1/verify/{job_id}` (status), `/api/v1/reports/{agent_id}`,
 `/api/v1/reports/{agent_id}/badge`, `/api/v1/verify/{agent_id}/rescore`, `/internal/verifications/{id}`.
+Ownership proof (Phase A): `POST /internal/ownership/challenge` (issue token), `POST /internal/ownership/verify`
+(SSRF-guarded `.well-known/sentinel-challenge` check), `GET /internal/ownership/{agent_id}` (latest status).
 
 **registry** (`:8003`): `/v1/artifacts` (publish), `/v1/artifacts/{agent_id}[/{version}]`,
 `/v1/artifacts/{agent_id}/{version}/download` (presigned), `/v1/cards/{agent_id}`, `/v1/cards` (publish).
@@ -189,8 +191,9 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
   verify:8001, billing:8002, registry:8003; Terraform modules (vpc/rds/redis/ecs/s3) + dev/staging/prod;
   Helm charts (gateway/core-api/verify/billing); GH Actions CI + deploy-dev (self-hosted runner).
   Prod edge is a **Cloudflare tunnel** to the gateway (`sentinel-api.fortiqo.xyz`); frontend on Vercel.
-- **docs** — Mintlify site: getting-started, marketplace, developers, api-reference (live OpenAPI),
-  trust, sdk, mcp, compliance (DPDP). Update the OpenAPI server URL to `sentinel-api.fortiqo.xyz`.
+- **docs** — markdown-only content (Mintlify removed); the **frontend** renders it at
+  `https://sentinel.fortiqo.xyz/docs` (in-house framework, cinematic theme). Content reads at build
+  time from `SENTINEL_DOCS_PATH` (default sibling `../sentinel-docs`); nav from `nav.json`.
 
 ---
 
@@ -281,6 +284,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 **sentinel-verify** (`src/sentinel_verify/`)
 - `api/v1/verification.py` + `api/internal/verifications.py` · `workers/pipeline.py` (orchestrator) · `workers/tasks/{static_analysis,supply_chain,dynamic,redteam}.py`
 - `analyzers/{semgrep,bandit,pip_audit,dynamic}.py` · `scoring/trust_score.py` (rubric + tiers) · `db/models/verification.py` · `clients/core_api.py` (emit event) · `storage/s3.py`
+- Ownership proof: `core/ssrf.py` (SSRF guard) · `services/ownership.py` · `api/internal/ownership.py` · `db/models/ownership.py` (+ migration `0002`). Design: `docs/master-doc.md` §24 (v2 plan: 4 goals, isolation tiers, rubric v2, Gemini AI review).
 
 **sentinel-registry** (`src/sentinel_registry/`)
 - `api/v1/{artifacts,agent_cards}.py` · `domain/{versioning/semver,packaging/manifest,resolution/resolver,signing/verify}.py` · `signing/{sbom,checksum}.py`
@@ -304,7 +308,8 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 **sentinel-contracts** — `contracts/src/{SentinelAgentRegistry,SentinelBond}.sol` + `interfaces/` · `scripts/deploy.ts` · `test/`
 **sentinel-agent-templates** — `templates/{python,typescript}/*` · `fixtures/golden-tasks/*`
 **sentinel-infra** — `docker/docker-compose*.yml` · `terraform/{modules,environments}/` · `helm/sentinel-*/` · `.github/workflows/`
-**sentinel-docs** — `docs.json` (nav) · `docs/**/*.mdx`
+**sentinel-docs** — `nav.json` (nav manifest) · `docs/**/*.{md,mdx}` (markdown-only; no build)
+**sentinel-frontend docs renderer** — `src/app/docs/[[...slug]]/page.tsx` · `src/lib/docs/index.ts` (loader) · `src/components/docs/{mdx-components,DocsSidebar,DocsToc}.tsx`
 
 ---
 

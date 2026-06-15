@@ -203,3 +203,20 @@ of the DB schema 500s every query that hits the changed table (this has bitten u
 - No-database repos (frontend, docs, infra, contracts, sdk, shared,
   agent-templates): still applies to any cross-repo schema/contract change — land
   the owning service's migration first.
+
+---
+
+## 📚 Docs framework — markdown-only, rendered by the frontend (2026-06-15)
+
+Platform documentation is **markdown-only** and lives in **sentinel-docs** (the content
+source of truth). It is rendered at **https://sentinel.fortiqo.xyz/docs** by the
+**sentinel-frontend** docs framework (Mintlify-like: sidebar, TOC, search, callouts, code).
+
+- **Mintlify is removed.** Do NOT reintroduce `docs.json`/Mintlify or any separate docs
+  build/runtime. sentinel-docs ships markdown (`.md`/`.mdx`) + a `nav.json` manifest only.
+- **Single source of truth:** never duplicate doc content into the frontend. The frontend
+  reads markdown from sentinel-docs at build time via `SENTINEL_DOCS_PATH` (default the
+  monorepo sibling `../sentinel-docs`); nav comes from `nav.json`.
+- **Adding/editing a doc page:** put the markdown in sentinel-docs and add its slug to
+  `nav.json`; the frontend renders it automatically. Track work in
+  `master-doc/docs-todo.md` (tick/append only — never delete a line).
