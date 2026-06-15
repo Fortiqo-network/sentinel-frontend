@@ -37,6 +37,9 @@ export function SubmitAgentForm(): React.JSX.Element {
     const description = field("description");
     const vertical = field("vertical");
     const tier = (field("tier") || "proxy") as CreateAgentRequest["tier"];
+    const endpointUrl = field("endpointUrl");
+    const priceRaw = field("price");
+    const promoCode = field("promoCode");
     const tags = field("tags")
       .split(",")
       .map((t) => t.trim())
@@ -54,6 +57,21 @@ export function SubmitAgentForm(): React.JSX.Element {
       return;
     }
 
+    if (endpointUrl && !/^https?:\/\//i.test(endpointUrl)) {
+      setError("Endpoint URL must start with http:// or https://");
+      return;
+    }
+
+    const price = priceRaw ? Math.round(parseFloat(priceRaw)) : 0;
+    if (priceRaw && (Number.isNaN(price) || price < 0)) {
+      setError("Price per call must be a non-negative number of credits.");
+      return;
+    }
+
+    const accessConfig: Record<string, unknown> = {};
+    if (endpointUrl) accessConfig.endpoint_url = endpointUrl;
+    if (price > 0) accessConfig.price_per_call_paise = price * 100;
+
     const body: CreateAgentRequest = {
       slug,
       name,
@@ -61,6 +79,8 @@ export function SubmitAgentForm(): React.JSX.Element {
       ...(description ? { description } : {}),
       ...(vertical ? { vertical } : {}),
       ...(tags.length > 0 ? { tags } : {}),
+      ...(Object.keys(accessConfig).length > 0 ? { access_config: accessConfig } : {}),
+      ...(promoCode ? { promo_code: promoCode } : {}),
     };
 
     setSubmitting(true);
@@ -121,6 +141,21 @@ export function SubmitAgentForm(): React.JSX.Element {
             </select>
           </div>
           <Input
+            label="Agent endpoint URL"
+            name="endpointUrl"
+            type="url"
+            placeholder="https://your-agent.example.com/invoke"
+            hint="Where Sentinel sends each call (POST JSON {input}) and returns the agent's real output. Required for routed (proxy) agents."
+          />
+          <Input
+            label="Price per call (credits, optional)"
+            name="price"
+            type="number"
+            min="0"
+            placeholder="e.g. 5"
+            hint="Charged from the buyer's wallet only on a successful call. 1 Cr = ₹1. Leave blank for free."
+          />
+          <Input
             label="Vertical (optional)"
             name="vertical"
             placeholder="e.g. Engineering, Legal, Finance"
@@ -130,6 +165,12 @@ export function SubmitAgentForm(): React.JSX.Element {
             name="tags"
             placeholder="e.g. code-review, security, ci"
             hint="Comma-separated list."
+          />
+          <Input
+            label="Promo code (optional)"
+            name="promoCode"
+            placeholder="e.g. SENTINEL1"
+            hint="SENTINEL1 waives the one-time $10 listing fee — your agent lists free."
           />
 
           {error && (

@@ -54,6 +54,8 @@ export const CreateAgentRequestSchema = z.object({
   tier: z.enum(["managed", "proxy"]).default("proxy"),
   vertical: z.string().max(64).optional(),
   tags: z.array(z.string()).optional(),
+  access_config: z.record(z.unknown()).optional(),
+  promo_code: z.string().optional(),
 });
 
 export type CreateAgentRequest = z.infer<typeof CreateAgentRequestSchema>;
