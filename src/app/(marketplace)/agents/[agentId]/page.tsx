@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { TrustBadge } from "@/components/marketplace/TrustBadge";
 import { formatDate } from "@/lib/utils/format";
-import { getAgentBySlug, getAgentReport } from "@/lib/api/agents";
+import { getAgent, getAgentBySlug, getAgentReport } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
 import { TrustReportPanel } from "@/components/marketplace/TrustReportPanel";
@@ -44,7 +44,7 @@ export async function generateMetadata({
   params: Promise<{ agentId: string }>;
 }): Promise<Metadata> {
   const { agentId } = await params;
-  const agent = await getAgentBySlug(agentId);
+  const agent = (await getAgentBySlug(agentId)) ?? (await getAgent(agentId));
   if (agent == null) return { title: "Agent not found — Sentinel" };
   const trust = `Trust score ${agent.trustScore}/100`;
   return {
@@ -111,7 +111,7 @@ export default async function AgentDetailPage({
   params: Promise<{ agentId: string }>;
 }): Promise<React.JSX.Element> {
   const { agentId } = await params;
-  const agent = await getAgentBySlug(agentId);
+  const agent = (await getAgentBySlug(agentId)) ?? (await getAgent(agentId));
   if (agent == null) notFound();
 
   const report = await getAgentReport(agent.slug);
