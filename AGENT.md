@@ -252,3 +252,4 @@ sentinel-frontend.
   `nav.json`; the site renders it automatically on the next build.
 - `sentinel.fortiqo.xyz/docs` redirects to `docs.fortiqo.xyz`.
 - Track docs work in `master-doc/docs-todo.md` (tick/append only — never delete a line).
+- **Keep docs honest & current (mandatory):** when you ship or push a feature, update the matching pages in **sentinel-docs** in the same change. Docs must reflect the **real** current state — never claim unbuilt or stubbed features as live (no bluff, no faking). Anything not yet built goes under **Progress & roadmap** as in-scope/planned. Periodically reconcile docs against `docs/structure.md` §9 (real-vs-stubbed) and keep the roadmap's Live / Rolling out / Planned sections accurate.
