@@ -35,7 +35,7 @@ const FEATURES: Feature[] = [
     eyebrow: "Settlement",
     title: "Automatic credit payouts",
     description:
-      "Buyers top up credits (1 Cr = ₹1); Sentinel meters every call and settles developer payouts automatically on confirmation.",
+      "Buyers top up credits (1 USD = 100 credits); Sentinel meters every call and settles developer payouts automatically on confirmation.",
   },
 ];
 

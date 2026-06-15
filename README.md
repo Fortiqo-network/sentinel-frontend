@@ -107,17 +107,17 @@ Copy `.env.example` → `.env.local`. Never commit secrets.
 
 | Variable | Required | Example | Purpose |
 |---|---|---|---|
-| `NEXT_PUBLIC_GATEWAY_URL` | ✅ | `https://api.sentinel.xyz` | Base URL for the API edge |
-| `NEXT_PUBLIC_APP_URL` | ✅ | `https://sentinel.fortiqo.xyz` | Self URL for redirects |
-| `NEXT_PUBLIC_OIDC_CLIENT_ID` | ✅ | `sentinel-web` | Public OIDC client id (PKCE) |
-| `OIDC_ISSUER` | ✅ | `https://auth.sentinel.xyz` | OIDC issuer (server-side) |
-| `OIDC_CLIENT_SECRET` | ✅ (server) | `***` | Confidential client secret (BFF token exchange) |
-| `SESSION_SECRET` | ✅ | `***` | Cookie/session signing |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | ✅ | `pk_live_...` | Stripe.js |
-| `NEXT_PUBLIC_SENTRY_DSN` | ➖ | `https://...` | Error monitoring |
-| `NEXT_PUBLIC_POSTHOG_KEY` | ➖ | `phc_...` | Product analytics |
-| `NEXT_PUBLIC_FEATURE_FLAGS_URL` | ➖ | `https://...` | Remote flags |
-| `NEXT_PUBLIC_MCP_BASE` | ➖ | `https://mcp.sentinel.xyz` | Shown in connect panel |
+| `NEXT_PUBLIC_GATEWAY_URL` | | `https://api.sentinel.xyz` | Base URL for the API edge |
+| `NEXT_PUBLIC_APP_URL` | | `https://sentinel.fortiqo.xyz` | Self URL for redirects |
+| `NEXT_PUBLIC_OIDC_CLIENT_ID` | | `sentinel-web` | Public OIDC client id (PKCE) |
+| `OIDC_ISSUER` | | `https://auth.sentinel.xyz` | OIDC issuer (server-side) |
+| `OIDC_CLIENT_SECRET` | (server) | `***` | Confidential client secret (BFF token exchange) |
+| `SESSION_SECRET` | | `***` | Cookie/session signing |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | | `pk_live_...` | Stripe.js |
+| `NEXT_PUBLIC_SENTRY_DSN` | | `https://...` | Error monitoring |
+| `NEXT_PUBLIC_POSTHOG_KEY` | | `phc_...` | Product analytics |
+| `NEXT_PUBLIC_FEATURE_FLAGS_URL` | | `https://...` | Remote flags |
+| `NEXT_PUBLIC_MCP_BASE` | | `https://mcp.sentinel.xyz` | Shown in connect panel |
 
 ---
 

@@ -11,7 +11,7 @@ export type PriceModel = "per_call" | "per_task" | "per_outcome" | "subscription
 /** Verification tier assigned after the Sentinel pipeline completes. */
 export type AgentTier = "verified" | "managed" | "registry" | "proxy";
 
-/** Pricing configuration for an agent listing, in credits (1 Cr = ₹1). */
+/** Pricing configuration for an agent listing, in credits (1 USD = 100 credits). */
 export interface Pricing {
   model: PriceModel;
   /** Price per successful call, in credits. */

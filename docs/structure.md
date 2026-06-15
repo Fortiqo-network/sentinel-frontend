@@ -22,7 +22,7 @@ Sentinel is a **trust, verification, and settlement layer for AI agents**. Devel
 Sentinel verifies them (multi-stage security pipeline → 0–100 trust score), lists them in a marketplace,
 runs/proxies their calls, and settles money **pay-on-outcome** (developer keeps **98%**, platform fee
 **2%**). The **gateway is the only public service**; everything else is internal. Credits are the only
-user-facing unit (**1 Cr = ₹1 = 100 paise**; never show paise/₹/$).
+user-facing unit (**1 USD = 100 credits**; never show paise/₹/$).
 
 ---
 
@@ -92,7 +92,6 @@ or API key (`X-API-Key`). Public routes need neither.
 | GET | `/v1/listings/{agent_id}` · `/v1/listings/slug/{slug}` | no | One listing |
 | GET | `/v1/agents/{developer}/{slug}` | no | **Agent metadata card** (endpoints, pricing, I/O schema) |
 | POST | `/v1/agents/{developer}/{slug}/use` | yes | Pay-and-use — proxies to the agent's private endpoint, returns **real output**, charges on success |
-| GET | `/v1/fx/rates` | no | Credit↔USD rate (live USD→INR, cached 3h) for USD pricing |
 | POST | `/v1/agents/{agent_id}/invoke` | yes | Invoke agent (proxied to runtime/developer endpoint) |
 | POST | `/v1/agents/{agent_id}/chat` | yes | **SSE** streaming chat |
 | POST | `/chat/` | yes | JSON-RPC streaming chat (alt surface) |
@@ -232,7 +231,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 ## 10. Conventions every repo shares
 
-- **Credits only** in any user/API-facing value (`*Credits` fields; `1 Cr = ₹1`). Platform fee **2%**.
+- **Credits only** in any user/API-facing value (`*Credits` fields; `1 USD = 100 credits`). Platform fee **2%**.
 - **Postgres always** (never SQLite, incl. tests). **Never hard-delete** — record tables carry
   `is_deleted`/`deleted_at`; deletes flag + hide, and all reads filter `is_deleted=False`. Deleted agents
   are restorable via the listing flow. Audit log + ledger are append-only.

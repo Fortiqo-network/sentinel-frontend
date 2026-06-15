@@ -143,7 +143,7 @@ export default function DashboardPage(): React.JSX.Element {
               {loading ? "…" : formatCredits(balanceCredits)}
             </h1>
             <p className="mt-1 text-sm text-porcelain/55">
-              Credits available to spend · 1 Cr = ₹1. Top-ups are non-refundable; you&apos;re only charged on
+              Credits available to spend · 1 USD = 100 credits. Top-ups are non-refundable; you&apos;re only charged on
               successful calls.
             </p>
           </div>

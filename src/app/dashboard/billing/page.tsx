@@ -5,10 +5,11 @@ import { getCreditBalance, getInvoices, topUp } from "@/lib/api/billing";
 import { isSentinelApiError } from "@/lib/api/client";
 import type { Invoice } from "@/types/billing";
 import { cn } from "@/lib/utils/cn";
+import { CREDITS_PER_USD } from "@/lib/site";
 
-type TopUpPreset = 500 | 1000 | 2000;
+type TopUpPreset = 5 | 10 | 20;
 
-const TOP_UP_PRESETS: TopUpPreset[] = [500, 1000, 2000];
+const TOP_UP_PRESETS: TopUpPreset[] = [5, 10, 20];
 
 function formatCredits(credits: number): string {
   return `${credits.toLocaleString("en-IN")} Cr`;
@@ -48,13 +49,18 @@ export default function BillingPage(): React.JSX.Element {
     void refresh();
   }, [refresh]);
 
-  const effectiveCredits: number | null = isCustom
+  const effectiveUsd: number | null = isCustom
     ? customAmount
-      ? Math.round(parseFloat(customAmount))
+      ? parseFloat(customAmount)
       : null
     : selectedPreset;
 
-  const isValid = effectiveCredits !== null && effectiveCredits >= 5 && effectiveCredits <= 100000;
+  const effectiveCredits: number | null =
+    effectiveUsd !== null && !Number.isNaN(effectiveUsd)
+      ? Math.round(effectiveUsd * CREDITS_PER_USD)
+      : null;
+
+  const isValid = effectiveUsd !== null && effectiveUsd >= 1 && effectiveUsd <= 5000;
 
   async function handleTopUp(): Promise<void> {
     if (!isValid || effectiveCredits === null) return;
@@ -120,7 +126,10 @@ export default function BillingPage(): React.JSX.Element {
                     : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
                 )}
               >
-                {formatCredits(preset)}
+                ${preset}
+                <span className="ml-1.5 text-xs font-normal opacity-70">
+                  {formatCredits(preset * CREDITS_PER_USD)}
+                </span>
               </button>
             ))}
             <button
@@ -143,24 +152,25 @@ export default function BillingPage(): React.JSX.Element {
 
         {isCustom && (
           <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom Amount (credits)</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom amount (USD)</label>
             <input
               type="number"
-              min="5"
-              max="100000"
+              min="1"
+              max="5000"
               step="1"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
-              placeholder="Enter credits"
+              placeholder="Enter USD amount"
               className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
             />
-            <p className="mt-1 text-xs text-slate-400">Min 5 — Max 100,000 credits</p>
+            <p className="mt-1 text-xs text-slate-400">Min $1 — Max $5,000 · 1 USD = 100 credits</p>
           </div>
         )}
 
         {effectiveCredits !== null && effectiveCredits > 0 && (
           <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700">
-            You will add <span className="font-semibold text-slate-900">{formatCredits(effectiveCredits)}</span>.
+            You will add <span className="font-semibold text-slate-900">{formatCredits(effectiveCredits)}</span>
+            {effectiveUsd !== null && <span className="text-slate-400"> (${effectiveUsd})</span>}.
           </div>
         )}
 
@@ -185,7 +195,7 @@ export default function BillingPage(): React.JSX.Element {
           {submitting ? "Adding credits…" : "Add Credits"}
         </button>
         <p className="mt-2 text-xs text-slate-400">
-          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 Cr = ₹1.{" "}
+          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 USD = 100 credits.{" "}
           <span className="font-medium text-slate-500">Credits are non-refundable once added</span> — you&apos;re
           only charged on successful calls.
         </p>

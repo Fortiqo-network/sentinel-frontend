@@ -248,7 +248,7 @@ See §5 for full specification of both dashboards.
 - **Error recovery:** every error component carries `{cause, action}`; network errors auto-retry
   with backoff and an offline banner; forms never lose input (persisted to sessionStorage,
   excluding secrets).
-- **Discoverability:** command palette (⌘K) for nav + agent search; empty states teach.
+- **Discoverability:** command palette (K) for nav + agent search; empty states teach.
 - **Accessibility:** WCAG 2.1 AA; full keyboard paths for all golden flows; charts ship data
   tables for screen readers.
 - **Mobile:** all buyer flows fully functional on mobile; developer console read-optimized on

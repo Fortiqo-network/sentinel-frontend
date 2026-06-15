@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createAgent } from "@/lib/api/developer";
 import type { CreateAgentRequest } from "@/lib/api/developer";
-import { getFxRates } from "@/lib/api/fx";
+import { CREDITS_PER_USD } from "@/lib/site";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,126}[a-z0-9]$/;
@@ -70,20 +70,10 @@ export function SubmitAgentForm(): React.JSX.Element {
       return;
     }
 
-    // Convert a USD price to credits using the live (3h-cached) rate. 1 Cr = ₹1.
-    let price = Math.round(priceAmount);
-    if (priceAmount > 0 && priceCurrency === "usd") {
-      setSubmitting(true);
-      try {
-        const fx = await getFxRates();
-        price = Math.round(priceAmount * fx.creditsPerUsd);
-      } catch {
-        setSubmitting(false);
-        setError("Could not fetch the USD conversion rate. Try again or price in credits.");
-        return;
-      }
-      setSubmitting(false);
-    }
+    // Fixed peg: 1 USD = 100 credits. Convert at submit; the credit cost is stored
+    // in metadata so no conversion is needed at call time.
+    const price =
+      priceCurrency === "usd" ? Math.round(priceAmount * CREDITS_PER_USD) : Math.round(priceAmount);
 
     const accessConfig: Record<string, unknown> = {};
     if (endpointUrl) accessConfig.endpoint_url = endpointUrl;
@@ -187,8 +177,8 @@ export function SubmitAgentForm(): React.JSX.Element {
               </select>
             </div>
             <p className="mt-1 text-xs text-slate-400">
-              Charged from the buyer&apos;s wallet only on a successful call. 1 Cr = ₹1. USD is converted to
-              credits at the live rate. Leave blank for free.
+              Charged from the buyer&apos;s wallet only on a successful call. USD is converted at
+              1 USD = 100 credits. Leave blank for free.
             </p>
           </div>
           <Input

@@ -65,7 +65,7 @@ const ROLES: Role[] = [
     who: "For buyers",
     steps: [
       "Browse verified agents with transparent 0–100 trust scores.",
-      "Top up a credit wallet (1 Cr = ₹1) — no per-call card friction.",
+      "Top up a credit wallet (1 USD = 100 credits) — no per-call card friction.",
       "Invoke through REST, MCP, chat, or A2A — whichever you already use.",
       "You're charged only when a call demonstrably succeeds.",
     ],
@@ -168,7 +168,7 @@ export default function HowItWorksPage(): React.JSX.Element {
           </h2>
           <Reveal delay={0.15}>
             <p className="mx-auto mt-6 max-w-xl text-base text-porcelain/55">
-              The system speaks in credits (1 Cr = ₹1). Usage is metered per successful call and
+              The system speaks in credits (1 USD = 100 credits). Usage is metered per successful call and
               held until delivery is confirmed, then released to the developer — the platform takes
               a small fee only on settled work.
             </p>
@@ -223,7 +223,7 @@ export default function HowItWorksPage(): React.JSX.Element {
           </div>
           <Reveal delay={0.15}>
             <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-porcelain/45">
-              The system speaks in credits — 1 Cr = ₹1. A trust layer that&apos;s fair to buyers and
+              The system speaks in credits — 1 USD = 100 credits. A trust layer that&apos;s fair to buyers and
               developers alike: verify before you pay, build with confidence.
             </p>
           </Reveal>

@@ -1,6 +1,6 @@
 /**
  * TypeScript types for Sentinel billing and payments.
- * The system speaks in credits only (1 Cr = ₹1). Never paise/rupees/dollars.
+ * The system speaks in credits only (1 USD = 100 credits). Never paise/rupees/dollars.
  */
 
 /** Current wallet balance for a buyer account, in credits. */

@@ -69,7 +69,7 @@ export function Pricing(): React.JSX.Element {
               10,000 successful calls a month that&apos;s{" "}
               <span className="font-semibold text-porcelain">500,000 Cr</span> gross — you keep{" "}
               <span className="font-semibold text-aurora">490,000 Cr</span>, settled on confirmed
-              delivery. <span className="text-porcelain/45">(1 Cr = ₹1; failed calls bill nobody.)</span>
+              delivery. <span className="text-porcelain/45">(1 USD = 100 credits; failed calls bill nobody.)</span>
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-porcelain/55">
               List your first agent <span className="font-semibold text-porcelain">free for 7 days</span>, then a

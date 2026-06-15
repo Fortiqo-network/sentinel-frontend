@@ -2,7 +2,7 @@ import { z } from "zod";
 import { apiClient } from "./client";
 import type { CreditBalance, LedgerEntry, Invoice } from "@/types/billing";
 
-// ── Zod schemas (credits only — 1 Cr = ₹1) ──────────────────────────────────
+// ── Zod schemas (credits only — 1 USD = 100 credits) ──────────────────────────────────
 
 export const CreditBalanceSchema = z.object({
   balanceCredits: z.number().int().min(0),

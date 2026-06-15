@@ -151,9 +151,9 @@ On the agent detail page (`/agents/[agentId]`), the connect panel offers:
 - Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the **central TODO board** at `sentinal-core-api/master-doc/` (this module's `*-todo.md` plus `platform-todo.md`). Tick completed items (`[ ]`→`[x]`) — **never delete a line**; add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
 - **Each module follows its own implementation doc.** As planning moves, update that module's `docs/implementation.md` / `docs/architecture.md` / roadmap and the central TODO in the **same commit**, so plans and docs stay in lockstep with the code — every module owns and follows its own implementation.
 
-### The system speaks in points — never currency
+### The system speaks in credits — never currency
 - All user- and API-facing values are **points**. Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
-- Conversion: **1 point = ₹1 = 100 paise** (current). 1 USD ≈ 95 points (whatever the live INR→USD rate is). The ledger may store the smallest unit internally, but every response, label, and copy string uses points only.
+- Conversion: **1 USD = 100 credits** (current). 1 USD = 100 credits (fixed peg). The ledger may store the smallest unit internally, but every response, label, and copy string uses points only.
 
 
 ## Security & architecture references
@@ -163,7 +163,7 @@ On the agent detail page (`/agents/[agentId]`), the connect panel offers:
 - Swagger `/docs` + `/redoc` are intentionally **kept exposed for now** — do not disable without owner sign-off.
 ---
 
-## 📍 Cross-repo reference — where to look (all repos are linked)
+## Cross-repo reference — where to look (all repos are linked)
 
 This repo is one of the Sentinel platform's repositories. The **single source of truth** for cross-repo
 planning lives in `sentinel-core-api/master-doc/`. Any assistant working in *any* repo should start there:
@@ -171,7 +171,7 @@ planning lives in `sentinel-core-api/master-doc/`. Any assistant working in *any
 - **`build-sequence.md` — START HERE.** The canonical, dependency-ordered build plan (phases 0–9): what to
   build first so the next thing is unblocked. Decide *order* here before picking work.
 - **`platform-todo.md`** — the master backlog across all repos, grouped by theme (completed, pending-from-specs,
-  🔒 security, 🧩 must-have, 🏆 discovery, 🌐 reach). Tick items here when done.
+  security, must-have, discovery, reach). Tick items here when done.
 - **`<module>-todo.md`** — this repo's own board (detail + status), mirrored from the master board.
 - **`architecture-map.md`** — who calls whom (cross-repo edges, money/trust data-flow, trust boundaries).
 - **`security-todo.md`** — severity-ranked security flags (file:line + fixes).
@@ -179,12 +179,12 @@ planning lives in `sentinel-core-api/master-doc/`. Any assistant working in *any
 Each repo also owns its `docs/` (scope, implementation, architecture). **When changing anything — code or
 markdown — update the matching `docs/` and the relevant `master-doc/*-todo.md` in the SAME commit** (never
 delete a TODO line; tick `[ ]`→`[x]`). To find what to change: read `build-sequence.md` top-to-bottom, pick the
-lowest unfinished phase whose ⛔ gates aren't all ticked, then follow `architecture-map.md` to the owning repo
+lowest unfinished phase whose gates aren't all ticked, then follow `architecture-map.md` to the owning repo
 and file.
 
 ---
 
-## 📂 structure.md — read first, keep current (non-negotiable)
+## structure.md — read first, keep current (non-negotiable)
 
 Before changing **any** code in this (or any) repo, **read `docs/structure.md` first.** It is the
 platform-wide map of what already exists — every repo's purpose, live APIs/features, real-vs-stubbed
@@ -200,7 +200,7 @@ something that already exists.
 
 ---
 
-## ✅ TODO board — update after every task (master-doc only)
+## TODO board — update after every task (master-doc only)
 
 All TODOs live **only** in `sentinel-core-api/master-doc/`. There is already **one file per repo**
 (`core-api-todo.md`, `frontend-todo.md`, `gateway-todo.md`, `billing-todo.md`, `verify-todo.md`, …)
@@ -216,7 +216,7 @@ After **every** task, in the same commit, update the relevant board to mirror re
 
 ---
 
-## 🗃️ DB schema change → migration BEFORE push (non-negotiable)
+## DB schema change → migration BEFORE push (non-negotiable)
 
 If a change touches the database schema — any new/changed/removed table, column,
 index, or constraint, or any new ORM model/field — you MUST ship a matching
@@ -239,7 +239,7 @@ of the DB schema 500s every query that hits the changed table (this has bitten u
 
 ---
 
-## 📚 Docs framework — standalone markdown site at docs.fortiqo.xyz (2026-06-15)
+## Docs framework — standalone markdown site at docs.fortiqo.xyz (2026-06-15)
 
 Platform documentation is **markdown-first** and lives in **sentinel-docs**, which is a
 self-contained Next.js app that renders its own markdown. It is published as a **standalone
@@ -253,3 +253,23 @@ sentinel-frontend.
 - `sentinel.fortiqo.xyz/docs` redirects to `docs.fortiqo.xyz`.
 - Track docs work in `master-doc/docs-todo.md` (tick/append only — never delete a line).
 - **Keep docs honest & current (mandatory):** when you ship or push a feature, update the matching pages in **sentinel-docs** in the same change. Docs must reflect the **real** current state — never claim unbuilt or stubbed features as live (no bluff, no faking). Anything not yet built goes under **Progress & roadmap** as in-scope/planned. Periodically reconcile docs against `docs/structure.md` §9 (real-vs-stubbed) and keep the roadmap's Live / Rolling out / Planned sections accurate.
+
+---
+
+## Recommend before implementing (always)
+
+Do **not** assume a requested change is the correct or best approach, and do not treat the
+user's framing as ground truth. For every change request:
+
+1. Evaluate the underlying goal and the request critically.
+2. Find the most relevant, robust, well-architected way to achieve that goal — including a
+   better alternative or a simpler/safer path if one exists.
+3. **State your recommendation** concisely (what you'd do and why, and where it differs from the
+   literal ask), then implement the best option. If it's a one-way door or materially changes
+   scope, confirm first; otherwise proceed with the recommended approach and note the deviation.
+
+Never blindly implement. Prefer the better-engineered solution over a literal transcription of
+the request.
+
+> **And: whatever changes — always update the TODO board** in `sentinel-core-api/master-doc/`
+> (tick done, add new, mark in-progress) in the same change. No change ships without its TODO update.
