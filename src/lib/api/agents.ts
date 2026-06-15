@@ -144,11 +144,9 @@ export const UseAgentResultSchema = z.object({
   success: z.boolean(),
   agent: z.string(),
   costCredits: z.number().int(),
-  balanceCredits: z.number().int(),
-  output: z.object({
-    result: z.string(),
-    confidence: z.number().optional(),
-  }),
+  balanceCredits: z.number().int().nullable(),
+  // Real agents return arbitrary JSON; the UI renders it flexibly.
+  output: z.unknown(),
   traceId: z.string().optional(),
 });
 

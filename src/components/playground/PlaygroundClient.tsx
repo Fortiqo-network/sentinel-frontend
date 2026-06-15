@@ -130,12 +130,22 @@ export function PlaygroundClient(): React.JSX.Element {
       try {
         const result = await runAgent(selected.developer as string, selected.slug);
         const latencyMs = Math.round(performance.now() - started);
-        stream(result.output.result);
+        const out = result.output;
+        const rec = out && typeof out === "object" && !Array.isArray(out) ? (out as Record<string, unknown>) : null;
+        let text: string;
+        if (rec && typeof rec.result === "string") {
+          text = rec.result;
+        } else if (typeof out === "string") {
+          text = out;
+        } else {
+          text = JSON.stringify(out, null, 2);
+        }
+        stream(text);
         setMeta({
           mode: "live",
           latencyMs,
           costCredits: result.costCredits,
-          balanceCredits: result.balanceCredits,
+          balanceCredits: result.balanceCredits ?? undefined,
           traceId: result.traceId,
         });
         setRunning(false);

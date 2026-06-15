@@ -209,6 +209,8 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Buy credits (top-up) — grants credits + records payment JSON | **Real (mock)** — UI at `/dashboard/billing`; real Razorpay/Stripe capture swaps in later |
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
+| Agent invocation `/use` → **real output** | **Real** — gateway proxies the buyer input to the agent's private `access_config.endpoint_url` (SSRF-guarded), charges credits **only on success**; endpoint resolved via internal `GET /internal/agents/{id}/invoke-config`. Managed/Tier-A in-process execution still needs runtime (stub). |
+| Promo codes (free listing / credit top-up) | **Registry** `services/promo.py` (key→perk). `SENTINEL1`=free listing (real, waives $10 at create). Wallet top-up via promo = TODO. |
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
 | Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
 | Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected soft-delete; UI confirm modal requires typing DELETE |

@@ -17,6 +17,21 @@ type Feedback =
   | { kind: "login" }
   | { kind: "error"; text: string };
 
+/** Render an agent's arbitrary JSON output as readable text. */
+function formatOutput(output: unknown): string {
+  if (output && typeof output === "object" && !Array.isArray(output)) {
+    const rec = output as Record<string, unknown>;
+    if (typeof rec.result === "string") return rec.result;
+    if (typeof rec.output === "string") return rec.output;
+  }
+  if (typeof output === "string") return output;
+  try {
+    return JSON.stringify(output);
+  } catch {
+    return String(output);
+  }
+}
+
 /**
  * Runs an agent and charges the signed-in buyer's wallet for one successful
  * call, surfacing the result, cost, and remaining balance.
@@ -37,10 +52,11 @@ export function UseAgentButton({
     setFeedback(null);
     try {
       const r = await runAgent(developer, slug);
-      setFeedback({
-        kind: "ok",
-        text: `${r.output.result} Charged ${r.costCredits} Cr; balance ${r.balanceCredits} Cr.`,
-      });
+      const charge =
+        r.costCredits > 0
+          ? ` · charged ${r.costCredits} Cr, balance ${r.balanceCredits ?? "—"} Cr`
+          : " · free call";
+      setFeedback({ kind: "ok", text: `${formatOutput(r.output)}${charge}` });
     } catch (err) {
       if (isSentinelApiError(err) && err.statusCode === 402)
         setFeedback({ kind: "insufficient" });
