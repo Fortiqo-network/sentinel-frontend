@@ -91,7 +91,8 @@ or API key (`X-API-Key`). Public routes need neither.
 | GET | `/v1/listings` | no | List marketplace agents (paginated, filterable) |
 | GET | `/v1/listings/{agent_id}` · `/v1/listings/slug/{slug}` | no | One listing |
 | GET | `/v1/agents/{developer}/{slug}` | no | **Agent metadata card** (endpoints, pricing, I/O schema) |
-| POST | `/v1/agents/{developer}/{slug}/use` | yes | Pay-and-use (wallet charge → result + balance) |
+| POST | `/v1/agents/{developer}/{slug}/use` | yes | Pay-and-use — proxies to the agent's private endpoint, returns **real output**, charges on success |
+| GET | `/v1/fx/rates` | no | Credit↔USD rate (live USD→INR, cached 3h) for USD pricing |
 | POST | `/v1/agents/{agent_id}/invoke` | yes | Invoke agent (proxied to runtime/developer endpoint) |
 | POST | `/v1/agents/{agent_id}/chat` | yes | **SSE** streaming chat |
 | POST | `/chat/` | yes | JSON-RPC streaming chat (alt surface) |

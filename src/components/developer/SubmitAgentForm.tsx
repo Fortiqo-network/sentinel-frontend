@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createAgent } from "@/lib/api/developer";
 import type { CreateAgentRequest } from "@/lib/api/developer";
+import { getFxRates } from "@/lib/api/fx";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,126}[a-z0-9]$/;
@@ -39,6 +40,7 @@ export function SubmitAgentForm(): React.JSX.Element {
     const tier = (field("tier") || "proxy") as CreateAgentRequest["tier"];
     const endpointUrl = field("endpointUrl");
     const priceRaw = field("price");
+    const priceCurrency = field("priceCurrency") || "credits";
     const promoCode = field("promoCode");
     const tags = field("tags")
       .split(",")
@@ -62,10 +64,25 @@ export function SubmitAgentForm(): React.JSX.Element {
       return;
     }
 
-    const price = priceRaw ? Math.round(parseFloat(priceRaw)) : 0;
-    if (priceRaw && (Number.isNaN(price) || price < 0)) {
-      setError("Price per call must be a non-negative number of credits.");
+    const priceAmount = priceRaw ? parseFloat(priceRaw) : 0;
+    if (priceRaw && (Number.isNaN(priceAmount) || priceAmount < 0)) {
+      setError("Price per call must be a non-negative number.");
       return;
+    }
+
+    // Convert a USD price to credits using the live (3h-cached) rate. 1 Cr = ₹1.
+    let price = Math.round(priceAmount);
+    if (priceAmount > 0 && priceCurrency === "usd") {
+      setSubmitting(true);
+      try {
+        const fx = await getFxRates();
+        price = Math.round(priceAmount * fx.creditsPerUsd);
+      } catch {
+        setSubmitting(false);
+        setError("Could not fetch the USD conversion rate. Try again or price in credits.");
+        return;
+      }
+      setSubmitting(false);
     }
 
     const accessConfig: Record<string, unknown> = {};
@@ -147,14 +164,33 @@ export function SubmitAgentForm(): React.JSX.Element {
             placeholder="https://your-agent.example.com/invoke"
             hint="Where Sentinel sends each call (POST JSON {input}) and returns the agent's real output. Required for routed (proxy) agents."
           />
-          <Input
-            label="Price per call (credits, optional)"
-            name="price"
-            type="number"
-            min="0"
-            placeholder="e.g. 5"
-            hint="Charged from the buyer's wallet only on a successful call. 1 Cr = ₹1. Leave blank for free."
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              Price per call (optional)
+            </label>
+            <div className="flex gap-2">
+              <input
+                name="price"
+                type="number"
+                min="0"
+                step="any"
+                placeholder="e.g. 5"
+                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              />
+              <select
+                name="priceCurrency"
+                defaultValue="credits"
+                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                <option value="credits">Credits</option>
+                <option value="usd">USD</option>
+              </select>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              Charged from the buyer&apos;s wallet only on a successful call. 1 Cr = ₹1. USD is converted to
+              credits at the live rate. Leave blank for free.
+            </p>
+          </div>
           <Input
             label="Vertical (optional)"
             name="vertical"
