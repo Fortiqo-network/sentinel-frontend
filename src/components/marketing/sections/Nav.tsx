@@ -7,12 +7,14 @@ import { MagneticButton } from "../ui/MagneticButton";
 import { Logo } from "@/components/brand/Logo";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
+import { DOCS_URL } from "@/lib/site";
 
 const LINKS = [
   { href: "/agents", label: "Marketplace" },
   { href: "/playground", label: "Playground" },
   { href: "/developer", label: "Developers" },
   { href: "/how-it-works", label: "How it works" },
+  { href: DOCS_URL, label: "Docs" },
 ];
 
 /**
