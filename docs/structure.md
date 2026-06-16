@@ -203,12 +203,12 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 | Capability | State |
 |---|---|
-| Auth (register/login/me/logout), API keys, profile update + avatar | **Real** |
+| Auth (register/login/me/logout), API keys, profile update + avatar | **Real** — API keys minted in `snt_<64-hex>_<8-hex>` format (SHA-256 hashed, `snt_`+8 prefix stored); any buyer with credits creates one via `/v1/keys` and calls agents through the gateway with `X-API-Key` (charged per successful call). Developer-supplied agent keys (a dev's own endpoint auth, stored securely) are **planned**. |
 | Marketplace listings + agent metadata card (+ `/metadata` alias) | **Real** (9 seed agents, all `live`) |
 | Buyer subscriptions ("star" agents → portal) + user notifications | **Real** (core-api tables + gateway proxy; migration `0002`) |
 | Developer per-agent user access restriction (block a misusing user) | **Real** (`agent_access_blocks` table + owner-scoped endpoints; gateway enforces 403 in pay-and-use, invoke, and chat; developer UI) |
 | Buyer wallet: balance/ledger/invoices, ledger double-entry | **Real** |
-| Buy credits (top-up) — grants credits + records payment JSON | **Real (mock)** — UI at `/dashboard/billing`; real Razorpay/Stripe capture swaps in later |
+| Buy credits (top-up) — grants credits | **Real (mock UI) + exactly-once settlement foundation** — UI mock at `/dashboard/billing`; the real money path is built: a `payments` tracking table (migration `0002`) + provider-agnostic `settle_topup()` keyed `topup:{provider}:{provider_ref}` (debit buyer wallet / credit `{provider}:clearing`) so a captured payment is credited **exactly once** no matter how many times the webhook or the reconcile sweeper fires. Razorpay + Stripe webhooks delegate to it. **Pending:** per-provider create-checkout endpoints + hosted checkout, reconcile sweeper, PayPal, EVM/x402. |
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Agent invocation `/use` → **real output** | **Real** — gateway proxies the buyer input to the agent's private `access_config.endpoint_url` (SSRF-guarded), charges credits **only on success**; endpoint resolved via internal `GET /internal/agents/{id}/invoke-config`. Managed/Tier-A in-process execution still needs runtime (stub). |
@@ -284,7 +284,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 **sentinel-billing** (`src/sentinel_billing/`)
 - `api/v1/{credits,metering,payouts,bonds,disputes,webhooks}.py` · `ledger/double_entry.py` (engine) · `db/models/ledger.py` (LedgerEntry/CreditBalance/DeveloperBond/LedgerDispute)
-- `payments/{razorpay,stripe,json_store}.py` · `workers/celery.py` + `workers/tasks/{payouts,settlements}.py` · **fee policy / 2% split lives in metering + `core/config.py`**
+- `payments/{razorpay,stripe,json_store}.py` · `payments/settlement.py` (provider-agnostic exactly-once `settle_topup`/`record_payment`) · `db/models/payment.py` (`payments` table, migration `0002`) · `workers/celery.py` + `workers/tasks/{payouts,settlements}.py` · **fee policy / 2% split lives in metering + `core/config.py`**
 
 **sentinel-verify** (`src/sentinel_verify/`)
 - `api/v1/verification.py` + `api/internal/verifications.py` · `workers/pipeline.py` (orchestrator) · `workers/tasks/{static_analysis,supply_chain,dynamic,redteam}.py`
