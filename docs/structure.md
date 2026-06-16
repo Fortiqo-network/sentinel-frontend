@@ -96,6 +96,7 @@ or API key (`X-API-Key`). Public routes need neither.
 | POST | `/v1/agents/{agent_id}/chat` | yes | **SSE** streaming chat |
 | POST | `/chat/` | yes | JSON-RPC streaming chat (alt surface) |
 | GET | `/v1/billing/balance` · `/v1/billing/ledger` · `/v1/billing/invoices` | yes | Wallet reads |
+| GET | `/v1/listings?includeDiscontinued=` | no | Marketplace browse; default live-only, advanced filter also surfaces discontinued (sorted last). Each item carries `health{status,lastCheckAt}` + `isDiscontinued` |
 | POST | `/v1/billing/checkout` | yes | Open provider-hosted checkout to buy credits (Stripe/Razorpay); wallet credited by webhook |
 | POST | `/v1/billing/topup` | yes | Direct credit grant (mock/dev path; superseded by checkout) |
 | POST | `/v1/promo/redeem` | yes | Redeem a credit promo code (single-use → wallet) |
@@ -206,6 +207,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 |---|---|
 | Auth (register/login/me/logout), API keys, profile update + avatar | **Real** — API keys minted in `snt_<64-hex>_<8-hex>` format (SHA-256 hashed, `snt_`+8 prefix stored); any buyer with credits creates one via `/v1/keys` and calls agents through the gateway with `X-API-Key` (charged per successful call). Developer-supplied agent keys (a dev's own endpoint auth, stored securely) are **planned**. |
 | Marketplace listings + agent metadata card (+ `/metadata` alias) | **Real** (9 seed agents, all `live`) |
+| Agent **endpoint health** (active/inactive) + marketplace status | **Real** — core-api probes each live agent's `/health` every 6h (Redis-locked in-process sweep + internal `POST /internal/agents/health/sweep`); `health_status`/`last_health_check_at` (migration `0007`). Marketplace shows a green/red light + last-check time; **inactive cards grey out and become unselectable**; **discontinued (retired) agents grey out, hidden from the default list, surfaced only via the advanced "Include discontinued" filter, sorted last**. Health **never changes the trust score**. |
 | Buyer subscriptions ("star" agents → portal) + user notifications | **Real** (core-api tables + gateway proxy; migration `0002`) |
 | Developer per-agent user access restriction (block a misusing user) | **Real** (`agent_access_blocks` table + owner-scoped endpoints; gateway enforces 403 in pay-and-use, invoke, and chat; developer UI) |
 | Buyer wallet: balance/ledger/invoices, ledger double-entry | **Real** |
@@ -281,7 +283,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 **sentinel-core-api** (`src/sentinel_core_api/`)
 - `main.py` · `api/v1/router.py` (aggregator) · `api/v1/{users,marketplace,agents,keys,health,events}.py`
-- `db/models/agent.py` (lifecycle state machine), `db/models/{user,api_key}.py` · `db/migrations/` · `scripts/seed.py` (3 devs, 3 buyers, 9 live agents) · `core/config.py`
+- `db/models/agent.py` (lifecycle state machine + `health_status`/`last_health_check_at`), `db/models/{user,api_key}.py` · `db/migrations/` (head `0007` agent health) · `services/health_checker.py` (6h sweep) · `core/ssrf.py` · `scripts/seed.py` (3 devs, 3 buyers, 9 live agents) · `core/config.py`
 - **Master docs live here:** `master-doc/` (build-sequence, platform-todo, go-to-market, architecture-map, security-todo, `<module>-todo.md`).
 
 **sentinel-billing** (`src/sentinel_billing/`)

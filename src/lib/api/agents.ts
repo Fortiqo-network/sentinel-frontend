@@ -31,6 +31,13 @@ export const AgentSchema = z.object({
   docsUrl: z.string().url().optional(),
   endpointUrl: z.string().url().optional(),
   metadataUrl: z.string().url().optional(),
+  health: z
+    .object({
+      status: z.enum(["active", "inactive", "unknown"]),
+      lastCheckAt: z.string().datetime().nullable().optional(),
+    })
+    .optional(),
+  isDiscontinued: z.boolean().optional(),
 });
 
 export const AgentListResponseSchema = z.object({
@@ -51,6 +58,7 @@ export const AgentListParamsSchema = z.object({
   sort: z.enum(["trust_desc", "trust_asc", "newest", "popular"]).optional(),
   page: z.number().int().positive().optional(),
   pageSize: z.number().int().positive().optional(),
+  includeDiscontinued: z.boolean().optional(),
 });
 
 export type AgentListParams = z.infer<typeof AgentListParamsSchema>;

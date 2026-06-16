@@ -11,6 +11,16 @@ export type PriceModel = "per_call" | "per_task" | "per_outcome" | "subscription
 /** Verification tier assigned after the Sentinel pipeline completes. */
 export type AgentTier = "verified" | "managed" | "registry" | "proxy";
 
+/** Endpoint liveness, checked on a schedule — independent of the trust score. */
+export type HealthStatus = "active" | "inactive" | "unknown";
+
+/** Periodic endpoint health for an agent listing. */
+export interface AgentHealth {
+  status: HealthStatus;
+  /** ISO timestamp of the last health check, or null if never checked. */
+  lastCheckAt?: string | null;
+}
+
 /** Pricing configuration for an agent listing, in credits (1 USD = 100 credits). */
 export interface Pricing {
   model: PriceModel;
@@ -48,6 +58,10 @@ export interface Agent {
   endpointUrl?: string;
   /** Canonical metadata-card URL; the detail page derives this if absent. */
   metadataUrl?: string;
+  /** Periodic endpoint health (active/inactive/unknown) + last check time. */
+  health?: AgentHealth;
+  /** True when the agent is retired/discontinued (greyed, advanced-filter only). */
+  isDiscontinued?: boolean;
 }
 
 /** Paginated response from GET /v1/listings. */

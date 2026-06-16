@@ -13,6 +13,7 @@ interface FilterPanelProps {
     maxTrust?: string;
     q?: string;
     sort?: string;
+    includeDiscontinued?: string;
   };
   className?: string;
 }
@@ -51,6 +52,9 @@ export function FilterPanel({ initialFilters = {}, className }: FilterPanelProps
   );
   const [minTrust, setMinTrust] = React.useState(initialFilters.minTrust ?? "0");
   const [sort, setSort] = React.useState(initialFilters.sort ?? "trust_desc");
+  const [includeDiscontinued, setIncludeDiscontinued] = React.useState(
+    initialFilters.includeDiscontinued === "true",
+  );
 
   const applyFilters = React.useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -75,14 +79,21 @@ export function FilterPanel({ initialFilters = {}, className }: FilterPanelProps
 
     params.set("sort", sort);
 
+    if (includeDiscontinued) {
+      params.set("includeDiscontinued", "true");
+    } else {
+      params.delete("includeDiscontinued");
+    }
+
     router.push(`${pathname}?${params.toString()}`);
-  }, [selectedTiers, selectedTags, minTrust, sort, router, pathname, searchParams]);
+  }, [selectedTiers, selectedTags, minTrust, sort, includeDiscontinued, router, pathname, searchParams]);
 
   const resetFilters = React.useCallback(() => {
     setSelectedTiers([]);
     setSelectedTags([]);
     setMinTrust("0");
     setSort("trust_desc");
+    setIncludeDiscontinued(false);
     router.push(pathname);
   }, [router, pathname]);
 
@@ -179,6 +190,20 @@ export function FilterPanel({ initialFilters = {}, className }: FilterPanelProps
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Advanced */}
+      <section>
+        <h3 className="mb-3 text-sm font-semibold text-slate-900">Advanced</h3>
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={includeDiscontinued}
+            onChange={() => setIncludeDiscontinued((v) => !v)}
+            className="accent-indigo-500"
+          />
+          Include discontinued agents
+        </label>
       </section>
 
       {/* Actions */}

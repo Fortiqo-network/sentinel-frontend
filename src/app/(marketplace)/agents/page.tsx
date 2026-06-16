@@ -28,6 +28,7 @@ interface Filters {
   trustTier: TrustTier;
   pricingModel: PricingModel;
   sort: SortKey;
+  includeDiscontinued: boolean;
 }
 
 // ── Filter helpers ────────────────────────────────────────────────────────────
@@ -73,7 +74,10 @@ function applyFilters(agents: Agent[], filters: Filters): Agent[] {
     );
   }
 
-  return result;
+  // Discontinued agents always trail live ones, regardless of the chosen sort.
+  const liveAgents = result.filter((a) => !a.isDiscontinued);
+  const discontinuedAgents = result.filter((a) => a.isDiscontinued);
+  return [...liveAgents, ...discontinuedAgents];
 }
 
 // ── Search bar ────────────────────────────────────────────────────────────────
@@ -278,6 +282,18 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
           />
         ))}
       </FilterSection>
+
+      <FilterSection legend="Advanced">
+        <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-porcelain/65 transition-colors hover:bg-ink-700 hover:text-porcelain/90">
+          <input
+            type="checkbox"
+            checked={filters.includeDiscontinued}
+            onChange={() => update("includeDiscontinued", !filters.includeDiscontinued)}
+            className="accent-gold"
+          />
+          <span>Include discontinued</span>
+        </label>
+      </FilterSection>
     </aside>
   );
 }
@@ -316,6 +332,7 @@ const DEFAULT_FILTERS: Filters = {
   trustTier:    "all",
   pricingModel: "all",
   sort:         "trust_score",
+  includeDiscontinued: false,
 };
 
 /**
@@ -333,7 +350,12 @@ export default function AgentsPage(): React.JSX.Element {
   React.useEffect(() => {
     let active = true;
     setLoading(true);
-    listAgents({ sort: "trust_desc", pageSize: 100, page: 1 })
+    listAgents({
+      sort: "trust_desc",
+      pageSize: 100,
+      page: 1,
+      includeDiscontinued: filters.includeDiscontinued,
+    })
       .then((res) => {
         if (active) {
           setAgents(res.agents);
@@ -349,7 +371,7 @@ export default function AgentsPage(): React.JSX.Element {
     return () => {
       active = false;
     };
-  }, []);
+  }, [filters.includeDiscontinued]);
 
   const filteredAgents = React.useMemo(() => applyFilters(agents, filters), [agents, filters]);
 

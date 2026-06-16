@@ -3,7 +3,8 @@ import Link from "next/link";
 import { TrustBadge } from "./TrustBadge";
 import { SubscribeButton } from "./SubscribeButton";
 import { cn } from "@/lib/utils/cn";
-import type { Agent } from "@/types/agent";
+import { formatRelativeTime } from "@/lib/utils/format";
+import type { Agent, HealthStatus } from "@/types/agent";
 
 interface AgentCardProps {
   agent: Agent;
@@ -123,6 +124,44 @@ function CertBadge({ status, dark }: CertBadgeProps): React.JSX.Element {
   );
 }
 
+// ── Health / status indicator ──────────────────────────────────────────────────
+
+const HEALTH_DOT: Record<HealthStatus, string> = {
+  active: "bg-emerald-500",
+  inactive: "bg-rose-500",
+  unknown: "bg-slate-300",
+};
+
+interface StatusLineProps {
+  health: HealthStatus;
+  lastCheckAt?: string | null;
+  discontinued: boolean;
+  dark?: boolean;
+}
+
+/** Status row: discontinued label, or a health dot + last-check time. */
+function StatusLine({ health, lastCheckAt, discontinued, dark }: StatusLineProps): React.JSX.Element {
+  if (discontinued) {
+    return (
+      <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", dark ? "text-porcelain/50" : "text-slate-400")}>
+        <span className="h-2 w-2 rounded-full bg-slate-400" aria-hidden="true" />
+        Discontinued
+      </span>
+    );
+  }
+  const label = health === "active" ? "Active" : health === "inactive" ? "Inactive" : "Status unknown";
+  return (
+    <span
+      className={cn("inline-flex items-center gap-1.5 text-xs", dark ? "text-porcelain/50" : "text-slate-400")}
+      title={lastCheckAt ? `Last health check ${formatRelativeTime(lastCheckAt)}` : "Not yet health-checked"}
+    >
+      <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden="true" />
+      {label}
+      {lastCheckAt && <span className="opacity-70">· checked {formatRelativeTime(lastCheckAt)}</span>}
+    </span>
+  );
+}
+
 // ── AgentCard ─────────────────────────────────────────────────────────────────
 
 /**
@@ -145,13 +184,28 @@ export function AgentCard({
   const priceLabel = formatPrice(agent);
   const dark = variant === "dark";
 
+  const health: HealthStatus = agent.health?.status ?? "unknown";
+  const discontinued = agent.isDiscontinued === true;
+  // An agent is unselectable when it is discontinued or its endpoint is down.
+  const disabled = discontinued || health === "inactive";
+  const accent = discontinued
+    ? "border-l-slate-300"
+    : health === "active"
+      ? "border-l-emerald-500"
+      : health === "inactive"
+        ? "border-l-rose-500"
+        : "border-l-slate-300";
+
   return (
     <article
+      aria-disabled={disabled || undefined}
       className={cn(
-        "flex flex-col p-5 transition-all",
+        "flex flex-col border-l-4 p-5 transition-all",
+        accent,
         dark
           ? "glass ring-hairline rounded-2xl hover:bg-ink-800/60"
           : "sentinel-card hover:shadow-md hover:border-slate-300",
+        disabled && "pointer-events-none select-none opacity-60 grayscale",
         className,
       )}
     >
@@ -168,17 +222,21 @@ export function AgentCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <Link
-            href={`/agents/${agent.slug}`}
-            className={cn(
-              "block truncate font-semibold transition-colors",
-              dark
-                ? "text-porcelain hover:text-gold"
-                : "text-slate-900 hover:text-indigo-600",
-            )}
-          >
-            {agent.name}
-          </Link>
+          {disabled ? (
+            <span className={cn("block truncate font-semibold", dark ? "text-porcelain/70" : "text-slate-500")}>
+              {agent.name}
+            </span>
+          ) : (
+            <Link
+              href={`/agents/${agent.slug}`}
+              className={cn(
+                "block truncate font-semibold transition-colors",
+                dark ? "text-porcelain hover:text-gold" : "text-slate-900 hover:text-indigo-600",
+              )}
+            >
+              {agent.name}
+            </Link>
+          )}
           <p
             className={cn(
               "mt-0.5 truncate font-mono text-xs",
@@ -190,6 +248,9 @@ export function AgentCard({
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <TierBadge tier={agent.tier} dark={dark} />
             <CertBadge status={certStatus} dark={dark} />
+          </div>
+          <div className="mt-1.5">
+            <StatusLine health={health} lastCheckAt={agent.health?.lastCheckAt} discontinued={discontinued} dark={dark} />
           </div>
         </div>
 
@@ -248,27 +309,33 @@ export function AgentCard({
         >
           {priceLabel}
         </span>
-        <div className="flex items-center gap-2">
-        <SubscribeButton agentId={agent.id} compact dark={dark} />
-        <Link
-          href={`/agents/${agent.slug}`}
-          className={cn(
-            "inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
-            dark
-              ? "border-gold/20 bg-ink-700 text-gold hover:bg-ink-600"
-              : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
-          )}
-        >
-          View Agent
-          <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true">
-            <path
-              fillRule="evenodd"
-              d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L9.19 8 6.22 5.03a.75.75 0 0 1 0-1.06Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Link>
-        </div>
+        {disabled ? (
+          <span className={cn("text-xs font-medium", dark ? "text-porcelain/40" : "text-slate-400")}>
+            {discontinued ? "Discontinued" : "Currently unavailable"}
+          </span>
+        ) : (
+          <div className="flex items-center gap-2">
+            <SubscribeButton agentId={agent.id} compact dark={dark} />
+            <Link
+              href={`/agents/${agent.slug}`}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+                dark
+                  ? "border-gold/20 bg-ink-700 text-gold hover:bg-ink-600"
+                  : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
+              )}
+            >
+              View Agent
+              <svg viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L9.19 8 6.22 5.03a.75.75 0 0 1 0-1.06Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
     </article>
   );
