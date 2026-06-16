@@ -4,14 +4,9 @@
  */
 import { trust } from "@/lib/design/colors";
 
-/** INR paise → formatted rupee string (e.g. 150000 → "₹1,500.00") */
-export function formatPaise(paise: number): string {
-  const rupees = paise / 100;
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(rupees);
+/** Credits → formatted credit string (e.g. 1500 → "1,500 Cr"). */
+export function formatCredits(credits: number): string {
+  return `${new Intl.NumberFormat("en-IN").format(credits)} Cr`;
 }
 
 /** ISO date string → locale-friendly date (e.g. "7 Jun 2026") */

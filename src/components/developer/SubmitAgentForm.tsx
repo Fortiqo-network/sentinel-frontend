@@ -77,7 +77,7 @@ export function SubmitAgentForm(): React.JSX.Element {
 
     const accessConfig: Record<string, unknown> = {};
     if (endpointUrl) accessConfig.endpoint_url = endpointUrl;
-    if (price > 0) accessConfig.price_per_call_paise = price * 100;
+    if (price > 0) accessConfig.price_per_call_units = price * 100;
 
     const body: CreateAgentRequest = {
       slug,

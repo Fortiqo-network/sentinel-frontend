@@ -63,7 +63,7 @@ function loadCheckoutScript(): Promise<RazorpayConstructor> {
 export interface OpenRazorpayArgs {
   keyId: string;
   orderId: string;
-  amountPaise: number;
+  amountUnits: number;
   onSuccess: () => void;
   onDismiss?: () => void;
 }
@@ -72,14 +72,14 @@ export interface OpenRazorpayArgs {
  * Opens the Razorpay-hosted Checkout widget for a credit top-up.
  *
  * @example
- * await openRazorpayCheckout({ keyId, orderId, amountPaise: 100000, onSuccess: refresh });
+ * await openRazorpayCheckout({ keyId, orderId, amountUnits: 100000, onSuccess: refresh });
  */
 export async function openRazorpayCheckout(args: OpenRazorpayArgs): Promise<void> {
   const Razorpay = await loadCheckoutScript();
   const instance = new Razorpay({
     key: args.keyId,
     order_id: args.orderId,
-    amount: args.amountPaise,
+    amount: args.amountUnits,
     currency: "INR",
     name: "Sentinel",
     description: "Credits top-up",

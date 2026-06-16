@@ -133,7 +133,7 @@ export default function BillingPage(): React.JSX.Element {
       await openRazorpayCheckout({
         keyId: checkout.keyId,
         orderId: checkout.orderId,
-        amountPaise: checkout.amountCredits * 100,
+        amountUnits: checkout.amountCredits * 100,
         onSuccess: () => {
           setFeedback({ kind: "ok", text: "Payment received. Credits will appear shortly." });
           let tries = 0;

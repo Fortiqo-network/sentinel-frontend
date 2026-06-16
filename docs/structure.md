@@ -22,7 +22,7 @@ Sentinel is a **trust, verification, and settlement layer for AI agents**. Devel
 Sentinel verifies them (multi-stage security pipeline → 0–100 trust score), lists them in a marketplace,
 runs/proxies their calls, and settles money **pay-on-outcome** (developer keeps **98%**, platform fee
 **2%**). The **gateway is the only public service**; everything else is internal. Credits are the only
-user-facing unit (**1 USD = 100 credits**; never show paise/₹/$).
+user-facing unit (**1 USD = 100 credits**; never show units/₹/$).
 
 ---
 

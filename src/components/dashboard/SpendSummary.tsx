@@ -3,15 +3,15 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPaise } from "@/lib/utils/format";
+import { formatCredits } from "@/lib/utils/format";
 
 interface SpendSummaryProps {
-  /** Current credit balance in paise. */
-  balancePaise?: number;
-  /** Total spend this month in paise. */
-  monthSpendPaise?: number;
-  /** Total spend all time in paise. */
-  totalSpendPaise?: number;
+  /** Current credit balance in credits. */
+  balanceCredits?: number;
+  /** Total spend this month in credits. */
+  monthSpendCredits?: number;
+  /** Total spend all time in credits. */
+  totalSpendCredits?: number;
   isLoading?: boolean;
 }
 
@@ -49,30 +49,30 @@ function StatCard({ label, value, isLoading, highlight = false }: StatCardProps)
  * and lifetime spend as three stat cards.
  *
  * @example
- * <SpendSummary balancePaise={150000} monthSpendPaise={50000} totalSpendPaise={200000} />
+ * <SpendSummary balanceCredits={1500} monthSpendCredits={500} totalSpendCredits={2000} />
  */
 export function SpendSummary({
-  balancePaise,
-  monthSpendPaise,
-  totalSpendPaise,
+  balanceCredits,
+  monthSpendCredits,
+  totalSpendCredits,
   isLoading = false,
 }: SpendSummaryProps): React.JSX.Element {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <StatCard
         label="Credit Balance"
-        value={balancePaise !== undefined ? formatPaise(balancePaise) : "₹0.00"}
+        value={balanceCredits !== undefined ? formatCredits(balanceCredits) : "0 Cr"}
         isLoading={isLoading}
         highlight
       />
       <StatCard
         label="Spent This Month"
-        value={monthSpendPaise !== undefined ? formatPaise(monthSpendPaise) : "₹0.00"}
+        value={monthSpendCredits !== undefined ? formatCredits(monthSpendCredits) : "0 Cr"}
         isLoading={isLoading}
       />
       <StatCard
         label="Total Spend"
-        value={totalSpendPaise !== undefined ? formatPaise(totalSpendPaise) : "₹0.00"}
+        value={totalSpendCredits !== undefined ? formatCredits(totalSpendCredits) : "0 Cr"}
         isLoading={isLoading}
       />
     </div>

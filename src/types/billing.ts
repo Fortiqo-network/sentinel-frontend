@@ -34,21 +34,20 @@ export interface Invoice {
   createdAt: string;
 }
 
-/** Developer payout record. */
+/** Developer payout record (credits). */
 export interface Payout {
   id: string;
-  amountPaise: number;
-  currency: "INR";
+  amountCredits: number;
   status: "pending" | "in_transit" | "paid" | "failed";
   scheduledAt: string;
   paidAt?: string;
   stripeTransferId?: string;
 }
 
-/** Earnings summary for a developer. */
+/** Earnings summary for a developer (credits). */
 export interface EarningsSummary {
-  totalEarnedPaise: number;
-  pendingPayoutPaise: number;
+  totalEarnedCredits: number;
+  pendingPayoutCredits: number;
   lastPayoutAt?: string;
-  lastPayoutAmountPaise?: number;
+  lastPayoutAmountCredits?: number;
 }

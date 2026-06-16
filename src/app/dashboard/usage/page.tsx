@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils/cn";
 interface UsageDataPoint {
   date: string;
   invocations: number;
-  spendPaise: number;
+  spendCredits: number;
 }
 
 interface AgentBreakdownRow {
@@ -53,7 +53,7 @@ function summarizeDebits(entries: LedgerEntry[], agentNames: Map<string, string>
   }
   const series: UsageDataPoint[] = [...byDay.entries()]
     .sort((a, b) => a[1].sortKey - b[1].sortKey)
-    .map(([date, b]) => ({ date, invocations: b.invocations, spendPaise: b.credits }));
+    .map(([date, b]) => ({ date, invocations: b.invocations, spendCredits: b.credits }));
 
   const byAgent = new Map<string, AgentBreakdownRow>();
   for (const e of debits) {

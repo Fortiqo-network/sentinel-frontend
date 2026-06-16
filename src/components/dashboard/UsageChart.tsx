@@ -14,7 +14,7 @@ import {
 interface UsageDataPoint {
   date: string;
   invocations: number;
-  spendPaise: number;
+  spendCredits: number;
 }
 
 interface UsageChartProps {
@@ -31,7 +31,7 @@ const PLACEHOLDER_DATA: UsageDataPoint[] = Array.from({ length: 30 }, (_, i) => 
   return {
     date: d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
     invocations: Math.floor(Math.random() * 0), // zeroes until real data
-    spendPaise: 0,
+    spendCredits: 0,
   };
 });
 

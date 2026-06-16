@@ -196,8 +196,8 @@ export interface Transaction {
   id: string;
   /** Debit or credit. */
   type: LedgerEntryType;
-  /** Amount in INR paise. 100 paise = ₹1. */
-  amountPaise: number;
+  /** Amount in credits (1 USD = 100 credits). */
+  amountCredits: number;
   /** Formatted human-readable amount (pre-computed by gateway). */
   amountFormatted: string;
   description: string;
@@ -209,8 +209,8 @@ export interface Transaction {
   topUpMethod?: TopUpMethod;
   /** ISO datetime of the transaction. */
   createdAt: string;
-  /** Running balance after this entry, in paise. */
-  runningBalancePaise?: number;
+  /** Running balance after this entry, in credits. */
+  runningBalanceCredits?: number;
 }
 
 /** Paginated list of transactions. */
