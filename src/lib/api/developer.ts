@@ -27,6 +27,15 @@ export const DeveloperAgentSchema = z.object({
   trustScore: z.number().int().min(0).max(100).nullable(),
   vertical: z.string().nullable().optional(),
   tags: z.array(z.string()).default([]),
+  enabled: z.boolean().optional().default(true),
+  health: z
+    .object({
+      status: z.enum(["active", "inactive", "unknown"]),
+      lastCheckAt: z.string().nullable().optional(),
+    })
+    .optional(),
+  isDiscontinued: z.boolean().optional().default(false),
+  endpointUrl: z.string().nullable().optional(),
   trialEndsAt: z.string().nullable().optional(),
   listingPaid: z.boolean().optional().default(false),
   isDeleted: z.boolean().optional().default(false),

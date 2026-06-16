@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { TrustScore } from "@/components/ui/trust-score";
 import { Badge } from "@/components/ui/badge";
+import { StarIcon } from "@/components/ui/star";
+import { cn } from "@/lib/utils/cn";
 import { listSubscriptions, unsubscribe } from "@/lib/api/subscriptions";
 import type { Agent } from "@/types/agent";
 
@@ -99,19 +101,36 @@ export default function SubscriptionsPage(): React.JSX.Element {
                 {agent.pricing?.priceCredits != null && (
                   <Badge>{agent.pricing.priceCredits.toLocaleString("en-IN")} Cr / call</Badge>
                 )}
+                {agent.isDiscontinued ? (
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    <span className="h-2 w-2 rounded-full bg-slate-400" /> Discontinued
+                  </span>
+                ) : agent.health?.status === "inactive" ? (
+                  <span className="inline-flex items-center gap-1 text-xs text-rose-500">
+                    <span className="h-2 w-2 rounded-full bg-rose-500" /> Inactive
+                  </span>
+                ) : agent.health?.status === "active" ? (
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500" /> Active
+                  </span>
+                ) : null}
               </div>
               <div className="mt-4 flex items-center gap-2">
                 <Button asChild size="sm" className="flex-1">
                   <Link href={`/agents/${agent.id}`}>Open</Link>
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <button
+                  type="button"
                   disabled={removing === agent.id}
                   onClick={() => handleRemove(agent.id)}
+                  title="Starred — click to remove"
+                  aria-label="Remove from My Agents"
+                  className={cn(
+                    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-400 transition-colors hover:bg-amber-100 disabled:opacity-50",
+                  )}
                 >
-                  {removing === agent.id ? "Removing…" : "Unstar"}
-                </Button>
+                  <StarIcon filled />
+                </button>
               </div>
             </Card>
           ))}

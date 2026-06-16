@@ -203,6 +203,9 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
                 <Badge variant={STATUS_VARIANT[agent.status]}>{agent.status}</Badge>
                 <Badge variant="info">{agent.tier}</Badge>
                 {agent.vertical && <Badge>{agent.vertical}</Badge>}
+                {agent.enabled === false && <Badge variant="destructive">Disabled</Badge>}
+                {agent.health?.status === "inactive" && <Badge variant="warning">Endpoint down</Badge>}
+                {agent.health?.status === "active" && <Badge variant="success">Endpoint active</Badge>}
               </div>
             </div>
           </div>
@@ -350,7 +353,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
       </Card>
 
       {/* Endpoint ownership proof */}
-      <OwnershipCard agentId={agent.id} />
+      <OwnershipCard agentId={agent.id} endpointUrl={agent.endpointUrl} />
 
       {/* Block by email + blocked list */}
       <AccessControlCard agentId={agent.id} />

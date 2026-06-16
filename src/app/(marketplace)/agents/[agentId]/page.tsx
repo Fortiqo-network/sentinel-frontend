@@ -209,6 +209,23 @@ export default async function AgentDetailPage({
             ))}
           </div>
         )}
+
+        {/* Live status: endpoint health / discontinued */}
+        <div className="mt-3">
+          {agent.isDiscontinued ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-porcelain/40">
+              <span className="h-2 w-2 rounded-full bg-slate-400" /> Discontinued
+            </span>
+          ) : agent.health?.status === "inactive" ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-400">
+              <span className="h-2 w-2 rounded-full bg-rose-500" /> Inactive — endpoint not responding
+            </span>
+          ) : agent.health?.status === "active" ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Active
+            </span>
+          ) : null}
+        </div>
       </div>
 
       {/* Lower grid: verification + pricing */}

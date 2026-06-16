@@ -4,6 +4,7 @@ import * as React from "react";
 import { listSubscriptions, subscribe, unsubscribe } from "@/lib/api/subscriptions";
 import { isSentinelApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
+import { StarIcon } from "@/components/ui/star";
 
 interface SubscribeButtonProps {
   agentId: string;
@@ -72,12 +73,12 @@ export function SubscribeButton({ agentId, compact = false, dark = false, classN
           title="Sign in to save"
           aria-label="Sign in to save"
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
-            dark ? "border-porcelain/15 bg-ink-700 text-porcelain/60 hover:text-gold" : "border-slate-200 bg-white text-slate-400 hover:text-indigo-600",
+            "inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors text-slate-400 hover:text-amber-400",
+            dark ? "border-porcelain/15 bg-ink-700" : "border-slate-200 bg-white",
             className,
           )}
         >
-          ☆
+          <StarIcon filled={false} />
         </a>
       );
     }
@@ -87,19 +88,19 @@ export function SubscribeButton({ agentId, compact = false, dark = false, classN
         onClick={toggle}
         disabled={busy}
         aria-pressed={saved}
-        title={saved ? "Saved to My Agents" : "Save to My Agents"}
+        title={saved ? "Starred — click to remove" : "Star to save"}
         aria-label={saved ? "Remove from My Agents" : "Save to My Agents"}
         className={cn(
           "inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-colors disabled:opacity-60",
           saved
-            ? "border-gold/40 bg-gold/10 text-gold"
+            ? "border-amber-300 bg-amber-50 text-amber-400"
             : dark
-              ? "border-porcelain/15 bg-ink-700 text-porcelain/60 hover:text-gold"
-              : "border-slate-200 bg-white text-slate-400 hover:text-indigo-600",
+              ? "border-porcelain/15 bg-ink-700 text-porcelain/50 hover:text-amber-400"
+              : "border-slate-200 bg-white text-slate-400 hover:text-amber-400",
           className,
         )}
       >
-        {saved ? "★" : "☆"}
+        <StarIcon filled={saved} />
       </button>
     );
   }
@@ -124,12 +125,12 @@ export function SubscribeButton({ agentId, compact = false, dark = false, classN
       className={cn(
         "mt-2 flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-center text-sm font-medium transition-colors disabled:opacity-60",
         saved
-          ? "border-gold/40 bg-gold/10 text-gold hover:bg-gold/15"
+          ? "border-amber-300/50 bg-amber-400/10 text-amber-400 hover:bg-amber-400/15"
           : "border-porcelain/15 bg-ink-700 text-porcelain/70 hover:bg-ink-600 hover:text-porcelain",
       )}
     >
-      <span aria-hidden="true">{saved ? "★" : "☆"}</span>
-      {busy ? "Saving…" : saved ? "Saved to My Agents" : "Save to My Agents"}
+      <StarIcon filled={saved} className="h-4 w-4" />
+      {busy ? "Saving…" : saved ? "Starred" : "Star to save"}
     </button>
   );
 }
