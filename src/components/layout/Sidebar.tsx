@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils/cn";
 // Types
 // ---------------------------------------------------------------------------
 
-export type SidebarMode = "buyer" | "developer";
+export type SidebarMode = "buyer" | "developer" | "admin";
 
 interface SidebarLink {
   href: string;
@@ -105,6 +105,14 @@ function IconStar(): React.JSX.Element {
   );
 }
 
+function IconUsers(): React.JSX.Element {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 100-8 4 4 0 000 8zm6 0a3 3 0 10-2.83-4M7 11a3 3 0 10-2.83-4" />
+    </svg>
+  );
+}
+
 function IconClose(): React.JSX.Element {
   return (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -134,6 +142,14 @@ const DEVELOPER_LINKS: SidebarLink[] = [
   { href: "/developer/settings", label: "Settings", icon: <IconCog /> },
 ];
 
+const ADMIN_LINKS: SidebarLink[] = [
+  { href: "/admin", label: "Overview", icon: <IconGrid /> },
+  { href: "/admin/analytics", label: "Analytics", icon: <IconChartBar /> },
+  { href: "/admin/agents", label: "Agents", icon: <IconCode /> },
+  { href: "/admin/developers", label: "Developers", icon: <IconCurrencyRupee /> },
+  { href: "/admin/users", label: "Users", icon: <IconUsers /> },
+];
+
 function resolveLinks(
   mode: SidebarMode,
   overrideLinks?: SidebarProps["links"],
@@ -145,6 +161,7 @@ function resolveLinks(
       icon: (l.icon as React.JSX.Element) ?? <IconGrid />,
     }));
   }
+  if (mode === "admin") return ADMIN_LINKS;
   return mode === "developer" ? DEVELOPER_LINKS : BUYER_LINKS;
 }
 
@@ -160,7 +177,7 @@ interface SidebarNavProps {
 
 function isLinkActive(pathname: string, href: string): boolean {
   if (pathname === href) return true;
-  const isRoot = href === "/dashboard" || href === "/developer";
+  const isRoot = href === "/dashboard" || href === "/developer" || href === "/admin";
   return !isRoot && pathname.startsWith(href + "/");
 }
 
@@ -215,7 +232,7 @@ function SidebarNav({ links, collapsed, onNavigate }: SidebarNavProps): React.JS
 export function Sidebar({ mode = "buyer", className, links: overrideLinks }: SidebarProps): React.JSX.Element {
   const { sidebarCollapsed: collapsed, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
   const links = resolveLinks(mode, overrideLinks);
-  const modeLabel = mode === "developer" ? "Developer" : "Buyer";
+  const modeLabel = mode === "developer" ? "Developer" : mode === "admin" ? "Admin" : "Buyer";
 
   const closeMobile = React.useCallback(() => setMobileSidebarOpen(false), [setMobileSidebarOpen]);
 
