@@ -227,7 +227,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
 | Verify static lane: SAST (Semgrep+Bandit), supply-chain (CVE), **secrets**, **code-quality** (radon), **AI review** (Gemini), scoring/tiers (rubric v1.1) | **Real** — code-quality/AI-review **defer** cleanly when there's no source or no Gemini key |
 | Verify **static-lane isolation** | **Real (prod)** — the source-parsing tools (Semgrep, Bandit, radon) run via `core/sandbox.py` in a one-shot **no-network, read-only, cap-dropped** container (`Dockerfile.sandbox`); radon moved from in-process to CLI so untrusted source is never parsed in the worker. `STATIC_SANDBOX_MODE` = `docker` (prod) / `subprocess` (dev/CI fallback) / `auto`. pip-audit/secrets/AI-review stay out-of-sandbox (read text/bytes only; some need OSV/Gemini egress). |
-| Verify **red-team corpus** | **Real** — adversarial corpus (OWASP Agentic Top 10 + MITRE ATLAS) probes the agent's **live endpoint** via canary-obedience detection; no sandbox needed. Defers honestly (no penalty) when the agent has no reachable endpoint. |
+| Verify **red-team corpus** | **Real** — 14-case adversarial corpus (OWASP Agentic Top 10 + MITRE ATLAS), incl. **multi-turn crescendo** attacks, probes the agent's **live endpoint**. **Two independent detectors**: canary-obedience (token echo) + an **LLM judge** (Gemini) for semantic compliance — a case fails if either fires; judge defers to canary-only when no Gemini key. No sandbox needed; defers honestly when the agent has no reachable endpoint. |
 | Verify stage 2 (SBOM/Sigstore), **dynamic detonation**, performance | **Deferred/stub** — need sentinel-runtime GA; disclosed on the report, not silently passed |
 | Registry artifacts/versioning/SBOM/A2A cards | **Real**; Sigstore verify **advisory** |
 | Runtime execution (Firecracker, network sandbox, secrets) | **Stub (501)** — M6+ |
@@ -293,7 +293,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 **sentinel-verify** (`src/sentinel_verify/`)
 - `api/v1/verification.py` + `api/internal/verifications.py` · `workers/pipeline.py` (orchestrator) · `workers/tasks/{static_analysis,supply_chain,dynamic,redteam}.py`
-- `analyzers/{semgrep,bandit,pip_audit,dynamic,redteam,code_quality}.py` · `core/sandbox.py` (disposable no-network/read-only runner; semgrep/bandit/radon run in it, `Dockerfile.sandbox` image) · `redteam/{corpus,evaluator}.py` (adversarial cases + canary detector) · `scoring/trust_score.py` (rubric + tiers) · `db/models/verification.py` · `clients/core_api.py` (emit event + `fetch_invoke_config`) · `storage/s3.py`
+- `analyzers/{semgrep,bandit,pip_audit,dynamic,redteam,code_quality}.py` · `core/sandbox.py` (disposable no-network/read-only runner; semgrep/bandit/radon run in it, `Dockerfile.sandbox` image) · `redteam/{corpus,evaluator,judge}.py` (adversarial cases + multi-turn + canary detector + Gemini semantic judge) · `scoring/trust_score.py` (rubric + tiers) · `db/models/verification.py` · `clients/core_api.py` (emit event + `fetch_invoke_config`) · `storage/s3.py`
 - Ownership proof: `core/ssrf.py` (SSRF guard) · `services/ownership.py` · `api/internal/ownership.py` · `db/models/ownership.py` (+ migration `0002`). Design: `docs/master-doc.md` §24 (v2 plan: 4 goals, isolation tiers, rubric v2, Gemini AI review).
 
 **sentinel-registry** (`src/sentinel_registry/`)
