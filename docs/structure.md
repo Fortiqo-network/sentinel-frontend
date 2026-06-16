@@ -33,7 +33,7 @@ user-facing unit (**1 USD = 100 credits**; never show units/₹/$).
 | **sentinel-gateway** | The single public edge: auth, listings, agent invoke (REST/MCP/A2A/SSE), billing/keys proxy, rate-limit, metering | Python · FastAPI · Redis | **Live** (public) |
 | **sentinel-core-api** | System of record: users, agents lifecycle, marketplace, API keys, verification events | Python · FastAPI · Postgres | **Live** |
 | **sentinel-billing** | Double-entry ledger, credit wallet, metering split, escrow/settlement, bonds, disputes, payouts | Python · FastAPI · Postgres · Celery/Redis | **Live** (payouts partial) |
-| **sentinel-verify** | Multi-stage verification + trust scoring (static, supply-chain, dynamic, red-team) | Python · FastAPI · Celery/Redis | **Live** (stages 2/4 partial) |
+| **sentinel-verify** | Multi-stage verification + trust scoring (static, supply-chain, code-quality, secrets, AI review, **red-team**, dynamic) | Python · FastAPI · Celery/Redis | **Live** (red-team real vs live endpoint; dynamic detonation deferred to runtime) |
 | **sentinel-registry** | Immutable agent artifact registry: versioning, content-addressed storage, SBOM, A2A cards | Python · FastAPI · Postgres · S3/MinIO | **Live** (Sigstore advisory) |
 | **sentinel-runtime** | Sandboxed agent execution (Firecracker microVM) for Tier A hosting + dynamic detonation | Python · FastAPI | **Stub** (501s; M6+) |
 | **sentinel-sdk** | Official dev SDK (Python + TypeScript) + `sentinel` CLI to build/serve/publish agents | Python (PyPI `sentinel-sdk`) + TS (npm `@sentinel/sdk`) | **Mostly built** |
@@ -213,7 +213,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Agent invocation `/use` → **real output** | **Real** — gateway proxies the buyer input to the agent's private `access_config.endpoint_url` (SSRF-guarded), charges credits **only on success**; endpoint resolved via internal `GET /internal/agents/{id}/invoke-config`. Managed/Tier-A in-process execution still needs runtime (stub). |
-| Verification loop: submit → verify → auto-publish | **Real (wired)** — `submit-for-verification` enqueues the verify job (`VerificationClient`) → `verifying`; `verification.completed` → `verified`/`rejected`; on pass + score ≥ 0.5 the agent **auto-publishes to `live`**. Listing visibility still respects the fee/trial gate. Verify stages that pass are gateable today; dynamic/red-team remain **deferred** until runtime. |
+| Verification loop: submit → verify → auto-publish | **Real (wired)** — `submit-for-verification` enqueues the verify job (`VerificationClient`) → `verifying`; `verification.completed` → `verified`/`rejected`; on pass + score ≥ 0.5 the agent **auto-publishes to `live`**. Listing visibility still respects the fee/trial gate. Static lane + **red-team (real, vs the agent's live endpoint)** gate today; **dynamic detonation** remains deferred until runtime. |
 | Promo codes (free listing / credit top-up) | **Real** — registry `services/promo.py` (key→perk). `SENTINEL1`=free listing (waives $10 at create). Credit codes (`WELCOME10/50`) redeem via `POST /v1/promo/redeem` → billing grant, single-use per user (`promo_redemptions`, migration `0006`). |
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
 | Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
@@ -224,7 +224,8 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | **Audit log** (append-only `audit_events`) | **Real** — records agent retire / listing-paid / access block & unblock (actor, action, entity, details, time); money movements audited via the billing ledger. Migration `0004`. |
 | **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
 | Verify static lane: SAST (Semgrep+Bandit), supply-chain (CVE), **secrets**, **code-quality** (radon), **AI review** (Gemini), scoring/tiers (rubric v1.1) | **Real** — code-quality/AI-review **defer** cleanly when there's no source or no Gemini key |
-| Verify stage 2 (SBOM/Sigstore), dynamic detonation, red-team corpus, performance | **Deferred/stub** — need sentinel-runtime GA; disclosed on the report, not silently passed |
+| Verify **red-team corpus** | **Real** — adversarial corpus (OWASP Agentic Top 10 + MITRE ATLAS) probes the agent's **live endpoint** via canary-obedience detection; no sandbox needed. Defers honestly (no penalty) when the agent has no reachable endpoint. |
+| Verify stage 2 (SBOM/Sigstore), **dynamic detonation**, performance | **Deferred/stub** — need sentinel-runtime GA; disclosed on the report, not silently passed |
 | Registry artifacts/versioning/SBOM/A2A cards | **Real**; Sigstore verify **advisory** |
 | Runtime execution (Firecracker, network sandbox, secrets) | **Stub (501)** — M6+ |
 | SDK build/serve/publish/CLI | **Real**; Sigstore sign + `init` templates **partial** |
@@ -289,7 +290,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 **sentinel-verify** (`src/sentinel_verify/`)
 - `api/v1/verification.py` + `api/internal/verifications.py` · `workers/pipeline.py` (orchestrator) · `workers/tasks/{static_analysis,supply_chain,dynamic,redteam}.py`
-- `analyzers/{semgrep,bandit,pip_audit,dynamic}.py` · `scoring/trust_score.py` (rubric + tiers) · `db/models/verification.py` · `clients/core_api.py` (emit event) · `storage/s3.py`
+- `analyzers/{semgrep,bandit,pip_audit,dynamic,redteam}.py` · `redteam/{corpus,evaluator}.py` (adversarial cases + canary detector) · `scoring/trust_score.py` (rubric + tiers) · `db/models/verification.py` · `clients/core_api.py` (emit event + `fetch_invoke_config`) · `storage/s3.py`
 - Ownership proof: `core/ssrf.py` (SSRF guard) · `services/ownership.py` · `api/internal/ownership.py` · `db/models/ownership.py` (+ migration `0002`). Design: `docs/master-doc.md` §24 (v2 plan: 4 goals, isolation tiers, rubric v2, Gemini AI review).
 
 **sentinel-registry** (`src/sentinel_registry/`)
