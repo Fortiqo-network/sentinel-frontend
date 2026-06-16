@@ -97,6 +97,7 @@ or API key (`X-API-Key`). Public routes need neither.
 | POST | `/chat/` | yes | JSON-RPC streaming chat (alt surface) |
 | GET | `/v1/billing/balance` · `/v1/billing/ledger` · `/v1/billing/invoices` | yes | Wallet reads |
 | POST | `/v1/billing/topup` | yes | Add credits (payment provider pending) |
+| POST | `/v1/promo/redeem` | yes | Redeem a credit promo code (single-use → wallet) |
 | POST/GET/DELETE | `/v1/keys` · `/v1/keys/{id}` | yes | API key CRUD |
 | GET | `/v1/developer/agents` · `/v1/developer/agents/{id}` | yes | Developer's agents |
 | POST/PATCH/DELETE | `/v1/developer/agents` … | yes | Draft CRUD |
@@ -212,7 +213,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Agent invocation `/use` → **real output** | **Real** — gateway proxies the buyer input to the agent's private `access_config.endpoint_url` (SSRF-guarded), charges credits **only on success**; endpoint resolved via internal `GET /internal/agents/{id}/invoke-config`. Managed/Tier-A in-process execution still needs runtime (stub). |
 | Verification loop: submit → verify → auto-publish | **Real (wired)** — `submit-for-verification` enqueues the verify job (`VerificationClient`) → `verifying`; `verification.completed` → `verified`/`rejected`; on pass + score ≥ 0.5 the agent **auto-publishes to `live`**. Listing visibility still respects the fee/trial gate. Verify stages that pass are gateable today; dynamic/red-team remain **deferred** until runtime. |
-| Promo codes (free listing / credit top-up) | **Registry** `services/promo.py` (key→perk). `SENTINEL1`=free listing (real, waives $10 at create). Wallet top-up via promo = TODO. |
+| Promo codes (free listing / credit top-up) | **Real** — registry `services/promo.py` (key→perk). `SENTINEL1`=free listing (waives $10 at create). Credit codes (`WELCOME10/50`) redeem via `POST /v1/promo/redeem` → billing grant, single-use per user (`promo_redemptions`, migration `0006`). |
 | Razorpay/Stripe **payouts** | **Partial** (order/webhook/verify yes; Route/Connect payout = TODO) |
 | Developer **listing fee — $10** with a **7-day free trial listing** | **Real** — 7-day trial set on agent create (`listing_trial_ends_at`); marketplace **gates out expired-unpaid** listings; developer settles via `pay-listing` (`listing_paid`). The $10 **payment capture is a mock/marker** (real Razorpay/Stripe later). |
 | Developer **disable/retire agent** (typed-"DELETE" double confirm) | **Real** — `POST /v1/agents/{id}/retire` (live/verified/suspended → retired, non-destructive); draft/rejected soft-delete; UI confirm modal requires typing DELETE |

@@ -70,3 +70,17 @@ export async function topUp(credits: number): Promise<TopUpResult> {
   const response = await apiClient.post<unknown>("/v1/billing/topup", { credits });
   return TopUpResultSchema.parse(response.data);
 }
+
+export const RedeemResultSchema = z.object({
+  credits: z.number().int(),
+  balanceCredits: z.number().int(),
+  label: z.string(),
+});
+
+export type RedeemResult = z.infer<typeof RedeemResultSchema>;
+
+/** Redeems a promo code for wallet credits (single-use per code). */
+export async function redeemPromo(code: string): Promise<RedeemResult> {
+  const response = await apiClient.post<unknown>("/v1/promo/redeem", { code });
+  return RedeemResultSchema.parse(response.data);
+}

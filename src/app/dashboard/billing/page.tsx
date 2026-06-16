@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { getCreditBalance, getInvoices, topUp } from "@/lib/api/billing";
+import { getCreditBalance, getInvoices, topUp, redeemPromo } from "@/lib/api/billing";
 import { isSentinelApiError } from "@/lib/api/client";
 import type { Invoice } from "@/types/billing";
 import { cn } from "@/lib/utils/cn";
@@ -38,6 +38,9 @@ export default function BillingPage(): React.JSX.Element {
   const [isCustom, setIsCustom] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [feedback, setFeedback] = React.useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [promoCode, setPromoCode] = React.useState("");
+  const [redeeming, setRedeeming] = React.useState(false);
+  const [promoFeedback, setPromoFeedback] = React.useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
   const refresh = React.useCallback(async () => {
     const [bal, inv] = await Promise.allSettled([getCreditBalance(), getInvoices()]);
@@ -61,6 +64,25 @@ export default function BillingPage(): React.JSX.Element {
       : null;
 
   const isValid = effectiveUsd !== null && effectiveUsd >= 1 && effectiveUsd <= 5000;
+
+  async function handleRedeem(): Promise<void> {
+    const code = promoCode.trim();
+    if (!code) return;
+    setRedeeming(true);
+    setPromoFeedback(null);
+    try {
+      const result = await redeemPromo(code);
+      setBalanceCredits(result.balanceCredits);
+      setPromoCode("");
+      setPromoFeedback({ kind: "ok", text: `${result.label}: added ${formatCredits(result.credits)}.` });
+      await refresh();
+    } catch (err) {
+      const text = isSentinelApiError(err) ? err.displayMessage : "Could not redeem that code.";
+      setPromoFeedback({ kind: "error", text });
+    } finally {
+      setRedeeming(false);
+    }
+  }
 
   async function handleTopUp(): Promise<void> {
     if (!isValid || effectiveCredits === null) return;
@@ -199,6 +221,39 @@ export default function BillingPage(): React.JSX.Element {
           <span className="font-medium text-slate-500">Credits are non-refundable once added</span> — you&apos;re
           only charged on successful calls.
         </p>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-base font-semibold text-slate-900 mb-1">Redeem a promo code</h2>
+        <p className="mb-3 text-xs text-slate-400">Have a code? Redeem it for wallet credits (one use per code).</p>
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            placeholder="e.g. WELCOME10"
+            className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+          />
+          <button
+            type="button"
+            disabled={!promoCode.trim() || redeeming}
+            onClick={() => void handleRedeem()}
+            className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {redeeming ? "Redeeming…" : "Redeem"}
+          </button>
+        </div>
+        {promoFeedback && (
+          <p
+            role="status"
+            className={cn(
+              "mt-3 rounded-md px-3 py-2 text-sm",
+              promoFeedback.kind === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700",
+            )}
+          >
+            {promoFeedback.text}
+          </p>
+        )}
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
