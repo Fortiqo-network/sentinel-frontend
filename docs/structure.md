@@ -96,7 +96,8 @@ or API key (`X-API-Key`). Public routes need neither.
 | POST | `/v1/agents/{agent_id}/chat` | yes | **SSE** streaming chat |
 | POST | `/chat/` | yes | JSON-RPC streaming chat (alt surface) |
 | GET | `/v1/billing/balance` · `/v1/billing/ledger` · `/v1/billing/invoices` | yes | Wallet reads |
-| POST | `/v1/billing/topup` | yes | Add credits (payment provider pending) |
+| POST | `/v1/billing/checkout` | yes | Open provider-hosted checkout to buy credits (Stripe/Razorpay); wallet credited by webhook |
+| POST | `/v1/billing/topup` | yes | Direct credit grant (mock/dev path; superseded by checkout) |
 | POST | `/v1/promo/redeem` | yes | Redeem a credit promo code (single-use → wallet) |
 | POST/GET/DELETE | `/v1/keys` · `/v1/keys/{id}` | yes | API key CRUD |
 | GET | `/v1/developer/agents` · `/v1/developer/agents/{id}` | yes | Developer's agents |
@@ -208,7 +209,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Buyer subscriptions ("star" agents → portal) + user notifications | **Real** (core-api tables + gateway proxy; migration `0002`) |
 | Developer per-agent user access restriction (block a misusing user) | **Real** (`agent_access_blocks` table + owner-scoped endpoints; gateway enforces 403 in pay-and-use, invoke, and chat; developer UI) |
 | Buyer wallet: balance/ledger/invoices, ledger double-entry | **Real** |
-| Buy credits (top-up) — grants credits | **Real (mock UI) + exactly-once settlement foundation** — UI mock at `/dashboard/billing`; the real money path is built: a `payments` tracking table (migration `0002`) + provider-agnostic `settle_topup()` keyed `topup:{provider}:{provider_ref}` (debit buyer wallet / credit `{provider}:clearing`) so a captured payment is credited **exactly once** no matter how many times the webhook or the reconcile sweeper fires. Razorpay + Stripe webhooks delegate to it. **Pending:** per-provider create-checkout endpoints + hosted checkout, reconcile sweeper, PayPal, EVM/x402. |
+| Buy credits — **provider-hosted checkout, exactly-once settlement** | **Real** — `/dashboard/billing` opens a real hosted checkout: Stripe Checkout Session (redirect) or Razorpay Checkout (UPI/card). `POST /v1/billing/checkout` (gateway) → `POST /v1/credits/purchase` (billing) creates the provider order/session, records a `payments` row (migration `0002`) keyed by the provider ref, and returns the hosted handle. The wallet is credited **only** by the provider webhook via `settle_topup()` (keyed `topup:{provider}:{provider_ref}`, debit buyer wallet / credit `{provider}:clearing`) so a captured payment credits **exactly once** no matter how many times the webhook/reconcile fires. **Pending:** reconcile sweeper (stuck-payment safety net), PayPal, EVM/x402. Provider keys are owner-configured (`RAZORPAY_*`/`STRIPE_*` already present). |
 | Per-agent usage (calls + credits) from the ledger | **Real** (`/dashboard/usage`); **latency not tracked yet** (needs a metering-aggregation store) |
 | Metering split (98/2), escrow state machine, bonds, disputes | **Real** |
 | Agent invocation `/use` → **real output** | **Real** — gateway proxies the buyer input to the agent's private `access_config.endpoint_url` (SSRF-guarded), charges credits **only on success**; endpoint resolved via internal `GET /internal/agents/{id}/invoke-config`. Managed/Tier-A in-process execution still needs runtime (stub). |

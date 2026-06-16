@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { getCreditBalance, getInvoices, topUp, redeemPromo } from "@/lib/api/billing";
+import { getCreditBalance, getInvoices, createCheckout, redeemPromo } from "@/lib/api/billing";
 import { isSentinelApiError } from "@/lib/api/client";
+import { openRazorpayCheckout } from "@/lib/payments/razorpay";
 import type { Invoice } from "@/types/billing";
 import { cn } from "@/lib/utils/cn";
 import { CREDITS_PER_USD } from "@/lib/site";
@@ -10,6 +11,13 @@ import { CREDITS_PER_USD } from "@/lib/site";
 type TopUpPreset = 5 | 10 | 20;
 
 const TOP_UP_PRESETS: TopUpPreset[] = [5, 10, 20];
+
+type Provider = "stripe" | "razorpay";
+
+const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
+  { id: "stripe", label: "Card (Stripe)", hint: "Visa, Mastercard, and more — hosted by Stripe" },
+  { id: "razorpay", label: "UPI / Card (Razorpay)", hint: "UPI, cards, netbanking — hosted by Razorpay" },
+];
 
 function formatCredits(credits: number): string {
   return `${credits.toLocaleString("en-IN")} Cr`;
@@ -36,6 +44,7 @@ export default function BillingPage(): React.JSX.Element {
   const [selectedPreset, setSelectedPreset] = React.useState<TopUpPreset | null>(null);
   const [customAmount, setCustomAmount] = React.useState("");
   const [isCustom, setIsCustom] = React.useState(false);
+  const [provider, setProvider] = React.useState<Provider>("stripe");
   const [submitting, setSubmitting] = React.useState(false);
   const [feedback, setFeedback] = React.useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [promoCode, setPromoCode] = React.useState("");
@@ -50,6 +59,25 @@ export default function BillingPage(): React.JSX.Element {
 
   React.useEffect(() => {
     void refresh();
+  }, [refresh]);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get("checkout");
+    if (!checkout) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    if (checkout === "success") {
+      setFeedback({ kind: "ok", text: "Payment received. Credits will appear in your wallet shortly." });
+      let tries = 0;
+      const timer = setInterval(() => {
+        void refresh();
+        if (++tries >= 6) clearInterval(timer);
+      }, 2500);
+      return () => clearInterval(timer);
+    }
+    if (checkout === "cancel") {
+      setFeedback({ kind: "error", text: "Checkout cancelled — no credits were added." });
+    }
   }, [refresh]);
 
   const effectiveUsd: number | null = isCustom
@@ -84,20 +112,40 @@ export default function BillingPage(): React.JSX.Element {
     }
   }
 
-  async function handleTopUp(): Promise<void> {
+  async function handleCheckout(): Promise<void> {
     if (!isValid || effectiveCredits === null) return;
     setSubmitting(true);
     setFeedback(null);
     try {
-      const result = await topUp(effectiveCredits);
-      setBalanceCredits(result.balanceCredits);
-      setSelectedPreset(null);
-      setCustomAmount("");
-      setIsCustom(false);
-      setFeedback({ kind: "ok", text: `Added ${formatCredits(result.credits)} to your wallet.` });
-      await refresh();
+      const base = `${window.location.origin}/dashboard/billing`;
+      const checkout = await createCheckout(
+        effectiveCredits,
+        provider,
+        `${base}?checkout=success`,
+        `${base}?checkout=cancel`,
+      );
+      if (checkout.provider === "stripe") {
+        if (!checkout.checkoutUrl) throw new Error("Checkout URL missing.");
+        window.location.href = checkout.checkoutUrl;
+        return;
+      }
+      if (!checkout.orderId || !checkout.keyId) throw new Error("Razorpay order missing.");
+      await openRazorpayCheckout({
+        keyId: checkout.keyId,
+        orderId: checkout.orderId,
+        amountPaise: checkout.amountCredits * 100,
+        onSuccess: () => {
+          setFeedback({ kind: "ok", text: "Payment received. Credits will appear shortly." });
+          let tries = 0;
+          const timer = setInterval(() => {
+            void refresh();
+            if (++tries >= 6) clearInterval(timer);
+          }, 2500);
+        },
+        onDismiss: () => setSubmitting(false),
+      });
     } catch (err) {
-      const text = isSentinelApiError(err) ? err.displayMessage : "Top-up failed. Please try again.";
+      const text = isSentinelApiError(err) ? err.displayMessage : "Could not start checkout. Please try again.";
       setFeedback({ kind: "error", text });
     } finally {
       setSubmitting(false);
@@ -189,6 +237,28 @@ export default function BillingPage(): React.JSX.Element {
           </div>
         )}
 
+        <div className="mb-4">
+          <label className="mb-2 block text-sm font-medium text-slate-700">Payment method</label>
+          <div className="flex flex-wrap gap-3">
+            {PROVIDERS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setProvider(p.id)}
+                className={cn(
+                  "rounded-lg border px-4 py-2.5 text-left transition-colors",
+                  provider === p.id
+                    ? "border-indigo-500 bg-indigo-50"
+                    : "border-slate-200 bg-white hover:border-indigo-300",
+                )}
+              >
+                <span className="block text-sm font-semibold text-slate-800">{p.label}</span>
+                <span className="block text-xs text-slate-400">{p.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {effectiveCredits !== null && effectiveCredits > 0 && (
           <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700">
             You will add <span className="font-semibold text-slate-900">{formatCredits(effectiveCredits)}</span>
@@ -211,13 +281,14 @@ export default function BillingPage(): React.JSX.Element {
         <button
           type="button"
           disabled={!isValid || submitting}
-          onClick={() => void handleTopUp()}
+          onClick={() => void handleCheckout()}
           className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {submitting ? "Adding credits…" : "Add Credits"}
+          {submitting ? "Opening checkout…" : "Buy Credits"}
         </button>
         <p className="mt-2 text-xs text-slate-400">
-          Top-ups are recorded directly for now; a card/UPI provider will be enabled here later. 1 USD = 100 credits.{" "}
+          You&apos;ll complete payment on the provider&apos;s secure hosted page; credits land in your wallet once
+          the payment is confirmed. 1 USD = 100 credits.{" "}
           <span className="font-medium text-slate-500">Credits are non-refundable once added</span> — you&apos;re
           only charged on successful calls.
         </p>

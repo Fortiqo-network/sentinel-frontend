@@ -71,6 +71,37 @@ export async function topUp(credits: number): Promise<TopUpResult> {
   return TopUpResultSchema.parse(response.data);
 }
 
+export const CheckoutSchema = z.object({
+  provider: z.enum(["razorpay", "stripe"]),
+  orderId: z.string().nullable().optional(),
+  keyId: z.string().nullable().optional(),
+  checkoutUrl: z.string().url().nullable().optional(),
+  amountCredits: z.number().int(),
+});
+
+export type Checkout = z.infer<typeof CheckoutSchema>;
+
+/**
+ * Opens a provider-hosted checkout to buy credits. Returns the provider handle:
+ * a Stripe-hosted `checkoutUrl` to redirect to, or a Razorpay `orderId` + public
+ * `keyId` to initialise Razorpay Checkout. Credits are posted to the wallet only
+ * once the provider webhook confirms the payment.
+ */
+export async function createCheckout(
+  credits: number,
+  provider: "razorpay" | "stripe",
+  successUrl: string,
+  cancelUrl: string,
+): Promise<Checkout> {
+  const response = await apiClient.post<unknown>("/v1/billing/checkout", {
+    credits,
+    provider,
+    successUrl,
+    cancelUrl,
+  });
+  return CheckoutSchema.parse(response.data);
+}
+
 export const RedeemResultSchema = z.object({
   credits: z.number().int(),
   balanceCredits: z.number().int(),
