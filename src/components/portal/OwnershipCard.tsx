@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   getOwnership,
   requestOwnershipChallenge,
+  updateAgent,
   verifyOwnership,
   type OwnershipChallenge,
   type OwnershipStatus,
@@ -28,15 +29,44 @@ const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
  * @example
  * <OwnershipCard agentId={agent.id} />
  */
-export function OwnershipCard({ agentId }: { agentId: string }): React.JSX.Element {
+export function OwnershipCard({
+  agentId,
+  endpointUrl,
+}: {
+  agentId: string;
+  endpointUrl?: string | null;
+}): React.JSX.Element {
   const [status, setStatus] = React.useState<OwnershipStatus | null>(null);
   const [challenge, setChallenge] = React.useState<OwnershipChallenge | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | undefined>();
+  const [endpoint, setEndpoint] = React.useState(endpointUrl ?? "");
+  const [savedEndpoint, setSavedEndpoint] = React.useState(endpointUrl ?? "");
+  const [savingEndpoint, setSavingEndpoint] = React.useState(false);
+  const [endpointNote, setEndpointNote] = React.useState<string | undefined>();
 
   React.useEffect(() => {
     void getOwnership(agentId).then(setStatus).catch(() => undefined);
   }, [agentId]);
+
+  async function saveEndpoint(): Promise<void> {
+    const url = endpoint.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      setEndpointNote("Enter a valid URL starting with https://");
+      return;
+    }
+    setSavingEndpoint(true);
+    setEndpointNote(undefined);
+    try {
+      await updateAgent(agentId, { access_config: { endpoint_url: url } });
+      setSavedEndpoint(url);
+      setEndpointNote("Endpoint saved. You can now generate a challenge.");
+    } catch (err) {
+      setEndpointNote(isSentinelApiError(err) ? err.displayMessage : "Could not save the endpoint.");
+    } finally {
+      setSavingEndpoint(false);
+    }
+  }
 
   async function getChallenge(): Promise<void> {
     setBusy(true);
@@ -85,6 +115,27 @@ export function OwnershipCard({ agentId }: { agentId: string }): React.JSX.Eleme
           <p className="text-sm text-emerald-700">Ownership is verified. Nothing more to do.</p>
         ) : (
           <>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-slate-700">Agent endpoint URL</label>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="url"
+                  value={endpoint}
+                  onChange={(e) => setEndpoint(e.target.value)}
+                  placeholder="https://your-agent.example.com"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                />
+                <Button onClick={() => void saveEndpoint()} disabled={savingEndpoint} variant="outline" size="sm">
+                  {savingEndpoint ? "Saving…" : "Save endpoint"}
+                </Button>
+              </div>
+              <p className="text-xs text-slate-400">
+                Required first — the ownership token is served from this endpoint&apos;s
+                <code className="mx-1 rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.
+              </p>
+              {endpointNote && <p className="text-xs text-slate-500">{endpointNote}</p>}
+            </div>
+
             <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-600">
               <li>Generate a challenge token below.</li>
               <li>Serve it as plain text from your endpoint&apos;s <code className="rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.</li>
@@ -105,13 +156,16 @@ export function OwnershipCard({ agentId }: { agentId: string }): React.JSX.Eleme
             )}
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void getChallenge()} disabled={busy} variant="outline" size="sm">
+              <Button onClick={() => void getChallenge()} disabled={busy || !savedEndpoint} variant="outline" size="sm">
                 {challenge ? "Regenerate token" : "Get challenge"}
               </Button>
-              <Button onClick={() => void runVerify()} disabled={busy} size="sm">
+              <Button onClick={() => void runVerify()} disabled={busy || !savedEndpoint} size="sm">
                 {busy ? "Working…" : "Verify"}
               </Button>
             </div>
+            {!savedEndpoint && (
+              <p className="text-xs text-amber-600">Save the agent endpoint URL above to enable the challenge.</p>
+            )}
           </>
         )}
 

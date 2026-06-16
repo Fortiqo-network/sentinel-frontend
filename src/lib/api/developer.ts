@@ -65,6 +65,7 @@ export const UpdateAgentRequestSchema = z.object({
   description: z.string().optional(),
   vertical: z.string().max(64).optional(),
   tags: z.array(z.string()).optional(),
+  access_config: z.record(z.unknown()).optional(),
 });
 
 export type UpdateAgentRequest = z.infer<typeof UpdateAgentRequestSchema>;
