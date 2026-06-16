@@ -220,8 +220,8 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 | Buyer **usage/payments/credits** metrics | **Real** — wallet hero + spent/invocations/top-ups (from ledger) on `/dashboard`; `/dashboard/usage` per-agent; top-ups **non-refundable** (stated in UI). |
 | **Audit log** (append-only `audit_events`) | **Real** — records agent retire / listing-paid / access block & unblock (actor, action, entity, details, time); money movements audited via the billing ledger. Migration `0004`. |
 | **2FA** for developer & user accounts | **Planned** (`users.mfa_enabled` column exists; TOTP/WebAuthn enrolment + challenge not built) |
-| Verify stage 1 (Semgrep+Bandit), dynamic (via runtime), scoring, tiers | **Real** |
-| Verify stage 2 (SBOM/Sigstore), stage 4 (red-team corpus) | **Partial/stub** |
+| Verify static lane: SAST (Semgrep+Bandit), supply-chain (CVE), **secrets**, **code-quality** (radon), **AI review** (Gemini), scoring/tiers (rubric v1.1) | **Real** — code-quality/AI-review **defer** cleanly when there's no source or no Gemini key |
+| Verify stage 2 (SBOM/Sigstore), dynamic detonation, red-team corpus, performance | **Deferred/stub** — need sentinel-runtime GA; disclosed on the report, not silently passed |
 | Registry artifacts/versioning/SBOM/A2A cards | **Real**; Sigstore verify **advisory** |
 | Runtime execution (Firecracker, network sandbox, secrets) | **Stub (501)** — M6+ |
 | SDK build/serve/publish/CLI | **Real**; Sigstore sign + `init` templates **partial** |
