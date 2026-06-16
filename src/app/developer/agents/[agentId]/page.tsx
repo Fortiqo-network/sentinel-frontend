@@ -11,6 +11,7 @@ import { TrustScore } from "@/components/ui/trust-score";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar } from "@/components/ui/avatar";
 import { AccessControlCard } from "@/components/portal/AccessControlCard";
+import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
 import {
   getMyAgent,
@@ -347,6 +348,9 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
           )}
         </CardContent>
       </Card>
+
+      {/* Endpoint ownership proof */}
+      <OwnershipCard agentId={agent.id} />
 
       {/* Block by email + blocked list */}
       <AccessControlCard agentId={agent.id} />

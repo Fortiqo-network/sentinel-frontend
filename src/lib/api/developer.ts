@@ -143,6 +143,40 @@ export async function restoreAgent(id: string): Promise<DeveloperAgent> {
   return DeveloperAgentSchema.parse(response.data);
 }
 
+// ── Ownership proof ──────────────────────────────────────────────────────────
+
+export const OwnershipStatusSchema = z.object({
+  verified: z.boolean(),
+  status: z.string(),
+  detail: z.record(z.unknown()).default({}),
+});
+export type OwnershipStatus = z.infer<typeof OwnershipStatusSchema>;
+
+export const OwnershipChallengeSchema = z.object({
+  challenge_token: z.string(),
+  well_known_url: z.string(),
+  instructions: z.string(),
+});
+export type OwnershipChallenge = z.infer<typeof OwnershipChallengeSchema>;
+
+/** Current endpoint-ownership status for one of the developer's agents. */
+export async function getOwnership(id: string): Promise<OwnershipStatus> {
+  const response = await apiClient.get<unknown>(`/v1/developer/agents/${id}/ownership`);
+  return OwnershipStatusSchema.parse(response.data);
+}
+
+/** Mint a challenge token the developer must serve from the agent endpoint. */
+export async function requestOwnershipChallenge(id: string): Promise<OwnershipChallenge> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/challenge`, {});
+  return OwnershipChallengeSchema.parse(response.data);
+}
+
+/** Run the ownership check (verify fetches the well-known token). */
+export async function verifyOwnership(id: string): Promise<OwnershipStatus> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/verify`, {});
+  return OwnershipStatusSchema.parse(response.data);
+}
+
 // ── Earnings ─────────────────────────────────────────────────────────────────
 
 /** Returns the developer's payout-eligible earnings, in credits. */
