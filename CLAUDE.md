@@ -239,4 +239,7 @@ Never blindly implement. Prefer the better-engineered solution over a literal tr
 the request.
 
 > **And: whatever changes — always update the TODO board** in `sentinel-core-api/master-doc/`
-> (tick done, add new, mark in-progress) in the same change. No change ships without its TODO update.
+> in the same change. Treat it as a **dated timeline of activity**: append a dated entry for what
+> was done, tick completed items, add any new task discovered, and mark in-progress work. Never
+> delete a line. No change ships without its TODO update — the board must always reflect reality
+> and the history of what happened.
