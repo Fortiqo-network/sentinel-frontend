@@ -22,6 +22,8 @@ export function SubmitAgentForm(): React.JSX.Element {
   const router = useRouter();
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | undefined>();
+  const [tier, setTier] = React.useState<CreateAgentRequest["tier"]>("proxy");
+  const isManaged = tier === "managed";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,8 +39,8 @@ export function SubmitAgentForm(): React.JSX.Element {
     const slug = field("slug");
     const description = field("description");
     const vertical = field("vertical");
-    const tier = (field("tier") || "proxy") as CreateAgentRequest["tier"];
-    const endpointUrl = field("endpointUrl");
+    // Managed agents are hosted by Sentinel — they never carry a developer endpoint.
+    const endpointUrl = isManaged ? "" : field("endpointUrl");
     const priceRaw = field("price");
     const priceCurrency = field("priceCurrency") || "credits";
     const promoCode = field("promoCode");
@@ -135,25 +137,63 @@ export function SubmitAgentForm(): React.JSX.Element {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Tier
-            </label>
-            <select
-              name="tier"
-              defaultValue="proxy"
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-            >
-              <option value="proxy">Proxy</option>
-              <option value="managed">Managed</option>
-            </select>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">How will your agent run?</label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setTier("proxy")}
+                aria-pressed={!isManaged}
+                className={
+                  "rounded-xl border p-4 text-left transition-colors " +
+                  (!isManaged
+                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300"
+                    : "border-slate-200 bg-white hover:border-slate-300")
+                }
+              >
+                <div className="text-sm font-semibold text-slate-900">Connect your hosted agent</div>
+                <p className="mt-1 text-xs text-slate-500">
+                  You run it. Give us the URL and Sentinel routes each call to your endpoint.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTier("managed")}
+                aria-pressed={isManaged}
+                className={
+                  "rounded-xl border p-4 text-left transition-colors " +
+                  (isManaged
+                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300"
+                    : "border-slate-200 bg-white hover:border-slate-300")
+                }
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  Let Sentinel host it
+                  <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                    Early access
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-slate-500">
+                  Upload your agent — Sentinel verifies, runs it, and assigns the endpoint for you.
+                </p>
+              </button>
+            </div>
           </div>
-          <Input
-            label="Agent endpoint URL"
-            name="endpointUrl"
-            type="url"
-            placeholder="https://your-agent.example.com/invoke"
-            hint="Where Sentinel sends each call (POST JSON {input}) and returns the agent's real output. Required for routed (proxy) agents."
-          />
+
+          {isManaged ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Sentinel-hosted agents don&apos;t need an endpoint URL or ownership proof — we generate and
+              control the endpoint, and health/ownership are satisfied automatically. Package upload is
+              rolling out in early access; until your build is accepted, the listing stays in review.
+            </div>
+          ) : (
+            <Input
+              label="Agent endpoint URL"
+              name="endpointUrl"
+              type="url"
+              placeholder="https://your-agent.example.com/invoke"
+              hint="Where Sentinel sends each call (POST JSON {input}) and returns the agent's real output. You can also set this later and prove ownership from the agent page."
+            />
+          )}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">
               Price per call (optional)

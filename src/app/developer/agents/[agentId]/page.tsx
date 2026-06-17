@@ -352,8 +352,20 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
         </CardContent>
       </Card>
 
-      {/* Endpoint ownership proof */}
-      <OwnershipCard agentId={agent.id} endpointUrl={agent.endpointUrl} />
+      {/* Endpoint ownership proof — only for proxy agents. Sentinel-hosted (managed)
+          agents have no developer endpoint to prove; we control and generate it. */}
+      {agent.tier === "managed" ? (
+        <Card className="p-6">
+          <h2 className="text-base font-semibold text-slate-900">Hosting</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            This is a <span className="font-medium">Sentinel-hosted</span> agent — we generate and
+            control its endpoint, so there&apos;s no endpoint URL to set or ownership to prove.
+            Health and ownership are satisfied automatically once the build is accepted.
+          </p>
+        </Card>
+      ) : (
+        <OwnershipCard agentId={agent.id} endpointUrl={agent.endpointUrl} />
+      )}
 
       {/* Block by email + blocked list */}
       <AccessControlCard agentId={agent.id} />
