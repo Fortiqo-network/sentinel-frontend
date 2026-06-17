@@ -90,7 +90,7 @@ function DashboardDropdown({ role }: DashboardDropdownProps): React.JSX.Element 
           </div>
           <div className="border-t border-slate-100 py-1">
             <Link
-              href="/api/auth/logout"
+              href="/api/v1/auth/logout"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
@@ -148,7 +148,7 @@ function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): 
                 {portalLabel}
               </Link>
               <Link
-                href="/api/auth/logout"
+                href="/api/v1/auth/logout"
                 onClick={onClose}
                 className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
               >

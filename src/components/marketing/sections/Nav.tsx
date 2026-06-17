@@ -73,7 +73,7 @@ function AvatarMenu({ portalHref, profileHref }: { portalHref: string; profileHr
           </div>
           <div className="border-t border-porcelain/10 py-1">
             <Link
-              href="/api/auth/logout"
+              href="/api/v1/auth/logout"
               onClick={() => setOpen(false)}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 transition-colors hover:bg-ink-800 hover:text-red-300"
             >
