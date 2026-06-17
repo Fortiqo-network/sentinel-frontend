@@ -129,10 +129,15 @@ export default function EarningsPage(): React.JSX.Element {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <SummaryCard
-              label="Payable Balance"
-              value={earnings ? formatCredits(earnings.payableCredits) : "—"}
-              sub="Available for payout"
+              label="Available (withdrawable)"
+              value={earnings ? formatCredits(earnings.availableCredits) : "—"}
+              sub="Settled — ready to withdraw"
               accent
+            />
+            <SummaryCard
+              label="Payable (pending)"
+              value={earnings ? formatCredits(earnings.payableCredits) : "—"}
+              sub="Accrued from calls; awaiting settlement"
             />
             <SummaryCard
               label="Payout Eligibility"
@@ -140,14 +145,10 @@ export default function EarningsPage(): React.JSX.Element {
                 earnings
                   ? earnings.meetsMinimum
                     ? "Eligible for payout"
-                    : "Below minimum payout threshold"
+                    : "Below minimum threshold"
                   : "—"
               }
-            />
-            <SummaryCard
-              label="Payout Provider"
-              value={earnings?.payoutProvider ? earnings.payoutProvider : "Not configured"}
-              sub="Configured payout rail"
+              sub={earnings?.payoutProvider ? `via ${earnings.payoutProvider}` : "Provider not configured"}
             />
           </div>
 

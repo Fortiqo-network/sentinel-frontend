@@ -81,6 +81,7 @@ export type UpdateAgentRequest = z.infer<typeof UpdateAgentRequestSchema>;
 
 export const EarningsSchema = z.object({
   payableCredits: z.number().int().min(0),
+  availableCredits: z.number().int().min(0).default(0),
   meetsMinimum: z.boolean(),
   payoutProvider: z.string().nullable().optional(),
 });

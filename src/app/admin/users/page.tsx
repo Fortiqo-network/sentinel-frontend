@@ -3,7 +3,8 @@
 import * as React from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Badge } from "@/components/ui/badge";
-import { listAdminUsers, type AdminUserRow } from "@/lib/api/admin";
+import { Button } from "@/components/ui/button";
+import { listAdminUsers, blockUser, unblockUser, type AdminUserRow } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const ROLE_FILTERS = ["", "buyer", "developer", "admin"];
@@ -27,6 +28,7 @@ export default function AdminUsersPage(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
   const [role, setRole] = React.useState("");
+  const [busyId, setBusyId] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -45,6 +47,19 @@ export default function AdminUsersPage(): React.JSX.Element {
   React.useEffect(() => {
     void load();
   }, [load]);
+
+  async function toggleBlock(u: AdminUserRow): Promise<void> {
+    setBusyId(u.id);
+    try {
+      const next = u.is_active ? await blockUser(u.id) : await unblockUser(u.id);
+      setRows((prev) => prev.map((r) => (r.id === u.id ? { ...r, is_active: next.is_active } : r)));
+      setError(null);
+    } catch (err) {
+      setError(isSentinelApiError(err) ? err.message : "Action failed.");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -126,14 +141,17 @@ export default function AdminUsersPage(): React.JSX.Element {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      disabled
-                      title="User moderation is coming soon"
-                      className="inline-flex h-8 cursor-not-allowed items-center rounded-md bg-slate-100 px-3 text-xs font-medium text-slate-400"
-                    >
-                      Block
-                    </button>
+                    {u.roles.includes("admin") ? (
+                      <span className="text-xs text-slate-300">—</span>
+                    ) : u.is_active ? (
+                      <Button size="sm" variant="destructive" disabled={busyId === u.id} onClick={() => toggleBlock(u)}>
+                        {busyId === u.id ? "…" : "Block"}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="secondary" disabled={busyId === u.id} onClick={() => toggleBlock(u)}>
+                        {busyId === u.id ? "…" : "Unblock"}
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -143,8 +161,8 @@ export default function AdminUsersPage(): React.JSX.Element {
       </div>
 
       <p className="text-xs text-slate-400">
-        Blocking and suspending users is coming soon — the user-moderation endpoints are still being
-        built. Agent-level moderation is available under Agents.
+        Blocking suspends the account (the user can no longer log in) — it is reversible and the
+        record is kept. Admin accounts cannot be blocked here. Agent-level moderation is under Agents.
       </p>
     </div>
   );

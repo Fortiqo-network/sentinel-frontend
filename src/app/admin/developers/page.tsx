@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import {
   listAdminDevelopers,
   settleDeveloper,
+  blockUser,
+  unblockUser,
   unitsToCredits,
   type AdminDeveloperRow,
 } from "@/lib/api/admin";
@@ -46,6 +48,19 @@ export default function AdminDevelopersPage(): React.JSX.Element {
   React.useEffect(() => {
     void load();
   }, [load]);
+
+  async function toggleBlock(d: AdminDeveloperRow): Promise<void> {
+    setBusyId(d.id);
+    setNotice(null);
+    try {
+      const next = d.is_active ? await blockUser(d.id) : await unblockUser(d.id);
+      setRows((prev) => prev.map((r) => (r.id === d.id ? { ...r, is_active: next.is_active } : r)));
+    } catch (err) {
+      setNotice(isSentinelApiError(err) ? err.message : "Action failed.");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   async function handleSettle(id: string): Promise<void> {
     setBusyId(id);
@@ -128,15 +143,26 @@ export default function AdminDevelopersPage(): React.JSX.Element {
                   <td className="px-4 py-3 text-slate-600">{d.agents}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-amber-600">{credits(d.payable_units)}</td>
                   <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900">{credits(d.available_units)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      disabled={busyId === d.id || d.payable_units <= 0}
-                      onClick={() => handleSettle(d.id)}
-                    >
-                      {busyId === d.id ? "Settling…" : "Settle"}
-                    </Button>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        disabled={busyId === d.id || d.payable_units <= 0}
+                        onClick={() => handleSettle(d.id)}
+                      >
+                        {busyId === d.id ? "…" : "Settle"}
+                      </Button>
+                      {d.is_active ? (
+                        <Button size="sm" variant="destructive" disabled={busyId === d.id} onClick={() => toggleBlock(d)}>
+                          Block
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="secondary" disabled={busyId === d.id} onClick={() => toggleBlock(d)}>
+                          Unblock
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

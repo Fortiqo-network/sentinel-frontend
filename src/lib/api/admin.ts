@@ -207,6 +207,26 @@ export async function enableAllAgents(): Promise<number> {
   return response.data.enabled ?? 0;
 }
 
+const UserStateSchema = z.object({
+  user_id: z.string(),
+  is_active: z.boolean(),
+  roles: z.array(z.string()).default([]),
+});
+
+export type UserState = z.infer<typeof UserStateSchema>;
+
+/** Block (suspend) a user or developer — they can no longer log in. */
+export async function blockUser(userId: string): Promise<UserState> {
+  const response = await apiClient.post<unknown>(`/v1/admin/users/${userId}/block`, {});
+  return UserStateSchema.parse(response.data);
+}
+
+/** Unblock (reinstate) a previously suspended user or developer. */
+export async function unblockUser(userId: string): Promise<UserState> {
+  const response = await apiClient.post<unknown>(`/v1/admin/users/${userId}/unblock`, {});
+  return UserStateSchema.parse(response.data);
+}
+
 /** Settle a developer's accrued earnings (payable → withdrawable). */
 export async function settleDeveloper(developerId: string): Promise<SettleResult> {
   const response = await apiClient.post<unknown>(`/v1/admin/developers/${developerId}/settle`, {});
