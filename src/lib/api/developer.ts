@@ -165,10 +165,15 @@ export type OwnershipStatus = z.infer<typeof OwnershipStatusSchema>;
 
 export const OwnershipChallengeSchema = z.object({
   challenge_token: z.string(),
-  well_known_url: z.string(),
+  method: z.enum(["well_known", "dns_txt"]).default("well_known"),
+  well_known_url: z.string().default(""),
+  dns_txt_name: z.string().default(""),
   instructions: z.string(),
 });
 export type OwnershipChallenge = z.infer<typeof OwnershipChallengeSchema>;
+
+/** Ownership proof methods a developer can choose from. */
+export type OwnershipMethod = "well_known" | "dns_txt";
 
 /** Current endpoint-ownership status for one of the developer's agents. */
 export async function getOwnership(id: string): Promise<OwnershipStatus> {
@@ -176,9 +181,14 @@ export async function getOwnership(id: string): Promise<OwnershipStatus> {
   return OwnershipStatusSchema.parse(response.data);
 }
 
-/** Mint a challenge token the developer must serve from the agent endpoint. */
-export async function requestOwnershipChallenge(id: string): Promise<OwnershipChallenge> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/challenge`, {});
+/** Mint a challenge token the developer must serve (HTTP well-known or DNS TXT). */
+export async function requestOwnershipChallenge(
+  id: string,
+  method: OwnershipMethod = "well_known",
+): Promise<OwnershipChallenge> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/challenge`, {
+    method,
+  });
   return OwnershipChallengeSchema.parse(response.data);
 }
 

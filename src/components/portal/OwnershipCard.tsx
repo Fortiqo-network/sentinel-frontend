@@ -9,6 +9,7 @@ import {
   updateAgent,
   verifyOwnership,
   type OwnershipChallenge,
+  type OwnershipMethod,
   type OwnershipStatus,
 } from "@/lib/api/developer";
 import { isSentinelApiError } from "@/lib/api/client";
@@ -44,6 +45,7 @@ export function OwnershipCard({
   const [savedEndpoint, setSavedEndpoint] = React.useState(endpointUrl ?? "");
   const [savingEndpoint, setSavingEndpoint] = React.useState(false);
   const [endpointNote, setEndpointNote] = React.useState<string | undefined>();
+  const [method, setMethod] = React.useState<OwnershipMethod>("well_known");
 
   React.useEffect(() => {
     void getOwnership(agentId).then(setStatus).catch(() => undefined);
@@ -72,7 +74,7 @@ export function OwnershipCard({
     setBusy(true);
     setError(undefined);
     try {
-      setChallenge(await requestOwnershipChallenge(agentId));
+      setChallenge(await requestOwnershipChallenge(agentId, method));
     } catch (err) {
       setError(isSentinelApiError(err) ? err.displayMessage : "Could not issue a challenge.");
     } finally {
@@ -129,27 +131,70 @@ export function OwnershipCard({
                   {savingEndpoint ? "Saving…" : "Save endpoint"}
                 </Button>
               </div>
-              <p className="text-xs text-slate-400">
-                Required first — the ownership token is served from this endpoint&apos;s
-                <code className="mx-1 rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.
-              </p>
+              <p className="text-xs text-slate-400">Required first — pick a proof method below.</p>
               {endpointNote && <p className="text-xs text-slate-500">{endpointNote}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-slate-700">Proof method</label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMethod("well_known")}
+                  className={
+                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors " +
+                    (method === "well_known"
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300")
+                  }
+                >
+                  Well-known file (HTTP)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMethod("dns_txt")}
+                  className={
+                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors " +
+                    (method === "dns_txt"
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300")
+                  }
+                >
+                  DNS TXT record
+                </button>
+              </div>
+              <p className="text-xs text-slate-400">
+                {method === "dns_txt"
+                  ? "Can't add a route to your app? Prove control by publishing a DNS TXT record on your domain instead."
+                  : "Serve the token as plain text from your endpoint's /.well-known/sentinel-challenge."}
+              </p>
             </div>
 
             <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-600">
               <li>Generate a challenge token below.</li>
-              <li>Serve it as plain text from your endpoint&apos;s <code className="rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.</li>
-              <li>Click <span className="font-medium">Verify</span>.</li>
+              {method === "dns_txt" ? (
+                <li>Publish it as a DNS <span className="font-medium">TXT</span> record at the name shown.</li>
+              ) : (
+                <li>Serve it as plain text from your endpoint&apos;s <code className="rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.</li>
+              )}
+              <li>Click <span className="font-medium">Verify</span> (DNS can take a few minutes to propagate).</li>
             </ol>
 
             {challenge && (
               <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+                {challenge.method === "dns_txt" ? (
+                  <div>
+                    <span className="text-slate-500">TXT record name:</span>{" "}
+                    <code className="break-all text-slate-800">{challenge.dns_txt_name}</code>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-slate-500">Serve at:</span>{" "}
+                    <code className="break-all text-slate-800">{challenge.well_known_url}</code>
+                  </div>
+                )}
                 <div>
-                  <span className="text-slate-500">Serve at:</span>{" "}
-                  <code className="break-all text-slate-800">{challenge.well_known_url}</code>
-                </div>
-                <div>
-                  <span className="text-slate-500">Token:</span>{" "}
+                  <span className="text-slate-500">{challenge.method === "dns_txt" ? "TXT value:" : "Token:"}</span>{" "}
                   <code className="break-all font-mono text-slate-800">{challenge.challenge_token}</code>
                 </div>
               </div>
