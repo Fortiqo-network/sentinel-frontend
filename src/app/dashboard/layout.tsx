@@ -17,6 +17,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   if (!user) redirect("/login");
   if (user.role === "developer") redirect("/developer");
+  if (user.role === "admin") redirect("/admin");
 
   return (
     <div className="flex h-screen overflow-hidden">

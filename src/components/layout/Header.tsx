@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils/cn";
+import { portalHome, portalLabel as portalLabelFor } from "@/lib/utils/portal";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -45,9 +46,8 @@ function DashboardDropdown({ role }: DashboardDropdownProps): React.JSX.Element 
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const isDeveloper = role === "developer";
-  const portalHref = isDeveloper ? "/developer" : "/dashboard";
-  const portalLabel = isDeveloper ? "Developer Dashboard" : "Buyer Dashboard";
+  const portalHref = portalHome(role);
+  const portalLabel = portalLabelFor(role);
 
   return (
     <div ref={ref} className="relative">
@@ -120,9 +120,8 @@ interface MobileMenuProps {
 function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): React.JSX.Element | null {
   if (!open) return null;
 
-  const isDeveloper = role === "developer";
-  const portalHref = isDeveloper ? "/developer" : "/dashboard";
-  const portalLabel = isDeveloper ? "Developer Dashboard" : "Buyer Dashboard";
+  const portalHref = portalHome(role);
+  const portalLabel = portalLabelFor(role);
 
   return (
     <div className="border-t border-slate-100 bg-white px-4 py-4 md:hidden shadow-sm">

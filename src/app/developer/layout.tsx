@@ -17,6 +17,7 @@ export default async function DeveloperLayout({ children }: DeveloperLayoutProps
 
   if (!user) redirect("/login");
   if (user.role === "buyer") redirect("/dashboard");
+  if (user.role === "admin") redirect("/admin");
 
   return (
     <div className="flex h-screen overflow-hidden">

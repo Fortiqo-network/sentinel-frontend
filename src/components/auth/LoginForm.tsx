@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { login } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth";
+import { portalHome } from "@/lib/utils/portal";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,7 +45,7 @@ export function LoginForm(): React.JSX.Element {
     try {
       const user = await login({ email: email.trim(), password });
       setUser(user);
-      router.push(user.role === "developer" ? "/developer" : "/dashboard");
+      router.push(portalHome(user.role));
       router.refresh();
     } catch (err) {
       if (isSentinelApiError(err)) {
