@@ -157,7 +157,7 @@ function NotificationPanel(): React.JSX.Element {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className={cn("text-sm", n.read ? "font-medium text-slate-600" : "font-semibold text-slate-800")}>{n.title}</p>
-                      <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{n.description}</p>
+                      {n.description && <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{n.description}</p>}
                       <p className="mt-1 text-xs text-slate-400">{relativeTime(n.createdAt)}</p>
                     </div>
                   </button>

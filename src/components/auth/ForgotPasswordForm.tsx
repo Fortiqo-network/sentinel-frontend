@@ -1,39 +1,47 @@
 "use client";
 
 import * as React from "react";
+import { forgotPassword } from "@/lib/api/auth";
+
+type State = "idle" | "submitting" | "sent" | "error";
 
 /**
- * Password-reset request form. Self-serve reset isn't wired yet, so this
- * acknowledges the request and points to support rather than silently failing.
+ * Password-reset request form. Calls POST /v1/auth/forgot-password and shows
+ * a confirmation message regardless of whether the email is registered.
  *
  * @example
  * <ForgotPasswordForm />
  */
 export function ForgotPasswordForm(): React.JSX.Element {
   const [email, setEmail] = React.useState("");
-  const [submitted, setSubmitted] = React.useState(false);
+  const [state, setState] = React.useState<State>("idle");
+  const [errorMsg, setErrorMsg] = React.useState("");
 
-  if (submitted) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+    setState("submitting");
+    setErrorMsg("");
+    try {
+      await forgotPassword(email.trim());
+      setState("sent");
+    } catch {
+      setErrorMsg("Something went wrong. Please try again.");
+      setState("error");
+    }
+  }
+
+  if (state === "sent") {
     return (
       <div className="rounded-lg border border-porcelain/10 bg-ink-800/40 p-4 text-sm text-porcelain/70">
-        Self-serve password reset is coming soon. To recover{" "}
-        <span className="font-medium text-porcelain">{email || "your account"}</span> now, email{" "}
-        <a href="mailto:balraj.fortiqo@gmail.com" className="text-gold hover:underline">
-          balraj.fortiqo@gmail.com
-        </a>{" "}
-        and we&apos;ll help.
+        If{" "}
+        <span className="font-medium text-porcelain">{email}</span>{" "}
+        is registered, a reset link has been sent. Check your inbox (and spam folder).
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSubmitted(true);
-      }}
-      className="space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <label htmlFor="email" className="text-sm font-medium text-porcelain/80">
           Email
@@ -48,11 +56,15 @@ export function ForgotPasswordForm(): React.JSX.Element {
           className="sentinel-focus block w-full rounded-lg border border-porcelain/15 bg-ink-800/60 px-3 py-2.5 text-sm text-porcelain placeholder:text-porcelain/30"
         />
       </div>
+      {state === "error" && (
+        <p className="text-sm text-red-400">{errorMsg}</p>
+      )}
       <button
         type="submit"
-        className="w-full rounded-lg bg-gold py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/90"
+        disabled={state === "submitting"}
+        className="w-full rounded-lg bg-gold py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/90 disabled:opacity-60"
       >
-        Send reset link
+        {state === "submitting" ? "Sending…" : "Send reset link"}
       </button>
     </form>
   );

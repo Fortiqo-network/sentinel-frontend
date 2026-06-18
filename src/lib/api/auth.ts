@@ -95,3 +95,19 @@ export async function getCurrentUser(): Promise<User | null> {
     return null;
   }
 }
+
+/**
+ * Requests a password-reset email for the given address.
+ * Always resolves — never reveals whether the email is registered.
+ */
+export async function forgotPassword(email: string): Promise<void> {
+  await apiClient.post("/v1/auth/forgot-password", { email });
+}
+
+/**
+ * Completes a password reset using the token from the reset email.
+ * Throws a SentinelApiError on invalid / expired token.
+ */
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await apiClient.post("/v1/auth/reset-password", { token, new_password: newPassword });
+}

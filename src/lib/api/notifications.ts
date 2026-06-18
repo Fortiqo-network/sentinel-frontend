@@ -6,7 +6,7 @@ import { apiClient } from "./client";
 export const NotificationSchema = z.object({
   id: z.string(),
   title: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
   createdAt: z.string(),
   read: z.boolean(),
 });
