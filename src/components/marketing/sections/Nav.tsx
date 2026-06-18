@@ -22,7 +22,15 @@ const LINKS = [
  * Avatar dropdown shown in the Nav when the user is authenticated.
  * Clicking the avatar opens a small menu with Dashboard, My Profile, and Sign out.
  */
-function AvatarMenu({ portalHref, profileHref }: { portalHref: string; profileHref: string }): React.JSX.Element {
+function AvatarMenu({
+  portalHref,
+  profileHref,
+  onSignOut,
+}: {
+  portalHref: string;
+  profileHref: string;
+  onSignOut: () => void;
+}): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -75,7 +83,7 @@ function AvatarMenu({ portalHref, profileHref }: { portalHref: string; profileHr
           <div className="border-t border-porcelain/10 py-1">
             <Link
               href="/api/v1/auth/logout"
-              onClick={() => setOpen(false)}
+              onClick={() => { onSignOut(); setOpen(false); }}
               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 transition-colors hover:bg-ink-800 hover:text-red-300"
             >
               Sign out
@@ -99,7 +107,7 @@ function AvatarMenu({ portalHref, profileHref }: { portalHref: string; profileHr
 export function Nav(): React.JSX.Element {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, clearSession } = useAuthStore();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 40);
@@ -143,7 +151,7 @@ export function Nav(): React.JSX.Element {
 
         <div className="flex items-center gap-2">
           {isAuthenticated && user ? (
-            <AvatarMenu portalHref={portalHref} profileHref={profileHref} />
+            <AvatarMenu portalHref={portalHref} profileHref={profileHref} onSignOut={clearSession} />
           ) : (
             <>
               <Link
