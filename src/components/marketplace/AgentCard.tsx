@@ -124,40 +124,46 @@ function CertBadge({ status, dark }: CertBadgeProps): React.JSX.Element {
   );
 }
 
-// ── Health / status indicator ──────────────────────────────────────────────────
+// ── Health / status badge (top-left corner of card) ───────────────────────────
 
-const HEALTH_DOT: Record<HealthStatus, string> = {
-  active: "bg-emerald-500",
-  inactive: "bg-rose-500",
-  unknown: "bg-slate-300",
-};
-
-interface StatusLineProps {
+interface StatusCornerBadgeProps {
   health: HealthStatus;
   lastCheckAt?: string | null;
   discontinued: boolean;
   dark?: boolean;
 }
 
-/** Status row: discontinued label, or a health dot + last-check time. */
-function StatusLine({ health, lastCheckAt, discontinued, dark }: StatusLineProps): React.JSX.Element {
-  if (discontinued) {
-    return (
-      <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", dark ? "text-porcelain/50" : "text-slate-400")}>
-        <span className="h-2 w-2 rounded-full bg-slate-400" aria-hidden="true" />
-        Discontinued
-      </span>
-    );
-  }
-  const label = health === "active" ? "Active" : health === "inactive" ? "Inactive" : "Status unknown";
+/** Pill badge rendered at the top-left of the card. Hidden when health is unknown and not discontinued. */
+function StatusCornerBadge({ health, lastCheckAt, discontinued, dark }: StatusCornerBadgeProps): React.JSX.Element | null {
+  if (health === "unknown" && !discontinued) return null;
+
+  const config = discontinued
+    ? {
+        dot: "bg-slate-400",
+        label: "Discontinued",
+        pill: dark ? "bg-ink-700 text-porcelain/50" : "bg-slate-100 text-slate-500",
+      }
+    : health === "active"
+      ? {
+          dot: "bg-emerald-500",
+          label: "Active",
+          pill: dark ? "bg-emerald-900/40 text-emerald-400" : "bg-emerald-50 text-emerald-700",
+        }
+      : {
+          dot: "bg-rose-500",
+          label: "Inactive",
+          pill: dark ? "bg-rose-900/40 text-rose-400" : "bg-rose-50 text-rose-700",
+        };
+
   return (
     <span
-      className={cn("inline-flex items-center gap-1.5 text-xs", dark ? "text-porcelain/50" : "text-slate-400")}
-      title={lastCheckAt ? `Last health check ${formatRelativeTime(lastCheckAt)}` : "Not yet health-checked"}
+      className={cn(
+        "mb-3 inline-flex self-start items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        config.pill,
+      )}
     >
-      <span className={cn("h-2 w-2 rounded-full", HEALTH_DOT[health])} aria-hidden="true" />
-      {label}
-      {lastCheckAt && <span className="opacity-70">· checked {formatRelativeTime(lastCheckAt)}</span>}
+      <span className={cn("h-1.5 w-1.5 rounded-full", config.dot)} aria-hidden="true" />
+      {config.label}
     </span>
   );
 }
@@ -205,10 +211,12 @@ export function AgentCard({
         dark
           ? "glass ring-hairline rounded-2xl hover:bg-ink-800/60"
           : "sentinel-card hover:shadow-md hover:border-slate-300",
-        disabled && "pointer-events-none select-none opacity-60 grayscale",
+        disabled && "pointer-events-none select-none opacity-60",
         className,
       )}
     >
+      <StatusCornerBadge health={health} lastCheckAt={agent.health?.lastCheckAt} discontinued={discontinued} dark={dark} />
+
       {/* Header row: icon + name + trust badge */}
       <div className="flex items-start gap-3">
         <div
@@ -249,9 +257,11 @@ export function AgentCard({
             <TierBadge tier={agent.tier} dark={dark} />
             <CertBadge status={certStatus} dark={dark} />
           </div>
-          <div className="mt-1.5">
-            <StatusLine health={health} lastCheckAt={agent.health?.lastCheckAt} discontinued={discontinued} dark={dark} />
-          </div>
+          {agent.health?.lastCheckAt && (
+            <p className={cn("mt-1 text-xs", dark ? "text-porcelain/40" : "text-slate-400")}>
+              checked {formatRelativeTime(agent.health.lastCheckAt)}
+            </p>
+          )}
         </div>
 
         <TrustBadge score={agent.trustScore} size="sm" />

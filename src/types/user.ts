@@ -14,6 +14,11 @@ export interface User {
   displayName?: string;
   role: UserRole;
   avatarUrl?: string | null;
+  bio?: string | null;
+  company?: string | null;
+  linkedinUrl?: string | null;
+  githubUrl?: string | null;
+  websiteUrl?: string | null;
   createdAt: string;
   emailVerified: boolean;
 }

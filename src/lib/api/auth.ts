@@ -10,6 +10,11 @@ export const UserSchema = z.object({
   displayName: z.string().optional(),
   role: z.enum(["buyer", "developer", "admin"]),
   avatarUrl: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
+  company: z.string().nullable().optional(),
+  linkedinUrl: z.string().nullable().optional(),
+  githubUrl: z.string().nullable().optional(),
+  websiteUrl: z.string().nullable().optional(),
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
 });
@@ -61,6 +66,11 @@ export async function logout(): Promise<void> {
 export const UpdateProfileRequestSchema = z.object({
   displayName: z.string().min(2, "Display name must be at least 2 characters").optional(),
   avatarUrl: z.string().optional(),
+  bio: z.string().max(1000).optional(),
+  company: z.string().max(128).optional(),
+  linkedinUrl: z.string().max(512).optional(),
+  githubUrl: z.string().max(512).optional(),
+  websiteUrl: z.string().max(512).optional(),
 });
 
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;

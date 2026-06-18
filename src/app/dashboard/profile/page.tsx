@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getServerUser } from "@/lib/api/server-auth";
+import { Avatar } from "@/components/ui/avatar";
 
 export const metadata: Metadata = {
   title: "My Profile — Sentinel",
@@ -31,9 +32,7 @@ export default async function BuyerProfilePage(): Promise<React.JSX.Element> {
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* Avatar header */}
         <div className="border-b border-slate-100 bg-slate-50 px-6 py-6 flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 text-2xl font-bold select-none">
-            {(user.displayName ?? user.email).charAt(0).toUpperCase()}
-          </div>
+          <Avatar src={user.avatarUrl} name={user.displayName ?? user.email} size="lg" />
           <div>
             <p className="text-lg font-semibold text-slate-900">{user.displayName ?? "—"}</p>
             <p className="text-sm text-slate-500">{user.email}</p>

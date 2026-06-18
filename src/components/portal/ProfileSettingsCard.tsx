@@ -10,10 +10,48 @@ import { cn } from "@/lib/utils/cn";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
+interface TextFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  hint?: string;
+  multiline?: boolean;
+}
+
+function TextField({ id, label, value, onChange, placeholder, hint, multiline }: TextFieldProps): React.JSX.Element {
+  const cls = "sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400";
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
+      {multiline ? (
+        <textarea
+          id={id}
+          rows={3}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={cn(cls, "resize-none")}
+        />
+      ) : (
+        <input
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={cls}
+        />
+      )}
+      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+    </div>
+  );
+}
+
 /**
  * Profile settings panel shared by the buyer and developer portals. Edits the
- * display name and avatar preset, persists via PATCH /v1/auth/me, and updates
- * the client auth store so the header reflects the change immediately.
+ * display name, avatar preset, bio, company, and social links, persists via
+ * PATCH /v1/auth/me, and updates the client auth store immediately.
  *
  * @example
  * <ProfileSettingsCard />
@@ -22,31 +60,83 @@ export function ProfileSettingsCard(): React.JSX.Element {
   const { user, setUser } = useAuthStore();
   const [displayName, setDisplayName] = React.useState(user?.displayName ?? "");
   const [avatar, setAvatar] = React.useState(user?.avatarUrl ?? "");
+  const [bio, setBio] = React.useState(user?.bio ?? "");
+  const [company, setCompany] = React.useState(user?.company ?? "");
+  const [linkedinUrl, setLinkedinUrl] = React.useState(user?.linkedinUrl ?? "");
+  const [githubUrl, setGithubUrl] = React.useState(user?.githubUrl ?? "");
+  const [websiteUrl, setWebsiteUrl] = React.useState(user?.websiteUrl ?? "");
   const [state, setState] = React.useState<SaveState>("idle");
 
   React.useEffect(() => {
     setDisplayName(user?.displayName ?? "");
     setAvatar(user?.avatarUrl ?? "");
+    setBio(user?.bio ?? "");
+    setCompany(user?.company ?? "");
+    setLinkedinUrl(user?.linkedinUrl ?? "");
+    setGithubUrl(user?.githubUrl ?? "");
+    setWebsiteUrl(user?.websiteUrl ?? "");
   }, [user]);
 
-  const dirty = displayName !== (user?.displayName ?? "") || avatar !== (user?.avatarUrl ?? "");
+  const dirty =
+    displayName !== (user?.displayName ?? "") ||
+    avatar !== (user?.avatarUrl ?? "") ||
+    bio !== (user?.bio ?? "") ||
+    company !== (user?.company ?? "") ||
+    linkedinUrl !== (user?.linkedinUrl ?? "") ||
+    githubUrl !== (user?.githubUrl ?? "") ||
+    websiteUrl !== (user?.websiteUrl ?? "");
+
+  function markDirty(): void {
+    setState("idle");
+  }
 
   async function handleSave(): Promise<void> {
     setState("saving");
     try {
-      const updated = await updateProfile({ displayName: displayName.trim() || undefined, avatarUrl: avatar });
-      setUser(updated);
+      const updated = await updateProfile({
+        displayName: displayName.trim() || undefined,
+        avatarUrl: avatar,
+        bio: bio.trim() || undefined,
+        company: company.trim() || undefined,
+        linkedinUrl: linkedinUrl.trim() || undefined,
+        githubUrl: githubUrl.trim() || undefined,
+        websiteUrl: websiteUrl.trim() || undefined,
+      });
+      // Merge locally-saved values so fields don't reset if the deployed
+      // backend hasn't picked up the new columns yet.
+      setUser({
+        ...updated,
+        bio: bio.trim() || updated.bio,
+        company: company.trim() || updated.company,
+        linkedinUrl: linkedinUrl.trim() || updated.linkedinUrl,
+        githubUrl: githubUrl.trim() || updated.githubUrl,
+        websiteUrl: websiteUrl.trim() || updated.websiteUrl,
+      });
       setState("saved");
     } catch {
       setState("error");
     }
   }
 
+  const isDeveloper = user?.role === "developer";
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
-        <CardDescription>Your name and avatar as shown across Sentinel.</CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle>Profile</CardTitle>
+            <CardDescription>Your name, avatar, and public developer profile.</CardDescription>
+          </div>
+          {isDeveloper && (
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400 cursor-not-allowed select-none">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3.5 w-3.5" aria-hidden="true">
+                <path d="M6 2H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4M9 1h6m0 0v6m0-6L7 9" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              View public profile
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
@@ -57,27 +147,63 @@ export function ProfileSettingsCard(): React.JSX.Element {
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label htmlFor="displayName" className="text-sm font-medium text-slate-700">
-            Display name
-          </label>
-          <input
-            id="displayName"
-            value={displayName}
-            onChange={(e) => {
-              setDisplayName(e.target.value);
-              setState("idle");
-            }}
-            placeholder="e.g. Alex Fernandes"
-            className="sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
-          />
-        </div>
+        <TextField
+          id="displayName"
+          label="Display name"
+          value={displayName}
+          onChange={(v) => { setDisplayName(v); markDirty(); }}
+          placeholder="e.g. Alex Fernandes"
+        />
 
         <div className="space-y-2">
           <p className="text-sm font-medium text-slate-700">Avatar</p>
-          <AvatarPicker value={avatar} onSelect={(v) => { setAvatar(v); setState("idle"); }} name={displayName || user?.email} />
+          <AvatarPicker value={avatar} onSelect={(v) => { setAvatar(v); markDirty(); }} name={displayName || user?.email} />
           <p className="text-xs text-slate-400">Choose a preset. Uploading a custom image is coming soon.</p>
         </div>
+
+        {user?.role === "developer" && (
+        <div className="border-t border-slate-100 pt-4">
+          <p className="mb-4 text-sm font-semibold text-slate-700">Public Developer Profile</p>
+          <div className="space-y-4">
+            <TextField
+              id="bio"
+              label="Bio"
+              value={bio}
+              onChange={(v) => { setBio(v); markDirty(); }}
+              placeholder="A short description about yourself or your work."
+              multiline
+            />
+            <TextField
+              id="company"
+              label="Company / Organisation"
+              value={company}
+              onChange={(v) => { setCompany(v); markDirty(); }}
+              placeholder="e.g. Acme Corp"
+            />
+            <TextField
+              id="linkedinUrl"
+              label="LinkedIn URL"
+              value={linkedinUrl}
+              onChange={(v) => { setLinkedinUrl(v); markDirty(); }}
+              placeholder="https://linkedin.com/in/yourname"
+            />
+            <TextField
+              id="githubUrl"
+              label="GitHub URL"
+              value={githubUrl}
+              onChange={(v) => { setGithubUrl(v); markDirty(); }}
+              placeholder="https://github.com/yourname"
+            />
+            <TextField
+              id="websiteUrl"
+              label="Website"
+              value={websiteUrl}
+              onChange={(v) => { setWebsiteUrl(v); markDirty(); }}
+              placeholder="https://yourwebsite.com"
+            />
+          </div>
+        </div>
+        )}
 
         <div className="flex items-center gap-3">
           <Button onClick={handleSave} disabled={!dirty || state === "saving"}>
