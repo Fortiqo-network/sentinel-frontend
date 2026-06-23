@@ -5,7 +5,13 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/admin/StatCard";
-import { getAnalytics, enableAllAgents, type AdminAnalytics } from "@/lib/api/admin";
+import {
+  getAnalytics,
+  enableAllAgents,
+  getPlatformSettings,
+  updatePlatformSettings,
+  type AdminAnalytics,
+} from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
 
 /**
@@ -19,6 +25,8 @@ export default function AdminOverviewPage(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [enabling, setEnabling] = React.useState(false);
   const [notice, setNotice] = React.useState<string | null>(null);
+  const [allowHttp, setAllowHttp] = React.useState<boolean | null>(null);
+  const [savingHttp, setSavingHttp] = React.useState(false);
 
   const load = React.useCallback(async () => {
     try {
@@ -33,7 +41,24 @@ export default function AdminOverviewPage(): React.JSX.Element {
 
   React.useEffect(() => {
     void load();
+    void getPlatformSettings()
+      .then((s) => setAllowHttp(s.allow_http_agents))
+      .catch(() => undefined);
   }, [load]);
+
+  async function toggleAllowHttp(): Promise<void> {
+    if (allowHttp === null) return;
+    const next = !allowHttp;
+    setSavingHttp(true);
+    try {
+      const result = await updatePlatformSettings({ allow_http_agents: next });
+      setAllowHttp(result.allow_http_agents);
+    } catch (err) {
+      setNotice(isSentinelApiError(err) ? err.message : "Could not update setting.");
+    } finally {
+      setSavingHttp(false);
+    }
+  }
 
   async function handleEnableAll(): Promise<void> {
     setEnabling(true);
@@ -92,6 +117,37 @@ export default function AdminOverviewPage(): React.JSX.Element {
             <ConsoleLink href="/admin/agents" title="Agents" desc="Enable, disable, and publish agents." />
             <ConsoleLink href="/admin/developers" title="Developers" desc="Review balances and settle earnings." />
             <ConsoleLink href="/admin/users" title="Users" desc="Browse and oversee platform users." />
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-slate-900">Platform settings</h2>
+            <div className="mt-3 flex items-start justify-between gap-4">
+              <div>
+                <div className="text-sm font-medium text-slate-800">Allow http:// agent endpoints</div>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  When on, non-TLS (http) endpoints pass verification, ownership, and health checks.
+                  Private/loopback addresses are always blocked. Turn off to require https for all new agents.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={allowHttp === true}
+                disabled={allowHttp === null || savingHttp}
+                onClick={toggleAllowHttp}
+                className={
+                  "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 " +
+                  (allowHttp ? "bg-indigo-500" : "bg-slate-300")
+                }
+              >
+                <span
+                  className={
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform " +
+                    (allowHttp ? "translate-x-5" : "translate-x-0.5")
+                  }
+                />
+              </button>
+            </div>
           </div>
         </>
       ) : null}

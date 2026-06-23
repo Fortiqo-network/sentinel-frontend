@@ -118,6 +118,24 @@ export interface AdminUserListResult {
 
 // ── Reads ────────────────────────────────────────────────────────────────────
 
+export const PlatformSettingsSchema = z.object({
+  allow_http_agents: z.boolean(),
+});
+
+export type PlatformSettings = z.infer<typeof PlatformSettingsSchema>;
+
+/** Read admin-tunable platform settings. */
+export async function getPlatformSettings(): Promise<PlatformSettings> {
+  const response = await apiClient.get<unknown>("/v1/admin/settings");
+  return PlatformSettingsSchema.parse(response.data);
+}
+
+/** Update admin-tunable platform settings (e.g. allow http:// agents). */
+export async function updatePlatformSettings(body: PlatformSettings): Promise<PlatformSettings> {
+  const response = await apiClient.put<unknown>("/v1/admin/settings", body);
+  return PlatformSettingsSchema.parse(response.data);
+}
+
 /** Platform analytics for the admin dashboard. */
 export async function getAnalytics(): Promise<AdminAnalytics> {
   const response = await apiClient.get<unknown>("/v1/admin/analytics");
