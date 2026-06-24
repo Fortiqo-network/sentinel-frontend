@@ -160,6 +160,26 @@ export async function getDiagnostics(): Promise<AdminDiagnostics> {
   return AdminDiagnosticsSchema.parse(response.data);
 }
 
+export const TopAgentRowSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  status: z.string(),
+  trust_score: z.number().nullable().optional(),
+  subscribers: z.number().int().min(0),
+  owner_email: z.string().nullable().optional(),
+});
+
+export type TopAgentRow = z.infer<typeof TopAgentRowSchema>;
+
+const TopAgentsSchema = z.object({ agents: z.array(TopAgentRowSchema) });
+
+/** Most-engaged agents (by subscribers, tie-broken by trust score). */
+export async function getTopAgents(limit = 10): Promise<TopAgentRow[]> {
+  const response = await apiClient.get<unknown>("/v1/admin/top-agents", { params: { limit } });
+  return TopAgentsSchema.parse(response.data).agents;
+}
+
 /** Platform analytics for the admin dashboard. */
 export async function getAnalytics(): Promise<AdminAnalytics> {
   const response = await apiClient.get<unknown>("/v1/admin/analytics");
