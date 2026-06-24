@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
-import { getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/developer";
+import { depositBond, getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/developer";
 import { isSentinelApiError } from "@/lib/api/client";
 
 function formatCredits(credits: number): string {
@@ -53,41 +53,55 @@ export default function EarningsPage(): React.JSX.Element {
   const [loading, setLoading] = React.useState(true);
   const [earningsError, setEarningsError] = React.useState<string | null>(null);
   const [bondError, setBondError] = React.useState<string | null>(null);
+  const [depositAmount, setDepositAmount] = React.useState("");
+  const [depositing, setDepositing] = React.useState(false);
+  const [depositNote, setDepositNote] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    let active = true;
+  const load = React.useCallback(async (): Promise<void> => {
+    const [earningsResult, bondResult] = await Promise.allSettled([getEarnings(), getBond()]);
 
-    async function load(): Promise<void> {
-      const [earningsResult, bondResult] = await Promise.allSettled([getEarnings(), getBond()]);
-      if (!active) return;
-
-      if (earningsResult.status === "fulfilled") {
-        setEarnings(earningsResult.value);
-        setEarningsError(null);
-      } else {
-        const reason: unknown = earningsResult.reason;
-        setEarningsError(
-          isSentinelApiError(reason) ? reason.message : "Unable to load earnings.",
-        );
-      }
-
-      if (bondResult.status === "fulfilled") {
-        setBond(bondResult.value);
-        setBondError(null);
-      } else {
-        const reason: unknown = bondResult.reason;
-        setBondError(isSentinelApiError(reason) ? reason.message : "Unable to load bond.");
-      }
-
-      setLoading(false);
+    if (earningsResult.status === "fulfilled") {
+      setEarnings(earningsResult.value);
+      setEarningsError(null);
+    } else {
+      const reason: unknown = earningsResult.reason;
+      setEarningsError(isSentinelApiError(reason) ? reason.message : "Unable to load earnings.");
     }
 
-    void load();
+    if (bondResult.status === "fulfilled") {
+      setBond(bondResult.value);
+      setBondError(null);
+    } else {
+      const reason: unknown = bondResult.reason;
+      setBondError(isSentinelApiError(reason) ? reason.message : "Unable to load bond.");
+    }
 
-    return () => {
-      active = false;
-    };
+    setLoading(false);
   }, []);
+
+  React.useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function handleDeposit(): Promise<void> {
+    const credits = Number.parseInt(depositAmount, 10);
+    if (!Number.isFinite(credits) || credits <= 0) {
+      setDepositNote("Enter a positive credit amount.");
+      return;
+    }
+    setDepositing(true);
+    setDepositNote(null);
+    try {
+      await depositBond(credits);
+      setDepositAmount("");
+      setDepositNote(`Locked ${credits.toLocaleString("en-US")} Cr from your available balance as a bond.`);
+      await load();
+    } catch (err) {
+      setDepositNote(isSentinelApiError(err) ? err.message : "Bond deposit failed.");
+    } finally {
+      setDepositing(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -161,16 +175,30 @@ export default function EarningsPage(): React.JSX.Element {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex cursor-not-allowed items-center rounded-lg bg-slate-200 px-3.5 py-1.5 text-sm font-semibold text-slate-500 whitespace-nowrap"
-                >
-                  Deposit Bond
-                </button>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    placeholder="Credits"
+                    className="h-9 w-28 rounded-lg border border-slate-300 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleDeposit()}
+                    disabled={depositing}
+                    className="inline-flex items-center rounded-lg bg-indigo-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {depositing ? "Depositing…" : "Deposit Bond"}
+                  </button>
+                </div>
                 <p className="text-xs text-slate-400">
-                  Requires completing KYC / bank details (coming soon).
+                  Locks credits from your available balance
+                  {earnings ? ` (${earnings.availableCredits.toLocaleString("en-US")} Cr available)` : ""}.
                 </p>
+                {depositNote && <p className="text-xs text-slate-500">{depositNote}</p>}
               </div>
             </div>
 
@@ -209,8 +237,8 @@ export default function EarningsPage(): React.JSX.Element {
           </div>
 
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Payouts and bond deposits require completing KYC and bank details. This flow is coming
-            soon.
+            Bonds are funded from your available (settled) balance. Cash payouts require completing
+            KYC / bank details — that flow is coming soon.
           </div>
         </>
       )}

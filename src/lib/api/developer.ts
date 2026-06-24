@@ -213,6 +213,20 @@ export async function getBond(): Promise<Bond | null> {
   return BondSchema.parse(response.data);
 }
 
+const BondDepositResultSchema = z.object({
+  bondId: z.string(),
+  status: z.string(),
+  amountCredits: z.number().int(),
+});
+
+export type BondDepositResult = z.infer<typeof BondDepositResultSchema>;
+
+/** Locks `credits` from the developer's available balance as a performance bond. */
+export async function depositBond(credits: number): Promise<BondDepositResult> {
+  const response = await apiClient.post<unknown>("/v1/developer/bond/deposit", { credits });
+  return BondDepositResultSchema.parse(response.data);
+}
+
 // ── Per-agent user access blocks ───────────────────────────────────────────────
 
 export const AccessBlockSchema = z.object({
