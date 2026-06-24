@@ -56,6 +56,34 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
       ) : data ? (
         <>
           <section className="space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Revenue &amp; usage</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StatCard
+                label="Platform revenue"
+                value={`${data.platform_revenue_credits.toLocaleString("en-US")} Cr`}
+                sub="Cumulative 2% take"
+                accent
+              />
+              <StatCard
+                label="GMV"
+                value={`${data.gmv_credits.toLocaleString("en-US")} Cr`}
+                sub="Gross spent on agent calls"
+              />
+              <StatCard
+                label="Developer earnings"
+                value={`${data.developer_earnings_credits.toLocaleString("en-US")} Cr`}
+                sub="Net accrued to developers"
+              />
+              <StatCard
+                label="Credits sold"
+                value={`${data.topups_credits.toLocaleString("en-US")} Cr`}
+                sub="Total wallet top-ups"
+              />
+              <StatCard label="Charged calls" value={data.charges_count} sub="Billed agent invocations" />
+            </div>
+          </section>
+
+          <section className="space-y-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Identity</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Total users" value={data.users_total} accent />
@@ -102,8 +130,8 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Revenue, usage, and top-agent rankings are coming soon — they depend on the billing
-            reporting endpoint.
+            Revenue and usage are live (cumulative, from the billing ledger). Per-agent top-revenue
+            rankings and time-series charts are coming next.
           </div>
         </>
       ) : null}

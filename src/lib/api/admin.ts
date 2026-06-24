@@ -13,6 +13,11 @@ export const AdminAnalyticsSchema = z.object({
   health_active: z.number().int().min(0),
   health_inactive: z.number().int().min(0),
   agents_by_status: z.record(z.number().int()),
+  gmv_credits: z.number().int().min(0).default(0),
+  platform_revenue_credits: z.number().int().min(0).default(0),
+  developer_earnings_credits: z.number().int().min(0).default(0),
+  topups_credits: z.number().int().min(0).default(0),
+  charges_count: z.number().int().min(0).default(0),
 });
 
 export type AdminAnalytics = z.infer<typeof AdminAnalyticsSchema>;
