@@ -136,6 +136,25 @@ export async function updatePlatformSettings(body: PlatformSettings): Promise<Pl
   return PlatformSettingsSchema.parse(response.data);
 }
 
+export const AdminDiagnosticsSchema = z.object({
+  verify_reachable: z.boolean(),
+  billing_reachable: z.boolean(),
+  ed25519_required: z.boolean(),
+  hmac_required: z.boolean(),
+  allow_http_agents: z.boolean(),
+  agents_submitted: z.number().int().min(0),
+  agents_verifying: z.number().int().min(0),
+  agents_stuck: z.number().int().min(0),
+});
+
+export type AdminDiagnostics = z.infer<typeof AdminDiagnosticsSchema>;
+
+/** Verify-pipeline diagnostics (service reachability, signing config, stuck counts). */
+export async function getDiagnostics(): Promise<AdminDiagnostics> {
+  const response = await apiClient.get<unknown>("/v1/admin/diagnostics");
+  return AdminDiagnosticsSchema.parse(response.data);
+}
+
 /** Platform analytics for the admin dashboard. */
 export async function getAnalytics(): Promise<AdminAnalytics> {
   const response = await apiClient.get<unknown>("/v1/admin/analytics");
