@@ -18,6 +18,7 @@ import {
   payListing,
   retireAgent,
   restoreAgent,
+  reverifyAgent,
   deleteAgent,
   getAgentMetrics,
   getAgentAudience,
@@ -28,6 +29,7 @@ import {
   type AgentMetrics,
   type AudienceUser,
 } from "@/lib/api/developer";
+import { isSentinelApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
 
 const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warning" | "destructive"> = {
@@ -73,6 +75,8 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
   const [disableOpen, setDisableOpen] = React.useState(false);
   const [disabling, setDisabling] = React.useState(false);
   const [restoring, setRestoring] = React.useState(false);
+  const [reverifying, setReverifying] = React.useState(false);
+  const [reverifyNote, setReverifyNote] = React.useState<string | null>(null);
 
   const [audience, setAudience] = React.useState<AudienceUser[]>([]);
   const [audienceTotal, setAudienceTotal] = React.useState(0);
@@ -131,6 +135,19 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
       setAgent(await restoreAgent(agentId));
     } finally {
       setRestoring(false);
+    }
+  }
+
+  async function handleReverify(): Promise<void> {
+    setReverifying(true);
+    setReverifyNote(null);
+    try {
+      setAgent(await reverifyAgent(agentId));
+      setReverifyNote("Re-verification started — this can take a few minutes.");
+    } catch (err) {
+      setReverifyNote(isSentinelApiError(err) ? err.displayMessage : "Could not re-verify the agent.");
+    } finally {
+      setReverifying(false);
     }
   }
 
@@ -220,6 +237,16 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
                   View public page
                 </a>
               )}
+              {agent.status !== "draft" && agent.status !== "retired" && !agent.isDeleted && (
+                <button
+                  type="button"
+                  onClick={() => void handleReverify()}
+                  disabled={reverifying}
+                  className="rounded-lg border border-porcelain/20 px-4 py-2 text-center text-sm font-medium text-porcelain/80 transition-colors hover:bg-porcelain/10 disabled:opacity-50"
+                >
+                  {reverifying ? "Re-verifying…" : "Re-verify"}
+                </button>
+              )}
               <Link
                 href="/developer/agents"
                 className="rounded-lg border border-porcelain/20 px-4 py-2 text-center text-sm font-medium text-porcelain/80 transition-colors hover:bg-porcelain/10"
@@ -230,6 +257,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
           </div>
         </div>
         {agent.description && <p className="relative mt-5 max-w-2xl text-sm leading-relaxed text-porcelain/60">{agent.description}</p>}
+        {reverifyNote && <p className="relative mt-3 text-xs text-porcelain/70">{reverifyNote}</p>}
       </div>
 
       {/* Archived banner */}

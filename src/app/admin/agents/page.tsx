@@ -9,6 +9,7 @@ import {
   disableAgent,
   enableAgent,
   publishAgent,
+  reverifyAgent,
   type AdminAgentRow,
 } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
@@ -162,6 +163,9 @@ export default function AdminAgentsPage(): React.JSX.Element {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <Button size="sm" variant="ghost" disabled={busyId === a.id} onClick={() => act(a.id, reverifyAgent)}>
+                        Re-verify
+                      </Button>
                       {a.status !== "live" && (
                         <Button size="sm" variant="outline" disabled={busyId === a.id} onClick={() => act(a.id, publishAgent)}>
                           Publish

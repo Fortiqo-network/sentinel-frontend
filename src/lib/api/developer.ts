@@ -136,6 +136,12 @@ export async function submitAgent(id: string): Promise<DeveloperAgent> {
   return DeveloperAgentSchema.parse(response.data);
 }
 
+/** Re-runs verification for an agent on demand (recover a stuck verdict / refresh score). */
+export async function reverifyAgent(id: string): Promise<DeveloperAgent> {
+  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/reverify`, {});
+  return DeveloperAgentSchema.parse(response.data);
+}
+
 /** Settles the $10 listing fee so the agent stays listed after its free trial. */
 export async function payListing(id: string): Promise<DeveloperAgent> {
   const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/pay-listing`, {});

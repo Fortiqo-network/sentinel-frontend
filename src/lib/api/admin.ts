@@ -219,6 +219,12 @@ export async function publishAgent(agentId: string): Promise<AgentState> {
   return AgentStateSchema.parse(response.data);
 }
 
+/** Re-run verification for an agent (admin recovery for a stuck verdict). */
+export async function reverifyAgent(agentId: string): Promise<AgentState> {
+  const response = await apiClient.post<unknown>(`/v1/admin/agents/${agentId}/reverify`, {});
+  return AgentStateSchema.parse(response.data);
+}
+
 /** Enable every agent (set enabled=true everywhere). Returns the count changed. */
 export async function enableAllAgents(): Promise<number> {
   const response = await apiClient.post<{ enabled: number }>("/v1/admin/agents/enable-all", {});
