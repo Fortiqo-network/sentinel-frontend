@@ -168,16 +168,24 @@ export const TopAgentRowSchema = z.object({
   trust_score: z.number().nullable().optional(),
   subscribers: z.number().int().min(0),
   owner_email: z.string().nullable().optional(),
+  gross_credits: z.number().int().min(0).default(0),
+  platform_revenue_credits: z.number().int().min(0).default(0),
+  charges_count: z.number().int().min(0).default(0),
 });
 
 export type TopAgentRow = z.infer<typeof TopAgentRowSchema>;
 
-const TopAgentsSchema = z.object({ agents: z.array(TopAgentRowSchema) });
+const TopAgentsSchema = z.object({
+  agents: z.array(TopAgentRowSchema),
+  ranked_by: z.enum(["revenue", "subscribers"]).default("subscribers"),
+});
 
-/** Most-engaged agents (by subscribers, tie-broken by trust score). */
-export async function getTopAgents(limit = 10): Promise<TopAgentRow[]> {
+export type TopAgents = z.infer<typeof TopAgentsSchema>;
+
+/** Top agents — by gross revenue when charges exist, else by subscribers. */
+export async function getTopAgents(limit = 10): Promise<TopAgents> {
   const response = await apiClient.get<unknown>("/v1/admin/top-agents", { params: { limit } });
-  return TopAgentsSchema.parse(response.data).agents;
+  return TopAgentsSchema.parse(response.data);
 }
 
 /** Platform analytics for the admin dashboard. */

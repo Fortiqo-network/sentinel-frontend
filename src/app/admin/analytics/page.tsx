@@ -18,6 +18,7 @@ function titleCase(value: string): string {
 export default function AdminAnalyticsPage(): React.JSX.Element {
   const [data, setData] = React.useState<AdminAnalytics | null>(null);
   const [topAgents, setTopAgents] = React.useState<TopAgentRow[]>([]);
+  const [rankedBy, setRankedBy] = React.useState<"revenue" | "subscribers">("subscribers");
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -34,8 +35,11 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
       }
     })();
     void getTopAgents(10)
-      .then((rows) => {
-        if (active) setTopAgents(rows);
+      .then((res) => {
+        if (active) {
+          setTopAgents(res.agents);
+          setRankedBy(res.ranked_by);
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -136,20 +140,23 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Top agents by engagement</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Top agents by {rankedBy === "revenue" ? "revenue" : "engagement"}
+            </h2>
             <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
               {topAgents.length === 0 ? (
                 <p className="px-6 py-5 text-sm text-slate-500">No agents yet.</p>
               ) : (
-                <table className="w-full min-w-[640px] text-sm">
+                <table className="w-full min-w-[720px] text-sm">
                   <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                       <th className="px-4 py-3 font-medium">#</th>
                       <th className="px-4 py-3 font-medium">Agent</th>
                       <th className="px-4 py-3 font-medium">Owner</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
+                      {rankedBy === "revenue" && <th className="px-4 py-3 text-right font-medium">Revenue</th>}
+                      {rankedBy === "revenue" && <th className="px-4 py-3 text-right font-medium">Calls</th>}
                       <th className="px-4 py-3 text-right font-medium">Trust</th>
-                      <th className="px-4 py-3 text-right font-medium">Subscribers</th>
+                      <th className="px-4 py-3 text-right font-medium">Subs</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -161,7 +168,14 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
                           <div className="text-xs text-slate-400">{a.slug}</div>
                         </td>
                         <td className="px-4 py-3 text-slate-600">{a.owner_email ?? "—"}</td>
-                        <td className="px-4 py-3 text-slate-600">{a.status}</td>
+                        {rankedBy === "revenue" && (
+                          <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900">
+                            {a.gross_credits.toLocaleString("en-US")} Cr
+                          </td>
+                        )}
+                        {rankedBy === "revenue" && (
+                          <td className="px-4 py-3 text-right tabular-nums text-slate-600">{a.charges_count}</td>
+                        )}
                         <td className="px-4 py-3 text-right tabular-nums text-slate-900">
                           {a.trust_score != null ? Math.round(a.trust_score * 100) : "—"}
                         </td>
@@ -172,13 +186,12 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
                 </table>
               )}
             </div>
+            <p className="text-xs text-slate-400">
+              {rankedBy === "revenue"
+                ? "Ranked by gross revenue from the billing ledger."
+                : "No charges recorded yet — ranked by saved-subscribers until revenue accrues."}
+            </p>
           </section>
-
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Revenue and usage are live (cumulative, from the billing ledger). Agents above are ranked
-            by saved-subscribers; per-agent <span className="font-medium">revenue</span> ranking and
-            time-series charts land once the metering rollup carries agent_id.
-          </div>
         </>
       ) : null}
     </div>
