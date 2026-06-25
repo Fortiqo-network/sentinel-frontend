@@ -18,6 +18,8 @@ export const AdminAnalyticsSchema = z.object({
   developer_earnings_credits: z.number().int().min(0).default(0),
   topups_credits: z.number().int().min(0).default(0),
   charges_count: z.number().int().min(0).default(0),
+  revenue_30d_credits: z.number().int().min(0).default(0),
+  charges_30d: z.number().int().min(0).default(0),
 });
 
 export type AdminAnalytics = z.infer<typeof AdminAnalyticsSchema>;

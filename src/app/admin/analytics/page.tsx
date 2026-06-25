@@ -75,6 +75,11 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
                 accent
               />
               <StatCard
+                label="Revenue (30d)"
+                value={`${data.revenue_30d_credits.toLocaleString("en-US")} Cr`}
+                sub={`${data.charges_30d.toLocaleString("en-US")} calls in last 30 days`}
+              />
+              <StatCard
                 label="GMV"
                 value={`${data.gmv_credits.toLocaleString("en-US")} Cr`}
                 sub="Gross spent on agent calls"
