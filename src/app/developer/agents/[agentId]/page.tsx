@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AccessControlCard } from "@/components/portal/AccessControlCard";
 import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
+import { TrustBadgeEmbed } from "@/components/developer/TrustBadgeEmbed";
 import {
   getMyAgent,
   payListing,
@@ -304,6 +305,10 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
           )}
         </CardContent>
       </Card>
+
+      {/* "Verified by Sentinel" badge — embeddable on the developer's own site.
+          Only meaningful once the agent is live and listed. */}
+      {agent.status === "live" && <TrustBadgeEmbed slug={agent.slug} />}
 
       {/* Audience + inline access control */}
       <Card>
