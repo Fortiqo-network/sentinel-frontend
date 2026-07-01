@@ -1,4 +1,4 @@
-# sentinel-frontend — Developer Guide for Claude Code
+# sentinel-frontend — Developer Guide for Codex
 
 ## AI engineering discipline (read before every change)
 
@@ -126,7 +126,7 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 - If a line feels like it needs a comment, rename or refactor until it doesn't.
 
 ### Docs stay in sync (mandatory)
-- Every change updates its docs **in the same commit**: this `CLAUDE.md`/`AGENT.md`, the relevant README/`docs/`, and the **central TODO board** at `sentinal-core-api/master-doc/` (this module's `*-todo.md` plus `platform-todo.md`). Tick completed items (`[ ]`→`[x]`) — **never delete a line**; add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
+- Every change updates its docs **in the same commit**: this `AGENTS.md`/`AGENT.md`, the relevant README/`docs/`, and the **central TODO board** at `sentinal-core-api/master-doc/` (this module's `*-todo.md` plus `platform-todo.md`). Tick completed items (`[ ]`→`[x]`) — **never delete a line**; add TODOs for follow-ups discovered. Never leave docs describing behaviour the code no longer has.
 - **Each module follows its own implementation doc.** As planning moves, update that module's `docs/implementation.md` / `docs/architecture.md` / roadmap and the central TODO in the **same commit**, so plans and docs stay in lockstep with the code — every module owns and follows its own implementation.
 
 ### The system speaks in credits — never currency

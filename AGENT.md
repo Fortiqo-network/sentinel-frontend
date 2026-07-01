@@ -1,5 +1,17 @@
 # sentinel-frontend — Agent Integration Guide
 
+## AI engineering discipline (read before every change)
+
+> Binds any AI assistant (and human) editing this repo. Goal: **accurate, minimal, clean** changes — and **stop rather than guess**.
+
+- **Accuracy over speed.** Verify against the real code / schema / docs before writing — never assume an API, field, path, or result. If a fact can't be verified from the repo, say so; never invent functionality, endpoints, or results.
+- **Smallest change that works.** No over-engineering, no speculative abstractions, no unrequested features or files. Don't invent requirements. Touch the fewest files; match existing patterns, naming, and style. Leave it cleaner than you found it (docstrings, not noise; no dead code).
+- **Align to the recommended approach.** Don't blindly transcribe the request — if there's a better / simpler / safer way, recommend it and do that, noting the deviation. Prefer the well-architected option over the literal one.
+- **When unsure, ASK — don't guess.** If the task is ambiguous, the approach is a one-way door, it's destructive/irreversible, or it touches money / auth / security / data — or you're simply not confident it's ready — STOP and ask the user. A clarifying question is cheaper than a wrong change.
+- **Verify before "done".** Lint, type-check, and run the relevant tests for what you changed; report failures honestly with their output. Never claim green when it isn't.
+- **Honor this repo's guardrails** already documented here and in `sentinel-core-api/master-doc/` (data-is-sacred / non-destructive, migration-before-push, **never push without explicit permission**, update `docs/` + the TODO board in the same change, Conventional Commits with no AI attribution).
+
+
 > **Operating rules — highest priority, read first.** These override convenience and apply to every change in this repo:
 > - **Data is sacred.** Never delete or edit existing records or tables. Corrections are new rows or status changes, never destructive. **Ask permission before deleting any table or data.**
 > - **The database is always Postgres.** Never substitute SQLite or another engine, including in tests.
