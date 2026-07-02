@@ -1,25 +1,29 @@
 # sentinel-frontend — Developer Guide for Codex
 
-## AI engineering discipline (read before every change)
+## Engineering Standards (read before writing any code)
 
-> Binds any AI assistant (and human) editing this repo. Goal: **accurate, minimal, clean** changes — and **stop rather than guess**.
+These standards are binding. They exist so that AI-assisted changes are correct, minimal, and never break a running system.
 
-- **Accuracy over speed.** Verify against the real code / schema / docs before writing — never assume an API, field, path, or result. If a fact can't be verified from the repo, say so; never invent functionality, endpoints, or results.
-- **Smallest change that works.** No over-engineering, no speculative abstractions, no unrequested features or files. Don't invent requirements. Touch the fewest files; match existing patterns, naming, and style. Leave it cleaner than you found it (docstrings, not noise; no dead code).
-- **Align to the recommended approach.** Don't blindly transcribe the request — if there's a better / simpler / safer way, recommend it and do that, noting the deviation. Prefer the well-architected option over the literal one.
-- **When unsure, ASK — don't guess.** If the task is ambiguous, the approach is a one-way door, it's destructive/irreversible, or it touches money / auth / security / data — or you're simply not confident it's ready — STOP and ask the user. A clarifying question is cheaper than a wrong change.
-- **Verify before "done".** Lint, type-check, and run the relevant tests for what you changed; report failures honestly with their output. Never claim green when it isn't.
-- **Honor this repo's guardrails** already documented here and in `sentinel-core-api/master-doc/` (data-is-sacred / non-destructive, migration-before-push, **never push without explicit permission**, update `docs/` + the TODO board in the same change, Conventional Commits with no AI attribution).
+### Non-negotiable: no breakage
+- **No system breakage is ever acceptable.** Every change must leave the service buildable and its tests green. Before considering any task done, run the repo's checks (`tsc --noEmit` typecheck, lint, and the relevant tests) and confirm they pass.
+- Prefer the smallest change that fully solves the problem. Do not refactor unrelated code, rename things, or "improve" style in files you were not asked to touch.
+- When a change alters existing behavior that tests assert, update those tests to the new intended contract in the same change — never leave the suite red.
+- If you are unsure, confused, or lack the context to make a safe change, STOP and ask the user rather than guessing. A blocked question is cheaper than a broken system. When you stop, record what is blocked and why in the relevant `*-todo.md` board.
 
+### Code quality
+- Write reusable, DRY code: factor shared logic into functions/modules; do not copy-paste. Reuse existing helpers before adding new ones.
+- Match the surrounding code's style, naming, and idioms. New code should read like the code already there.
+- Keep functions focused and small; validate inputs at boundaries; fail closed on security-relevant paths.
 
-> **Operating rules — highest priority, read first.** These override convenience and apply to every change in this repo:
-> - **Data is sacred.** Never delete or edit existing records or tables. Corrections are new rows or status changes, never destructive. **Ask permission before deleting any table or data.**
-> - **The database is always Postgres.** Never substitute SQLite or another engine, including in tests.
-> - **Comments:** at most one line and only when genuinely needed — never comment uselessly. Prefer docstrings / JSDoc and keep them thorough and up to date.
-> - **Commits:** a single concise line. **Never push without explicit permission.**
-> - **Code:** clean, reusable, and good-smelling in every manner. Don't overengineer, don't invent requirements, make the smallest change that works, and recommend better approaches over the existing one.
-> - **Always work from a plan and keep in mind what we are building** (this repo's `docs/` and the platform docs).
+### Comments and documentation
+- **Prefer JSDoc/TSDoc over inline comments.** Every public function/class/module gets a JSDoc/TSDoc block explaining what it does, its contract, and non-obvious behavior. Rationale for *why* code is written a certain way belongs in the JSDoc/TSDoc.
+- **Inline comments are only permitted as genuine "come back later" markers** — e.g. a temporary workaround, a dependency to be removed once an upstream fix lands, or a known follow-up. Such a comment must state the condition for its own removal.
+- **Once the reason is resolved, remove the comment.** Do not leave explanatory or narrating inline comments ("increment counter", "call the API") — the code and JSDoc/TSDoc must speak for themselves.
 
+### Commits
+- Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Scope where useful, e.g. `fix(security): ...`.
+- Never include AI/assistant attribution or co-author trailers in commit messages.
+- Commit logically-scoped units of work; do not push unless explicitly asked.
 
 ## Project overview
 
@@ -133,7 +137,6 @@ bun run codegen      # generate types/ from sentinel-shared schemas
 - All user- and API-facing values are **credits** (short form **Cr**). Never display or return paise, rupees, dollars, or a currency symbol anywhere in the system.
 - Conversion: **1 USD = 100 credits** (current). 1 USD = 100 credits (fixed peg). The ledger may store the smallest unit internally, but every response, label, and copy string uses credits only.
 - API contract fields use the `*Credits` suffix (`priceCredits`, `balanceCredits`, `costCredits`, `payableCredits`, `originalCredits`, `currentCredits`); ledger/invoice/top-up amounts use the `credits` key.
-
 
 ## Security & architecture references
 
