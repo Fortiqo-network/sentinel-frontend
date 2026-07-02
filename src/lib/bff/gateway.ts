@@ -25,8 +25,13 @@ export const SESSION_COOKIE = "sentinel_session";
 export const SESSION_MAX_AGE = 1800;
 
 /**
- * Attributes for the first-party session cookie. `secure` is disabled outside
- * production so the cookie survives local http://localhost development.
+ * Attributes for the first-party session cookie.
+ *
+ * `secure` fails safe: it is enabled for every environment (production and any
+ * unknown/misconfigured `NODE_ENV`) and only disabled when an explicit local
+ * development signal is present, so the session cookie is never sent over plain
+ * HTTP in production. Local http://localhost development is opted out via
+ * `NODE_ENV === "development"` or an explicit `ALLOW_INSECURE_COOKIES=true`.
  */
 export function sessionCookieOptions(): {
   httpOnly: true;
@@ -35,9 +40,12 @@ export function sessionCookieOptions(): {
   path: string;
   maxAge: number;
 } {
+  const isLocalDev =
+    process.env.NODE_ENV === "development" ||
+    process.env.ALLOW_INSECURE_COOKIES === "true";
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: !isLocalDev,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE,
