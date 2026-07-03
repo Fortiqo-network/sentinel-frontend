@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils/format";
 import { getAgent, getAgentBySlug, getAgentReport } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
+import { ReportAgentButton } from "@/components/marketplace/ReportAgentButton";
 import { TrustReportPanel } from "@/components/marketplace/TrustReportPanel";
 import type { Agent } from "@/types/agent";
 
@@ -285,6 +286,9 @@ export default async function AgentDetailPage({
               Try in Playground
             </Link>
             <SubscribeButton agentId={agent.id} />
+            <div className="pt-1">
+              <ReportAgentButton agentId={agent.id} />
+            </div>
           </section>
         </div>
       </div>

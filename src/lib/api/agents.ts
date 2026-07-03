@@ -169,3 +169,15 @@ export async function runAgent(developer: string, slug: string): Promise<UseAgen
   const response = await apiClient.post<unknown>(`/v1/agents/${developer}/${slug}/use`, {});
   return UseAgentResultSchema.parse(response.data);
 }
+
+/**
+ * Files an abuse report against an agent on behalf of the signed-in user.
+ * Idempotent per user: a repeat report while one is open is a no-op server-side.
+ */
+export async function reportAgent(
+  agentId: string,
+  reason: string,
+  details?: string,
+): Promise<void> {
+  await apiClient.post(`/v1/agents/${agentId}/report`, { reason, details });
+}

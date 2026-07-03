@@ -111,3 +111,19 @@ export async function forgotPassword(email: string): Promise<void> {
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await apiClient.post("/v1/auth/reset-password", { token, new_password: newPassword });
 }
+
+/**
+ * Confirms an email address using the token from the verification email.
+ * Throws a SentinelApiError on invalid / expired token.
+ */
+export async function verifyEmail(token: string): Promise<void> {
+  await apiClient.post("/v1/auth/verify-email", { token });
+}
+
+/**
+ * Requests a fresh verification email for the authenticated user.
+ * No-op server-side when the address is already verified.
+ */
+export async function resendVerification(): Promise<void> {
+  await apiClient.post("/v1/auth/send-verification");
+}
