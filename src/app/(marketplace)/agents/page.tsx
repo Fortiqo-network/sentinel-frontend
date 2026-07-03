@@ -3,7 +3,8 @@
 import * as React from "react";
 import type { Agent } from "@/types/agent";
 import { AgentCard } from "@/components/marketplace/AgentCard";
-import { listAgents } from "@/lib/api/agents";
+import { listAgents, getFeaturedAgents } from "@/lib/api/agents";
+import { getCategories } from "@/lib/api/categories";
 import { cn } from "@/lib/utils/cn";
 
 // ── Filter / sort types ───────────────────────────────────────────────────────
@@ -11,16 +12,9 @@ import { cn } from "@/lib/utils/cn";
 type TrustTier = "certified_managed" | "certified" | "provisional" | "all";
 type PricingModel = "per_task" | "per_outcome" | "subscription" | "credits" | "all";
 type SortKey = "trust_score" | "newest" | "popular";
-type Category =
-  | "all"
-  | "code"
-  | "data"
-  | "research"
-  | "content"
-  | "automation"
-  | "legal"
-  | "finance"
-  | "support";
+// Category slugs are DB-managed (fetched from /v1/categories); a plain string
+// keeps the type open while CATEGORY_OPTIONS remains the offline fallback.
+type Category = string;
 
 interface Filters {
   query: string;
@@ -41,17 +35,10 @@ function deriveTrustTier(agent: Agent): TrustTier {
 }
 
 function applyFilters(agents: Agent[], filters: Filters): Agent[] {
+  // The text query is handled server-side (ranked full-text + fuzzy match), so
+  // it is intentionally NOT re-filtered here — a client-side substring pass
+  // would drop the stemmed/typo matches the backend deliberately surfaced.
   let result = [...agents];
-
-  if (filters.query.trim() !== "") {
-    const q = filters.query.toLowerCase();
-    result = result.filter(
-      (a) =>
-        a.name.toLowerCase().includes(q) ||
-        a.description.toLowerCase().includes(q) ||
-        a.tags.some((t) => t.toLowerCase().includes(q)),
-    );
-  }
 
   if (filters.category !== "all") {
     result = result.filter((a) => a.tags.includes(filters.category));
@@ -65,13 +52,17 @@ function applyFilters(agents: Agent[], filters: Filters): Agent[] {
     result = result.filter((a) => a.pricing?.model === filters.pricingModel);
   }
 
-  if (filters.sort === "trust_score") {
-    result.sort((a, b) => b.trustScore - a.trustScore);
-  } else if (filters.sort === "newest") {
-    result.sort(
-      (a, b) =>
-        new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime(),
-    );
+  // While searching, keep the server's relevance ranking; only apply the chosen
+  // sort when there is no active query.
+  if (filters.query.trim() === "") {
+    if (filters.sort === "trust_score") {
+      result.sort((a, b) => b.trustScore - a.trustScore);
+    } else if (filters.sort === "newest") {
+      result.sort(
+        (a, b) =>
+          new Date(b.publishedAt ?? 0).getTime() - new Date(a.publishedAt ?? 0).getTime(),
+      );
+    }
   }
 
   // Discontinued agents always trail live ones, regardless of the chosen sort.
@@ -120,6 +111,7 @@ interface FilterPanelProps {
   filters: Filters;
   onChange: (f: Filters) => void;
   resultCount: number;
+  categoryOptions: Array<{ value: Category; label: string }>;
 }
 
 const CATEGORY_OPTIONS: Array<{ value: Category; label: string }> = [
@@ -201,7 +193,7 @@ function FilterOption({
   );
 }
 
-function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): React.JSX.Element {
+function FilterPanel({ filters, onChange, resultCount, categoryOptions }: FilterPanelProps): React.JSX.Element {
   const update = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     onChange({ ...filters, [key]: value });
   };
@@ -231,7 +223,7 @@ function FilterPanel({ filters, onChange, resultCount }: FilterPanelProps): Reac
       </div>
 
       <FilterSection legend="Category">
-        {CATEGORY_OPTIONS.map(({ value, label }) => (
+        {categoryOptions.map(({ value, label }) => (
           <FilterOption
             key={value}
             name="category"
@@ -346,11 +338,54 @@ export default function AgentsPage(): React.JSX.Element {
   const [agents, setAgents] = React.useState<Agent[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
+  const [featured, setFeatured] = React.useState<Agent[]>([]);
+  const [categoryOptions, setCategoryOptions] =
+    React.useState<Array<{ value: Category; label: string }>>(CATEGORY_OPTIONS);
+
+  // Load DB-managed categories; keep the hardcoded fallback if the API is empty
+  // (e.g. not yet deployed) so the filter never goes blank.
+  React.useEffect(() => {
+    let active = true;
+    getCategories()
+      .then((cats) => {
+        if (active && cats.length > 0) {
+          setCategoryOptions([
+            { value: "all", label: "All Categories" },
+            ...cats.map((c) => ({ value: c.slug, label: c.name })),
+          ]);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Load the editorially-curated featured agents once (browse-only highlight).
+  React.useEffect(() => {
+    let active = true;
+    getFeaturedAgents(6)
+      .then((a) => {
+        if (active) setFeatured(a);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Debounce the search box so each keystroke doesn't hit the backend.
+  React.useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(filters.query.trim()), 250);
+    return () => clearTimeout(id);
+  }, [filters.query]);
 
   React.useEffect(() => {
     let active = true;
     setLoading(true);
     listAgents({
+      q: debouncedQuery || undefined,
       sort: "trust_desc",
       pageSize: 100,
       page: 1,
@@ -371,7 +406,7 @@ export default function AgentsPage(): React.JSX.Element {
     return () => {
       active = false;
     };
-  }, [filters.includeDiscontinued]);
+  }, [filters.includeDiscontinued, debouncedQuery]);
 
   const filteredAgents = React.useMemo(() => applyFilters(agents, filters), [agents, filters]);
 
@@ -433,7 +468,7 @@ export default function AgentsPage(): React.JSX.Element {
           id="filter-panel-mobile"
           className="mb-6 overflow-hidden rounded-2xl glass ring-hairline p-5 lg:hidden shadow-sm"
         >
-          <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} />
+          <FilterPanel filters={filters} onChange={setFilters} resultCount={filteredAgents.length} categoryOptions={categoryOptions} />
         </div>
       )}
 
@@ -450,12 +485,26 @@ export default function AgentsPage(): React.JSX.Element {
               filters={filters}
               onChange={setFilters}
               resultCount={filteredAgents.length}
+              categoryOptions={categoryOptions}
             />
           </div>
         </div>
 
         {/* Agent grid */}
         <div className="min-w-0 flex-1">
+          {/* Editorially-featured agents — browse-only highlight (hidden while searching/filtering). */}
+          {featured.length > 0 && filters.query.trim() === "" && filters.category === "all" && (
+            <section className="mb-8">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gold/80">
+                Featured
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {featured.map((agent) => (
+                  <AgentCard key={`featured-${agent.id}`} agent={agent} variant="dark" />
+                ))}
+              </div>
+            </section>
+          )}
           {loading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (

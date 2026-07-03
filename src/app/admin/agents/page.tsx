@@ -10,6 +10,8 @@ import {
   enableAgent,
   publishAgent,
   reverifyAgent,
+  featureAgent,
+  unfeatureAgent,
   type AdminAgentRow,
 } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
@@ -78,6 +80,24 @@ export default function AdminAgentsPage(): React.JSX.Element {
         prev.map((a) =>
           a.id === id ? { ...a, status: next.status, enabled: next.enabled, health_status: next.health_status } : a,
         ),
+      );
+    } catch (err) {
+      setError(isSentinelApiError(err) ? err.message : "Action failed.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function toggleFeatured(agent: AdminAgentRow): Promise<void> {
+    setBusyId(agent.id);
+    try {
+      if (agent.featured) {
+        await unfeatureAgent(agent.id);
+      } else {
+        await featureAgent(agent.id);
+      }
+      setAgents((prev) =>
+        prev.map((a) => (a.id === agent.id ? { ...a, featured: !agent.featured } : a)),
       );
     } catch (err) {
       setError(isSentinelApiError(err) ? err.message : "Action failed.");
@@ -169,6 +189,16 @@ export default function AdminAgentsPage(): React.JSX.Element {
                       {a.status !== "live" && (
                         <Button size="sm" variant="outline" disabled={busyId === a.id} onClick={() => act(a.id, publishAgent)}>
                           Publish
+                        </Button>
+                      )}
+                      {a.status === "live" && (
+                        <Button
+                          size="sm"
+                          variant={a.featured ? "secondary" : "outline"}
+                          disabled={busyId === a.id}
+                          onClick={() => toggleFeatured(a)}
+                        >
+                          {a.featured ? "Unfeature" : "Feature"}
                         </Button>
                       )}
                       {a.enabled ? (

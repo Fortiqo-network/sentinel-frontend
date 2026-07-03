@@ -181,3 +181,16 @@ export async function reportAgent(
 ): Promise<void> {
   await apiClient.post(`/v1/agents/${agentId}/report`, { reason, details });
 }
+
+/**
+ * Returns the editorially-curated featured agents for the marketplace home.
+ * Falls back to an empty list so a featured section simply hides when unset.
+ */
+export async function getFeaturedAgents(limit = 12): Promise<Agent[]> {
+  try {
+    const response = await apiClient.get<unknown>("/v1/listings/featured", { params: { limit } });
+    return z.array(AgentSchema).parse(response.data);
+  } catch {
+    return [];
+  }
+}

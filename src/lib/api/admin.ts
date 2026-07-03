@@ -30,6 +30,7 @@ export const AdminAgentRowSchema = z.object({
   name: z.string(),
   status: z.string(),
   enabled: z.boolean(),
+  featured: z.boolean().optional().default(false),
   health_status: z.string(),
   trust_score: z.number().nullable().optional(),
   owner_id: z.string(),
@@ -314,4 +315,77 @@ export async function settleDeveloper(developerId: string): Promise<SettleResult
 /** Convert internal units to whole credits (1 credit = 100 units). */
 export function unitsToCredits(units: number): number {
   return Math.round(units / 100);
+}
+
+// ── Moderation: abuse reports + kill-switch ─────────────────────────────────────
+
+export const AbuseReportRowSchema = z.object({
+  id: z.string(),
+  agent_id: z.string(),
+  reporter_id: z.string(),
+  reason: z.string(),
+  details: z.string().nullable(),
+  status: z.enum(["open", "resolved", "dismissed"]),
+  resolution_note: z.string().nullable(),
+  created_at: z.string(),
+});
+export type AbuseReportRow = z.infer<typeof AbuseReportRowSchema>;
+
+const AbuseReportListSchema = z.object({
+  reports: z.array(AbuseReportRowSchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  page_size: z.number().int(),
+});
+
+/** List abuse reports for the moderation queue (defaults to open only). */
+export async function listAbuseReports(params?: {
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<{ reports: AbuseReportRow[]; total: number }> {
+  const response = await apiClient.get<unknown>("/v1/admin/abuse-reports", {
+    params: {
+      status: params?.status || undefined,
+      page: params?.page ?? 1,
+      page_size: params?.pageSize ?? 100,
+    },
+  });
+  const parsed = AbuseReportListSchema.parse(response.data);
+  return { reports: parsed.reports, total: parsed.total };
+}
+
+/** Resolve or dismiss an abuse report. */
+export async function resolveAbuseReport(
+  reportId: string,
+  action: "resolve" | "dismiss",
+  note?: string,
+): Promise<AbuseReportRow> {
+  const response = await apiClient.post<unknown>(`/v1/admin/abuse-reports/${reportId}/resolve`, {
+    action,
+    note,
+  });
+  return AbuseReportRowSchema.parse(response.data);
+}
+
+/** Kill-switch: suspend a live agent (delisted + blocked from invocation). */
+export async function suspendAgent(agentId: string, reason?: string): Promise<AgentState> {
+  const response = await apiClient.post<unknown>(`/v1/admin/agents/${agentId}/suspend`, { reason });
+  return AgentStateSchema.parse(response.data);
+}
+
+/** Reverse a suspension, restoring the agent to live. */
+export async function unsuspendAgent(agentId: string): Promise<AgentState> {
+  const response = await apiClient.post<unknown>(`/v1/admin/agents/${agentId}/unsuspend`, {});
+  return AgentStateSchema.parse(response.data);
+}
+
+/** Feature an agent on the marketplace home (optionally with a sort order). */
+export async function featureAgent(agentId: string, order?: number): Promise<void> {
+  await apiClient.post(`/v1/admin/agents/${agentId}/feature`, order == null ? {} : { order });
+}
+
+/** Remove an agent from the featured curation. */
+export async function unfeatureAgent(agentId: string): Promise<void> {
+  await apiClient.post(`/v1/admin/agents/${agentId}/unfeature`, {});
 }
