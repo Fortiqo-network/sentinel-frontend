@@ -11,7 +11,7 @@ import {
   type OwnershipChallenge,
   type OwnershipMethod,
   type OwnershipStatus,
-} from "@/lib/api/developer";
+} from "@/lib/api/seller";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const NONE_BADGE = { label: "Not verified", cls: "bg-slate-100 text-slate-600" };
@@ -23,8 +23,8 @@ const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
 };
 
 /**
- * Endpoint-ownership proof for a developer's agent. Issues a challenge token the
- * developer serves from `/.well-known/sentinel-challenge`, then verifies it
+ * Endpoint-ownership proof for a seller's agent. Issues a challenge token the
+ * seller serves from `/.well-known/sentinel-challenge`, then verifies it
  * (SSRF-guarded server-side). Listing requires ownership once verified.
  *
  * @example

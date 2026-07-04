@@ -15,9 +15,9 @@ interface Node {
 }
 
 const NODES: Node[] = [
-  { id: "developers", label: "Developers", blurb: "Publish agents and earn credits per call." },
+  { id: "sellers", label: "Sellers", blurb: "Publish agents and earn credits per call." },
   { id: "buyers", label: "Buyers", blurb: "Discover verified agents and invoke with confidence." },
-  { id: "settlement", label: "Settlement", blurb: "Metered usage settles to developers automatically." },
+  { id: "settlement", label: "Settlement", blurb: "Metered usage settles to sellers automatically." },
   { id: "reputation", label: "Reputation", blurb: "Portable trust scores that follow an agent everywhere." },
   { id: "verification", label: "Verification", blurb: "The four-stage pipeline that scores every agent." },
 ];
@@ -53,7 +53,7 @@ export function Ecosystem(): React.JSX.Element {
           </h2>
           <Reveal delay={0.15}>
             <p className="mt-5 text-base text-porcelain/55">
-              Developers, buyers, and the trust machinery between them all orbit a single
+              Sellers, buyers, and the trust machinery between them all orbit a single
               settlement and reputation core.
             </p>
           </Reveal>

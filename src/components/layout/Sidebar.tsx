@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils/cn";
 // Types
 // ---------------------------------------------------------------------------
 
-export type SidebarMode = "buyer" | "developer" | "admin";
+export type SidebarMode = "buyer" | "seller" | "admin";
 
 interface SidebarLink {
   href: string;
@@ -134,12 +134,12 @@ const BUYER_LINKS: SidebarLink[] = [
   { href: "/dashboard/settings", label: "Settings", icon: <IconCog /> },
 ];
 
-const DEVELOPER_LINKS: SidebarLink[] = [
-  { href: "/developer", label: "Overview", icon: <IconGrid /> },
-  { href: "/developer/agents", label: "My Agents", icon: <IconCode /> },
-  { href: "/developer/earnings", label: "Earnings", icon: <IconCurrencyRupee /> },
-  { href: "/developer/bonds", label: "Bonds", icon: <IconShield /> },
-  { href: "/developer/settings", label: "Settings", icon: <IconCog /> },
+const SELLER_LINKS: SidebarLink[] = [
+  { href: "/seller", label: "Overview", icon: <IconGrid /> },
+  { href: "/seller/agents", label: "My Agents", icon: <IconCode /> },
+  { href: "/seller/earnings", label: "Earnings", icon: <IconCurrencyRupee /> },
+  { href: "/seller/bonds", label: "Bonds", icon: <IconShield /> },
+  { href: "/seller/settings", label: "Settings", icon: <IconCog /> },
 ];
 
 const ADMIN_LINKS: SidebarLink[] = [
@@ -147,7 +147,7 @@ const ADMIN_LINKS: SidebarLink[] = [
   { href: "/admin/analytics", label: "Analytics", icon: <IconChartBar /> },
   { href: "/admin/agents", label: "Agents", icon: <IconCode /> },
   { href: "/admin/moderation", label: "Moderation", icon: <IconShield /> },
-  { href: "/admin/developers", label: "Developers", icon: <IconCurrencyRupee /> },
+  { href: "/admin/sellers", label: "Sellers", icon: <IconCurrencyRupee /> },
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
   { href: "/admin/sybil", label: "Multi-accounts", icon: <IconUsers /> },
   { href: "/admin/flags", label: "Feature flags", icon: <IconCog /> },
@@ -165,7 +165,7 @@ function resolveLinks(
     }));
   }
   if (mode === "admin") return ADMIN_LINKS;
-  return mode === "developer" ? DEVELOPER_LINKS : BUYER_LINKS;
+  return mode === "seller" ? SELLER_LINKS : BUYER_LINKS;
 }
 
 // ---------------------------------------------------------------------------
@@ -180,7 +180,7 @@ interface SidebarNavProps {
 
 function isLinkActive(pathname: string, href: string): boolean {
   if (pathname === href) return true;
-  const isRoot = href === "/dashboard" || href === "/developer" || href === "/admin";
+  const isRoot = href === "/dashboard" || href === "/seller" || href === "/admin";
   return !isRoot && pathname.startsWith(href + "/");
 }
 
@@ -224,18 +224,18 @@ function SidebarNav({ links, collapsed, onNavigate }: SidebarNavProps): React.JS
 // ---------------------------------------------------------------------------
 
 /**
- * Portal sidebar navigation. Renders developer or buyer nav sets based on
+ * Portal sidebar navigation. Renders seller or buyer nav sets based on
  * `mode`. On large screens it is a persistent rail that collapses to icons via
  * the header hamburger (`sidebarCollapsed`). On small screens it is hidden and
  * instead appears as an overlay drawer driven by `mobileSidebarOpen`.
  *
  * @example
- * <Sidebar mode="developer" />
+ * <Sidebar mode="seller" />
  */
 export function Sidebar({ mode = "buyer", className, links: overrideLinks }: SidebarProps): React.JSX.Element {
   const { sidebarCollapsed: collapsed, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
   const links = resolveLinks(mode, overrideLinks);
-  const modeLabel = mode === "developer" ? "Developer" : mode === "admin" ? "Admin" : "Buyer";
+  const modeLabel = mode === "seller" ? "Seller" : mode === "admin" ? "Admin" : "Buyer";
 
   const closeMobile = React.useCallback(() => setMobileSidebarOpen(false), [setMobileSidebarOpen]);
 

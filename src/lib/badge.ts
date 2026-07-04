@@ -1,7 +1,7 @@
 /**
  * "Verified by Sentinel" embeddable badge helpers (B3).
  *
- * Pure, framework-agnostic builders for the copy-paste embed code a developer
+ * Pure, framework-agnostic builders for the copy-paste embed code a seller
  * places on their own site. The badge image/widget are served live by the
  * Sentinel API (see core-api `api/v1/badge.py`), so an embedded badge always
  * reflects the agent's current trust score and cannot be forged with stale text.

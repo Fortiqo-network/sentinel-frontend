@@ -5,7 +5,7 @@ import { SESSION_COOKIE } from "@/lib/bff/gateway";
  * Edge middleware: server-side route guard for the authenticated portals.
  *
  * This is a coarse presence check only — it verifies that a first-party session
- * cookie exists before serving `/dashboard/*`, `/developer/*`, and `/admin/*`.
+ * cookie exists before serving `/dashboard/*`, `/seller/*`, and `/admin/*`.
  * The BFF route handlers and the upstream gateway still perform real JWT
  * verification and role enforcement; this guard just prevents unauthenticated
  * requests from ever reaching the protected app shell (previously these paths
@@ -25,16 +25,16 @@ export function middleware(request: NextRequest): NextResponse {
 
 /**
  * Match only the protected portal roots and their sub-paths. The negative
- * lookahead after `developer` excludes the public `/developers` directory while
- * still matching the singular `/developer` portal. `/api`, `/_next`, static
+ * lookahead after `seller` excludes the public `/sellers` directory while
+ * still matching the singular `/seller` portal. `/api`, `/_next`, static
  * assets, and all public/marketing/auth pages are intentionally not matched.
  */
 export const config = {
   matcher: [
     "/dashboard/:path*",
     "/dashboard",
-    "/developer/:path*",
-    "/developer",
+    "/seller/:path*",
+    "/seller",
     "/admin/:path*",
     "/admin",
   ],

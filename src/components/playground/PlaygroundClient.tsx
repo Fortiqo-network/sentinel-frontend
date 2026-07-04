@@ -124,11 +124,11 @@ export function PlaygroundClient(): React.JSX.Element {
     setMeta(null);
     const started = performance.now();
 
-    const canLive = isAuthenticated && Boolean(selected.developer) && Boolean(selected.slug);
+    const canLive = isAuthenticated && Boolean(selected.seller) && Boolean(selected.slug);
 
     if (canLive) {
       try {
-        const result = await runAgent(selected.developer as string, selected.slug);
+        const result = await runAgent(selected.seller as string, selected.slug);
         const latencyMs = Math.round(performance.now() - started);
         const out = result.output;
         const rec = out && typeof out === "object" && !Array.isArray(out) ? (out as Record<string, unknown>) : null;
@@ -360,7 +360,7 @@ export function PlaygroundClient(): React.JSX.Element {
                 <div>
                   <div className="mb-1 text-porcelain/35">REST</div>
                   <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
-                    curl -X POST {API_BASE}/v1/agents/{selected.developer ?? "<dev>"}/{selected.slug}/use -H
+                    curl -X POST {API_BASE}/v1/agents/{selected.seller ?? "<dev>"}/{selected.slug}/use -H
                     &quot;Authorization: Bearer $SENTINEL_API_KEY&quot;
                   </code>
                 </div>
@@ -373,7 +373,7 @@ export function PlaygroundClient(): React.JSX.Element {
                 <div>
                   <div className="mb-1 text-porcelain/35">CLI</div>
                   <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
-                    npx @sentinel/connect {selected.developer ?? "<dev>"}/{selected.slug}
+                    npx @sentinel/connect {selected.seller ?? "<dev>"}/{selected.slug}
                   </code>
                 </div>
               </div>

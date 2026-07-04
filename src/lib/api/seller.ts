@@ -4,7 +4,7 @@ import { apiClient } from "./client";
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 /** Lifecycle states an agent moves through, as reported by core-api. */
-export const DeveloperAgentStatusSchema = z.enum([
+export const SellerAgentStatusSchema = z.enum([
   "draft",
   "submitted",
   "verifying",
@@ -15,14 +15,14 @@ export const DeveloperAgentStatusSchema = z.enum([
   "retired",
 ]);
 
-export type DeveloperAgentStatus = z.infer<typeof DeveloperAgentStatusSchema>;
+export type SellerAgentStatus = z.infer<typeof SellerAgentStatusSchema>;
 
-export const DeveloperAgentSchema = z.object({
+export const SellerAgentSchema = z.object({
   id: z.string().uuid(),
   slug: z.string(),
   name: z.string(),
   description: z.string().nullable().optional(),
-  status: DeveloperAgentStatusSchema,
+  status: SellerAgentStatusSchema,
   tier: z.enum(["managed", "proxy"]),
   trustScore: z.number().int().min(0).max(100).nullable(),
   vertical: z.string().nullable().optional(),
@@ -43,10 +43,10 @@ export const DeveloperAgentSchema = z.object({
   updatedAt: z.string(),
 });
 
-export type DeveloperAgent = z.infer<typeof DeveloperAgentSchema>;
+export type SellerAgent = z.infer<typeof SellerAgentSchema>;
 
-export const DeveloperAgentListSchema = z.object({
-  agents: z.array(DeveloperAgentSchema),
+export const SellerAgentListSchema = z.object({
+  agents: z.array(SellerAgentSchema),
   total: z.number().int(),
   page: z.number().int(),
   pageSize: z.number().int(),
@@ -99,65 +99,65 @@ export type Bond = z.infer<typeof BondSchema>;
 
 // ── Agent CRUD ───────────────────────────────────────────────────────────────
 
-/** Lists the authenticated developer's own agents. */
-export async function listMyAgents(page = 1, pageSize = 50): Promise<DeveloperAgent[]> {
-  const response = await apiClient.get<unknown>("/v1/developer/agents", {
+/** Lists the authenticated seller's own agents. */
+export async function listMyAgents(page = 1, pageSize = 50): Promise<SellerAgent[]> {
+  const response = await apiClient.get<unknown>("/v1/seller/agents", {
     params: { page, pageSize },
   });
-  return DeveloperAgentListSchema.parse(response.data).agents;
+  return SellerAgentListSchema.parse(response.data).agents;
 }
 
-/** Fetches one of the developer's agents by id. */
-export async function getMyAgent(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.get<unknown>(`/v1/developer/agents/${id}`);
-  return DeveloperAgentSchema.parse(response.data);
+/** Fetches one of the seller's agents by id. */
+export async function getMyAgent(id: string): Promise<SellerAgent> {
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${id}`);
+  return SellerAgentSchema.parse(response.data);
 }
 
-/** Creates a new draft agent owned by the developer. */
-export async function createAgent(body: CreateAgentRequest): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>("/v1/developer/agents", body);
-  return DeveloperAgentSchema.parse(response.data);
+/** Creates a new draft agent owned by the seller. */
+export async function createAgent(body: CreateAgentRequest): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>("/v1/seller/agents", body);
+  return SellerAgentSchema.parse(response.data);
 }
 
-/** Updates the editable metadata of one of the developer's agents. */
-export async function updateAgent(id: string, body: UpdateAgentRequest): Promise<DeveloperAgent> {
-  const response = await apiClient.patch<unknown>(`/v1/developer/agents/${id}`, body);
-  return DeveloperAgentSchema.parse(response.data);
+/** Updates the editable metadata of one of the seller's agents. */
+export async function updateAgent(id: string, body: UpdateAgentRequest): Promise<SellerAgent> {
+  const response = await apiClient.patch<unknown>(`/v1/seller/agents/${id}`, body);
+  return SellerAgentSchema.parse(response.data);
 }
 
 /** Deletes a draft or rejected agent. */
 export async function deleteAgent(id: string): Promise<void> {
-  await apiClient.delete(`/v1/developer/agents/${id}`);
+  await apiClient.delete(`/v1/seller/agents/${id}`);
 }
 
 /** Submits a draft agent into the verification pipeline. */
-export async function submitAgent(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/submit`, {});
-  return DeveloperAgentSchema.parse(response.data);
+export async function submitAgent(id: string): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/submit`, {});
+  return SellerAgentSchema.parse(response.data);
 }
 
 /** Re-runs verification for an agent on demand (recover a stuck verdict / refresh score). */
-export async function reverifyAgent(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/reverify`, {});
-  return DeveloperAgentSchema.parse(response.data);
+export async function reverifyAgent(id: string): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/reverify`, {});
+  return SellerAgentSchema.parse(response.data);
 }
 
 /** Settles the $10 listing fee so the agent stays listed after its free trial. */
-export async function payListing(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/pay-listing`, {});
-  return DeveloperAgentSchema.parse(response.data);
+export async function payListing(id: string): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/pay-listing`, {});
+  return SellerAgentSchema.parse(response.data);
 }
 
 /** Disables (retires) an agent — delists it from the marketplace; the record is kept. */
-export async function retireAgent(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/retire`, {});
-  return DeveloperAgentSchema.parse(response.data);
+export async function retireAgent(id: string): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/retire`, {});
+  return SellerAgentSchema.parse(response.data);
 }
 
 /** Re-enables a soft-deleted / retired agent via the listing flow (live instantly if paid). */
-export async function restoreAgent(id: string): Promise<DeveloperAgent> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/restore`, {});
-  return DeveloperAgentSchema.parse(response.data);
+export async function restoreAgent(id: string): Promise<SellerAgent> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/restore`, {});
+  return SellerAgentSchema.parse(response.data);
 }
 
 // ── Ownership proof ──────────────────────────────────────────────────────────
@@ -178,21 +178,21 @@ export const OwnershipChallengeSchema = z.object({
 });
 export type OwnershipChallenge = z.infer<typeof OwnershipChallengeSchema>;
 
-/** Ownership proof methods a developer can choose from. */
+/** Ownership proof methods a seller can choose from. */
 export type OwnershipMethod = "well_known" | "dns_txt";
 
-/** Current endpoint-ownership status for one of the developer's agents. */
+/** Current endpoint-ownership status for one of the seller's agents. */
 export async function getOwnership(id: string): Promise<OwnershipStatus> {
-  const response = await apiClient.get<unknown>(`/v1/developer/agents/${id}/ownership`);
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${id}/ownership`);
   return OwnershipStatusSchema.parse(response.data);
 }
 
-/** Mint a challenge token the developer must serve (HTTP well-known or DNS TXT). */
+/** Mint a challenge token the seller must serve (HTTP well-known or DNS TXT). */
 export async function requestOwnershipChallenge(
   id: string,
   method: OwnershipMethod = "well_known",
 ): Promise<OwnershipChallenge> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/challenge`, {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/ownership/challenge`, {
     method,
   });
   return OwnershipChallengeSchema.parse(response.data);
@@ -200,21 +200,21 @@ export async function requestOwnershipChallenge(
 
 /** Run the ownership check (verify fetches the well-known token). */
 export async function verifyOwnership(id: string): Promise<OwnershipStatus> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${id}/ownership/verify`, {});
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/ownership/verify`, {});
   return OwnershipStatusSchema.parse(response.data);
 }
 
 // ── Earnings ─────────────────────────────────────────────────────────────────
 
-/** Returns the developer's payout-eligible earnings, in credits. */
+/** Returns the seller's payout-eligible earnings, in credits. */
 export async function getEarnings(): Promise<Earnings> {
-  const response = await apiClient.get<unknown>("/v1/developer/earnings");
+  const response = await apiClient.get<unknown>("/v1/seller/earnings");
   return EarningsSchema.parse(response.data);
 }
 
-/** Returns the developer's active performance bond, or null if none is posted. */
+/** Returns the seller's active performance bond, or null if none is posted. */
 export async function getBond(): Promise<Bond | null> {
-  const response = await apiClient.get<unknown>("/v1/developer/bond");
+  const response = await apiClient.get<unknown>("/v1/seller/bond");
   if (response.data === null) return null;
   return BondSchema.parse(response.data);
 }
@@ -227,9 +227,9 @@ const BondDepositResultSchema = z.object({
 
 export type BondDepositResult = z.infer<typeof BondDepositResultSchema>;
 
-/** Locks `credits` from the developer's available balance as a performance bond. */
+/** Locks `credits` from the seller's available balance as a performance bond. */
 export async function depositBond(credits: number): Promise<BondDepositResult> {
-  const response = await apiClient.post<unknown>("/v1/developer/bond/deposit", { credits });
+  const response = await apiClient.post<unknown>("/v1/seller/bond/deposit", { credits });
   return BondDepositResultSchema.parse(response.data);
 }
 
@@ -247,29 +247,29 @@ export type AccessBlock = z.infer<typeof AccessBlockSchema>;
 
 const AccessBlockListSchema = z.object({ blocks: z.array(AccessBlockSchema) });
 
-/** Lists the users the developer has blocked from one of their agents. */
+/** Lists the users the seller has blocked from one of their agents. */
 export async function listAccessBlocks(agentId: string): Promise<AccessBlock[]> {
-  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/access-blocks`);
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${agentId}/access-blocks`);
   return AccessBlockListSchema.parse(response.data).blocks;
 }
 
-/** Blocks a user (by email) from one of the developer's agents. */
+/** Blocks a user (by email) from one of the seller's agents. */
 export async function blockUser(agentId: string, email: string, reason?: string): Promise<AccessBlock> {
-  const response = await apiClient.post<unknown>(`/v1/developer/agents/${agentId}/access-blocks`, {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${agentId}/access-blocks`, {
     email,
     reason,
   });
   return AccessBlockSchema.parse(response.data);
 }
 
-/** Removes a user's block from one of the developer's agents. */
+/** Removes a user's block from one of the seller's agents. */
 export async function unblockUser(agentId: string, userId: string): Promise<void> {
-  await apiClient.delete(`/v1/developer/agents/${agentId}/access-blocks/${userId}`);
+  await apiClient.delete(`/v1/seller/agents/${agentId}/access-blocks/${userId}`);
 }
 
 /** Blocks a specific user (by id) from an agent — used from the audience table. */
 export async function blockUserId(agentId: string, userId: string): Promise<void> {
-  await apiClient.post(`/v1/developer/agents/${agentId}/access-blocks`, { user_id: userId });
+  await apiClient.post(`/v1/seller/agents/${agentId}/access-blocks`, { user_id: userId });
 }
 
 // ── Per-agent metrics + audience ──────────────────────────────────────────────
@@ -284,9 +284,9 @@ export const AgentMetricsSchema = z.object({
 
 export type AgentMetrics = z.infer<typeof AgentMetricsSchema>;
 
-/** Returns headline metrics for one of the developer's agents. */
+/** Returns headline metrics for one of the seller's agents. */
 export async function getAgentMetrics(agentId: string): Promise<AgentMetrics> {
-  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/metrics`);
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${agentId}/metrics`);
   return AgentMetricsSchema.parse(response.data);
 }
 
@@ -315,7 +315,7 @@ export async function getAgentAudience(
   page = 1,
   pageSize = 10,
 ): Promise<AudienceResponse> {
-  const response = await apiClient.get<unknown>(`/v1/developer/agents/${agentId}/audience`, {
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${agentId}/audience`, {
     params: { page, pageSize },
   });
   return AudienceResponseSchema.parse(response.data);

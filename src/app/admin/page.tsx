@@ -18,7 +18,7 @@ import { isSentinelApiError } from "@/lib/api/client";
 
 /**
  * Admin overview — headline platform counts plus quick links into the agents,
- * developers, and users consoles. The bulk "Enable all agents" action lives here
+ * sellers, and users consoles. The bulk "Enable all agents" action lives here
  * since it touches the whole catalogue rather than a single row.
  */
 export default function AdminOverviewPage(): React.JSX.Element {
@@ -113,7 +113,7 @@ export default function AdminOverviewPage(): React.JSX.Element {
       ) : data ? (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Users" value={data.users_total} sub={`${data.developers} developers · ${data.buyers} buyers`} accent />
+            <StatCard label="Users" value={data.users_total} sub={`${data.sellers} sellers · ${data.buyers} buyers`} accent />
             <StatCard label="Agents live" value={data.agents_live} sub={`${data.agents_total} total`} />
             <StatCard label="Disabled agents" value={data.agents_disabled} sub="Hidden from marketplace" />
             <StatCard label="Endpoints healthy" value={data.health_active} sub={`${data.health_inactive} inactive`} />
@@ -121,7 +121,7 @@ export default function AdminOverviewPage(): React.JSX.Element {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <ConsoleLink href="/admin/agents" title="Agents" desc="Enable, disable, and publish agents." />
-            <ConsoleLink href="/admin/developers" title="Developers" desc="Review balances and settle earnings." />
+            <ConsoleLink href="/admin/sellers" title="Sellers" desc="Review balances and settle earnings." />
             <ConsoleLink href="/admin/users" title="Users" desc="Browse and oversee platform users." />
           </div>
 

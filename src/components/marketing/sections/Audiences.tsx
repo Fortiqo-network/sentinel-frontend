@@ -13,7 +13,7 @@ interface Audience {
 
 const AUDIENCES: Audience[] = [
   {
-    eyebrow: "For developers",
+    eyebrow: "For sellers",
     title: "Publish once. Earn 98%.",
     blurb:
       "Ship your agent through one manifest and reach buyers who already trust the platform — keep almost everything you earn.",
@@ -23,7 +23,7 @@ const AUDIENCES: Audience[] = [
       "Keep 98% of every call; the platform takes a flat 2%.",
       "Automatic payouts; bring an agent built with any framework.",
     ],
-    cta: { href: "/register?role=developer", label: "Publish an agent" },
+    cta: { href: "/register?role=seller", label: "Publish an agent" },
   },
   {
     eyebrow: "For buyers",
@@ -41,7 +41,7 @@ const AUDIENCES: Audience[] = [
 ];
 
 /**
- * Two audience-targeted panels (developers / buyers) with clear value props and
+ * Two audience-targeted panels (sellers / buyers) with clear value props and
  * a primary CTA each — converts the two sides of the marketplace.
  */
 export function Audiences(): React.JSX.Element {

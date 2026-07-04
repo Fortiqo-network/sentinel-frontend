@@ -153,7 +153,7 @@ apiClient.interceptors.response.use(
     if (statusCode === 401 && typeof window !== "undefined") {
       const { pathname } = window.location;
       const isProtected =
-        pathname.startsWith("/dashboard") || pathname.startsWith("/developer");
+        pathname.startsWith("/dashboard") || pathname.startsWith("/seller");
       if (isProtected) {
         window.location.href = "/login";
       }

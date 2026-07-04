@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SubmitAgentForm } from "@/components/developer/SubmitAgentForm";
+import { SubmitAgentForm } from "@/components/seller/SubmitAgentForm";
 
 export const metadata: Metadata = {
   title: "Submit Agent",

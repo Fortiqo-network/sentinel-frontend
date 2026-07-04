@@ -48,17 +48,17 @@ export interface Agent {
   /** Emoji or URL for the agent avatar. */
   icon?: string;
   ownerId?: string;
-  /** Owning developer's URL handle (namespaces the agent). */
-  developer?: string;
+  /** Owning seller's URL handle (namespaces the agent). */
+  seller?: string;
   publishedAt?: string;
   lastVerifiedAt?: string;
-  /** Source/repository URL (e.g. GitHub), when the developer provides it. */
+  /** Source/repository URL (e.g. GitHub), when the seller provides it. */
   repoUrl?: string;
   /** Public homepage/landing URL for the agent, when provided. */
   homepageUrl?: string;
   /** External documentation URL, when provided. */
   docsUrl?: string;
-  /** The developer-hosted endpoint URL (Tier B), when exposed. */
+  /** The seller-hosted endpoint URL (Tier B), when exposed. */
   endpointUrl?: string;
   /** Canonical metadata-card URL; the detail page derives this if absent. */
   metadataUrl?: string;

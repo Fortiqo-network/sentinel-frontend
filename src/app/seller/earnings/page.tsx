@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
-import { depositBond, getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/developer";
+import { depositBond, getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/seller";
 import { isSentinelApiError } from "@/lib/api/client";
 
 function formatCredits(credits: number): string {
@@ -42,7 +42,7 @@ function SummaryCard({ label, value, sub, accent }: SummaryCardProps): React.JSX
 }
 
 /**
- * Earnings page for developers. Surfaces payout-eligible balance, payout
+ * Earnings page for sellers. Surfaces payout-eligible balance, payout
  * eligibility and provider, and the active performance bond — all in credits.
  * Write actions (payout request, bond deposit) are intentionally disabled
  * until KYC / provider details are collected by the console.

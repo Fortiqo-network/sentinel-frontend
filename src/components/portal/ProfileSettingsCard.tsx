@@ -49,7 +49,7 @@ function TextField({ id, label, value, onChange, placeholder, hint, multiline }:
 }
 
 /**
- * Profile settings panel shared by the buyer and developer portals. Edits the
+ * Profile settings panel shared by the buyer and seller portals. Edits the
  * display name, avatar preset, bio, company, and social links, persists via
  * PATCH /v1/auth/me, and updates the client auth store immediately.
  *
@@ -118,7 +118,7 @@ export function ProfileSettingsCard(): React.JSX.Element {
     }
   }
 
-  const isDeveloper = user?.role === "developer";
+  const isSeller = user?.role === "seller";
 
   return (
     <Card>
@@ -126,9 +126,9 @@ export function ProfileSettingsCard(): React.JSX.Element {
         <div className="flex items-start justify-between gap-4">
           <div>
             <CardTitle>Profile</CardTitle>
-            <CardDescription>Your name, avatar, and public developer profile.</CardDescription>
+            <CardDescription>Your name, avatar, and public seller profile.</CardDescription>
           </div>
-          {isDeveloper && (
+          {isSeller && (
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400 cursor-not-allowed select-none">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3.5 w-3.5" aria-hidden="true">
                 <path d="M6 2H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4M9 1h6m0 0v6m0-6L7 9" strokeLinecap="round" strokeLinejoin="round" />
@@ -161,9 +161,9 @@ export function ProfileSettingsCard(): React.JSX.Element {
           <p className="text-xs text-slate-400">Choose a preset. Uploading a custom image is coming soon.</p>
         </div>
 
-        {user?.role === "developer" && (
+        {user?.role === "seller" && (
         <div className="border-t border-slate-100 pt-4">
-          <p className="mb-4 text-sm font-semibold text-slate-700">Public Developer Profile</p>
+          <p className="mb-4 text-sm font-semibold text-slate-700">Public Seller Profile</p>
           <div className="space-y-4">
             <TextField
               id="bio"

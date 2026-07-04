@@ -5,7 +5,7 @@ import { apiClient } from "./client";
 
 export const AdminAnalyticsSchema = z.object({
   users_total: z.number().int().min(0),
-  developers: z.number().int().min(0),
+  sellers: z.number().int().min(0),
   buyers: z.number().int().min(0),
   agents_total: z.number().int().min(0),
   agents_live: z.number().int().min(0),
@@ -15,7 +15,7 @@ export const AdminAnalyticsSchema = z.object({
   agents_by_status: z.record(z.number().int()),
   gmv_credits: z.number().int().min(0).default(0),
   platform_revenue_credits: z.number().int().min(0).default(0),
-  developer_earnings_credits: z.number().int().min(0).default(0),
+  seller_earnings_credits: z.number().int().min(0).default(0),
   topups_credits: z.number().int().min(0).default(0),
   charges_count: z.number().int().min(0).default(0),
   revenue_30d_credits: z.number().int().min(0).default(0),
@@ -48,7 +48,7 @@ const AdminAgentListSchema = z.object({
   page_size: z.number().int(),
 });
 
-export const AdminDeveloperRowSchema = z.object({
+export const AdminSellerRowSchema = z.object({
   id: z.string(),
   email: z.string(),
   display_name: z.string().nullable().optional(),
@@ -59,10 +59,10 @@ export const AdminDeveloperRowSchema = z.object({
   created_at: z.string(),
 });
 
-export type AdminDeveloperRow = z.infer<typeof AdminDeveloperRowSchema>;
+export type AdminSellerRow = z.infer<typeof AdminSellerRowSchema>;
 
-const AdminDeveloperListSchema = z.object({
-  developers: z.array(AdminDeveloperRowSchema),
+const AdminSellerListSchema = z.object({
+  sellers: z.array(AdminSellerRowSchema),
   total: z.number().int(),
   page: z.number().int(),
   page_size: z.number().int(),
@@ -87,7 +87,7 @@ const AdminUserListSchema = z.object({
 });
 
 const SettleResponseSchema = z.object({
-  developer_id: z.string(),
+  seller_id: z.string(),
   settled_units: z.number().int(),
   available_units: z.number().int(),
 });
@@ -110,8 +110,8 @@ export interface AdminAgentListResult {
   pageSize: number;
 }
 
-export interface AdminDeveloperListResult {
-  developers: AdminDeveloperRow[];
+export interface AdminSellerListResult {
+  sellers: AdminSellerRow[];
   total: number;
   page: number;
   pageSize: number;
@@ -218,21 +218,21 @@ export async function listAdminAgents(params?: {
   return { agents: parsed.agents, total: parsed.total, page: parsed.page, pageSize: parsed.page_size };
 }
 
-/** Lists developers with accrued + withdrawable balances. */
-export async function listAdminDevelopers(params?: {
+/** Lists sellers with accrued + withdrawable balances. */
+export async function listAdminSellers(params?: {
   q?: string;
   page?: number;
   pageSize?: number;
-}): Promise<AdminDeveloperListResult> {
-  const response = await apiClient.get<unknown>("/v1/admin/developers", {
+}): Promise<AdminSellerListResult> {
+  const response = await apiClient.get<unknown>("/v1/admin/sellers", {
     params: {
       q: params?.q || undefined,
       page: params?.page ?? 1,
       page_size: params?.pageSize ?? 50,
     },
   });
-  const parsed = AdminDeveloperListSchema.parse(response.data);
-  return { developers: parsed.developers, total: parsed.total, page: parsed.page, pageSize: parsed.page_size };
+  const parsed = AdminSellerListSchema.parse(response.data);
+  return { sellers: parsed.sellers, total: parsed.total, page: parsed.page, pageSize: parsed.page_size };
 }
 
 /** Lists platform users for admin oversight. */
@@ -294,21 +294,21 @@ const UserStateSchema = z.object({
 
 export type UserState = z.infer<typeof UserStateSchema>;
 
-/** Block (suspend) a user or developer — they can no longer log in. */
+/** Block (suspend) a user or seller — they can no longer log in. */
 export async function blockUser(userId: string): Promise<UserState> {
   const response = await apiClient.post<unknown>(`/v1/admin/users/${userId}/block`, {});
   return UserStateSchema.parse(response.data);
 }
 
-/** Unblock (reinstate) a previously suspended user or developer. */
+/** Unblock (reinstate) a previously suspended user or seller. */
 export async function unblockUser(userId: string): Promise<UserState> {
   const response = await apiClient.post<unknown>(`/v1/admin/users/${userId}/unblock`, {});
   return UserStateSchema.parse(response.data);
 }
 
-/** Settle a developer's accrued earnings (payable → withdrawable). */
-export async function settleDeveloper(developerId: string): Promise<SettleResult> {
-  const response = await apiClient.post<unknown>(`/v1/admin/developers/${developerId}/settle`, {});
+/** Settle a seller's accrued earnings (payable → withdrawable). */
+export async function settleSeller(sellerId: string): Promise<SettleResult> {
+  const response = await apiClient.post<unknown>(`/v1/admin/sellers/${sellerId}/settle`, {});
   return SettleResponseSchema.parse(response.data);
 }
 

@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { createAgent } from "@/lib/api/developer";
-import type { CreateAgentRequest } from "@/lib/api/developer";
+import { createAgent } from "@/lib/api/seller";
+import type { CreateAgentRequest } from "@/lib/api/seller";
 import { CREDITS_PER_USD } from "@/lib/site";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,126}[a-z0-9]$/;
 
 /**
- * Agent submission form for the developer portal. Captures listing metadata
+ * Agent submission form for the seller portal. Captures listing metadata
  * and posts to the gateway via {@link createAgent}, then redirects to the
- * developer agents list on success. Slug is validated client-side against the
+ * seller agents list on success. Slug is validated client-side against the
  * same pattern the gateway enforces to give fast feedback before the round-trip.
  */
 export function SubmitAgentForm(): React.JSX.Element {
@@ -39,7 +39,7 @@ export function SubmitAgentForm(): React.JSX.Element {
     const slug = field("slug");
     const description = field("description");
     const vertical = field("vertical");
-    // Managed agents are hosted by Sentinel — they never carry a developer endpoint.
+    // Managed agents are hosted by Sentinel — they never carry a seller endpoint.
     const endpointUrl = isManaged ? "" : field("endpointUrl");
     const priceRaw = field("price");
     const priceCurrency = field("priceCurrency") || "credits";
@@ -95,7 +95,7 @@ export function SubmitAgentForm(): React.JSX.Element {
     setSubmitting(true);
     try {
       await createAgent(body);
-      router.push("/developer/agents");
+      router.push("/seller/agents");
     } catch (err) {
       if (isSentinelApiError(err)) {
         setError(err.displayMessage);

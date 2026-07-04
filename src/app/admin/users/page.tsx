@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { listAdminUsers, blockUser, unblockUser, type AdminUserRow } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
 
-const ROLE_FILTERS = ["", "buyer", "developer", "admin"];
+const ROLE_FILTERS = ["", "buyer", "seller", "admin"];
 
 function roleVariant(role: string): "success" | "info" | "warning" | "default" {
   if (role === "admin") return "warning";
-  if (role === "developer") return "info";
+  if (role === "seller") return "info";
   if (role === "buyer") return "success";
   return "default";
 }

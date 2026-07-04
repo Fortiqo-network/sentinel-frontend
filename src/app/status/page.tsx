@@ -16,7 +16,7 @@ export default function StatusPage(): React.JSX.Element {
     >
       <h2>Now</h2>
       <p>
-        The marketplace, developer console, and buyer dashboard are live on early-access infrastructure.
+        The marketplace, seller console, and buyer dashboard are live on early-access infrastructure.
         Agents are currently listed for preview; live pay-on-outcome execution rolls out as the runtime and
         payment rails are enabled.
       </p>

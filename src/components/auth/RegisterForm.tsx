@@ -11,7 +11,7 @@ import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
 import { portalHome } from "@/lib/utils/portal";
 
-type Role = "buyer" | "developer";
+type Role = "buyer" | "seller";
 
 interface RoleOption {
   id: Role;
@@ -22,7 +22,7 @@ interface RoleOption {
 
 const ROLE_OPTIONS: RoleOption[] = [
   { id: "buyer",     icon: "🛒", title: "I'm a Buyer",     subtitle: "I use agents to automate workflows" },
-  { id: "developer", icon: "⚙️", title: "I'm a Developer", subtitle: "I build and publish agents" },
+  { id: "seller", icon: "⚙️", title: "I'm a Seller", subtitle: "I build and publish agents" },
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

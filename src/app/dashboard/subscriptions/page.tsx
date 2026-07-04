@@ -90,7 +90,7 @@ export default function SubscriptionsPage(): React.JSX.Element {
                     <Link href={`/agents/${agent.id}`} className="block truncate text-sm font-semibold text-slate-900 hover:text-indigo-600">
                       {agent.name}
                     </Link>
-                    {agent.developer && <p className="truncate text-xs text-slate-400">by {agent.developer}</p>}
+                    {agent.seller && <p className="truncate text-xs text-slate-400">by {agent.seller}</p>}
                   </div>
                 </div>
                 <TrustScore score={agent.trustScore} size="sm" />

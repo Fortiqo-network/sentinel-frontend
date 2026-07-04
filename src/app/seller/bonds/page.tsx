@@ -6,7 +6,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { getBond, type Bond } from "@/lib/api/developer";
+import { getBond, type Bond } from "@/lib/api/seller";
 
 const STATUS_VARIANT: Record<string, "success" | "warning" | "destructive" | "default"> = {
   active: "success",
@@ -16,11 +16,11 @@ const STATUS_VARIANT: Record<string, "success" | "warning" | "destructive" | "de
 };
 
 /**
- * Developer bonds page. Shows the developer's active performance bond — the
+ * Seller bonds page. Shows the seller's active performance bond — the
  * refundable deposit that backs delivery guarantees and unlocks premium
  * placement — its original and current value, and how bonding works.
  */
-export default function DeveloperBondsPage(): React.JSX.Element {
+export default function SellerBondsPage(): React.JSX.Element {
   const [bond, setBond] = React.useState<Bond | null>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -42,7 +42,7 @@ export default function DeveloperBondsPage(): React.JSX.Element {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Developer"
+        eyebrow="Seller"
         title="Performance bonds"
         description="A refundable deposit that backs your delivery guarantees and unlocks premium placement."
       />

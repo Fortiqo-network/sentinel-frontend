@@ -8,7 +8,7 @@ export const UserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   displayName: z.string().optional(),
-  role: z.enum(["buyer", "developer", "admin"]),
+  role: z.enum(["buyer", "seller", "admin"]),
   avatarUrl: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
@@ -28,7 +28,7 @@ export const RegisterRequestSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   displayName: z.string().min(2, "Display name must be at least 2 characters"),
-  role: z.enum(["buyer", "developer"]),
+  role: z.enum(["buyer", "seller"]),
 });
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;

@@ -34,7 +34,7 @@ export interface Invoice {
   createdAt: string;
 }
 
-/** Developer payout record (credits). */
+/** Seller payout record (credits). */
 export interface Payout {
   id: string;
   amountCredits: number;
@@ -44,7 +44,7 @@ export interface Payout {
   stripeTransferId?: string;
 }
 
-/** Earnings summary for a developer (credits). */
+/** Earnings summary for a seller (credits). */
 export interface EarningsSummary {
   totalEarnedCredits: number;
   pendingPayoutCredits: number;

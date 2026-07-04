@@ -8,9 +8,9 @@ import {
   listMyAgents,
   deleteAgent,
   submitAgent,
-  type DeveloperAgent,
-  type DeveloperAgentStatus,
-} from "@/lib/api/developer";
+  type SellerAgent,
+  type SellerAgentStatus,
+} from "@/lib/api/seller";
 
 // ---------------------------------------------------------------------------
 // Display grouping
@@ -18,7 +18,7 @@ import {
 
 type FilterGroup = "all" | "draft" | "pending" | "verified" | "other";
 
-const GROUP_OF_STATUS: Record<DeveloperAgentStatus, Exclude<FilterGroup, "all">> = {
+const GROUP_OF_STATUS: Record<SellerAgentStatus, Exclude<FilterGroup, "all">> = {
   draft: "draft",
   submitted: "pending",
   verifying: "pending",
@@ -29,7 +29,7 @@ const GROUP_OF_STATUS: Record<DeveloperAgentStatus, Exclude<FilterGroup, "all">>
   retired: "other",
 };
 
-const STATUS_STYLES: Record<DeveloperAgentStatus, string> = {
+const STATUS_STYLES: Record<SellerAgentStatus, string> = {
   draft: "bg-slate-100 text-slate-700 border border-slate-200",
   submitted: "bg-amber-100 text-amber-700 border border-amber-200",
   verifying: "bg-amber-100 text-amber-700 border border-amber-200",
@@ -40,7 +40,7 @@ const STATUS_STYLES: Record<DeveloperAgentStatus, string> = {
   retired: "bg-slate-100 text-slate-500 border border-slate-200",
 };
 
-const TIER_STYLES: Record<DeveloperAgent["tier"], string> = {
+const TIER_STYLES: Record<SellerAgent["tier"], string> = {
   managed: "bg-purple-100 text-purple-700",
   proxy: "bg-blue-100 text-blue-700",
 };
@@ -78,7 +78,7 @@ function errorMessage(err: unknown, fallback: string): string {
 // ---------------------------------------------------------------------------
 
 interface StatusBadgeProps {
-  status: DeveloperAgentStatus;
+  status: SellerAgentStatus;
 }
 
 function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
@@ -95,7 +95,7 @@ function StatusBadge({ status }: StatusBadgeProps): React.JSX.Element {
 }
 
 interface TierBadgeProps {
-  tier: DeveloperAgent["tier"];
+  tier: SellerAgent["tier"];
 }
 
 function TierBadge({ tier }: TierBadgeProps): React.JSX.Element {
@@ -112,7 +112,7 @@ function TierBadge({ tier }: TierBadgeProps): React.JSX.Element {
 }
 
 interface AgentActionsProps {
-  agent: DeveloperAgent;
+  agent: SellerAgent;
   busy: boolean;
   error: string | null;
   onSubmit: (id: string) => void;
@@ -131,7 +131,7 @@ function AgentActions({
     <div className="space-y-1.5">
       <div className="flex flex-wrap items-center gap-2">
         <Link
-          href={`/developer/agents/${agent.id}`}
+          href={`/seller/agents/${agent.id}`}
           className="rounded px-2.5 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition-colors border border-indigo-200"
         >
           View Details
@@ -167,12 +167,12 @@ function AgentActions({
 // ---------------------------------------------------------------------------
 
 /**
- * Agent management list page. Loads the developer's own agents from the gateway
+ * Agent management list page. Loads the seller's own agents from the gateway
  * and renders them with status badges, trust scores, tier, and inline lifecycle
  * actions (submit a draft for verification, delete a draft or rejected agent).
  */
 export default function MyAgentsPage(): React.JSX.Element {
-  const [agents, setAgents] = React.useState<DeveloperAgent[]>([]);
+  const [agents, setAgents] = React.useState<SellerAgent[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [filterGroup, setFilterGroup] = React.useState<FilterGroup>("all");
@@ -258,7 +258,7 @@ export default function MyAgentsPage(): React.JSX.Element {
     return base;
   }, [agents]);
 
-  const filtered = React.useMemo<DeveloperAgent[]>(() => {
+  const filtered = React.useMemo<SellerAgent[]>(() => {
     if (filterGroup === "all") return agents;
     return agents.filter((a) => GROUP_OF_STATUS[a.status] === filterGroup);
   }, [agents, filterGroup]);
@@ -274,7 +274,7 @@ export default function MyAgentsPage(): React.JSX.Element {
           </p>
         </div>
         <Link
-          href="/developer/agents/new"
+          href="/seller/agents/new"
           className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors whitespace-nowrap"
         >
           + Publish New Agent
@@ -373,7 +373,7 @@ export default function MyAgentsPage(): React.JSX.Element {
                   <tr key={agent.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">
                       <Link
-                        href={`/developer/agents/${agent.id}`}
+                        href={`/seller/agents/${agent.id}`}
                         className="hover:text-indigo-600 transition-colors"
                       >
                         {agent.name}

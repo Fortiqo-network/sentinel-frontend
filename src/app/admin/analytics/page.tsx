@@ -85,9 +85,9 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
                 sub="Gross spent on agent calls"
               />
               <StatCard
-                label="Developer earnings"
-                value={`${data.developer_earnings_credits.toLocaleString("en-US")} Cr`}
-                sub="Net accrued to developers"
+                label="Seller earnings"
+                value={`${data.seller_earnings_credits.toLocaleString("en-US")} Cr`}
+                sub="Net accrued to sellers"
               />
               <StatCard
                 label="Credits sold"
@@ -102,7 +102,7 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Identity</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Total users" value={data.users_total} accent />
-              <StatCard label="Developers" value={data.developers} />
+              <StatCard label="Sellers" value={data.sellers} />
               <StatCard label="Buyers" value={data.buyers} />
             </div>
           </section>

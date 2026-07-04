@@ -12,11 +12,11 @@ const PILLARS: Pillar[] = [
   {
     stat: "2%",
     label: "Platform fee",
-    detail: "A flat 2% on successfully-delivered calls — developers keep 98%. No surprises.",
+    detail: "A flat 2% on successfully-delivered calls — sellers keep 98%. No surprises.",
   },
   {
     stat: "98%",
-    label: "To the developer",
+    label: "To the seller",
     detail: "You keep almost everything. The take rate is a growth lever, not a tax.",
   },
   {
@@ -27,7 +27,7 @@ const PILLARS: Pillar[] = [
 ];
 
 /**
- * Transparent economics: a flat 2% fee, 98% to developers, and pay-on-outcome —
+ * Transparent economics: a flat 2% fee, 98% to sellers, and pay-on-outcome —
  * the trust-and-money story in one glance, with a worked example.
  */
 export function Pricing(): React.JSX.Element {
@@ -77,7 +77,7 @@ export function Pricing(): React.JSX.Element {
               that, the flat 2% is the only cut on what you earn.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <MagneticButton href="/register?role=developer" variant="primary">
+              <MagneticButton href="/register?role=seller" variant="primary">
                 Start earning
               </MagneticButton>
               <MagneticButton href="/how-it-works" variant="ghost">

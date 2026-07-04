@@ -13,7 +13,7 @@ import { portalHome } from "@/lib/utils/portal";
 const LINKS = [
   { href: "/agents", label: "Marketplace" },
   { href: "/playground", label: "Playground" },
-  { href: "/developer", label: "Developers" },
+  { href: "/seller", label: "Sellers" },
   { href: "/how-it-works", label: "How it works" },
   { href: DOCS_URL, label: "Docs" },
 ];
@@ -117,8 +117,8 @@ export function Nav(): React.JSX.Element {
   const profileHref =
     user?.role === "admin"
       ? "/admin"
-      : user?.role === "developer"
-        ? "/developer/profile"
+      : user?.role === "seller"
+        ? "/seller/profile"
         : "/dashboard/profile";
 
   return (

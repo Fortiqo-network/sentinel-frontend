@@ -17,7 +17,7 @@ const TRUST_POINTS: Array<{ title: string; detail: string }> = [
     detail: "Credits are held and charged only when a call demonstrably succeeds.",
   },
   {
-    title: "Developers keep 98%",
+    title: "Sellers keep 98%",
     detail: "A flat 2% platform fee, automatic payouts, and portable reputation.",
   },
 ];

@@ -271,7 +271,7 @@ function ProfileDropdown({
 // ---------------------------------------------------------------------------
 
 /**
- * Authenticated app header for the buyer dashboard and developer portal. Shows
+ * Authenticated app header for the buyer dashboard and seller portal. Shows
  * a responsive menu control (opens the mobile drawer below `lg`, toggles the
  * collapsed rail at `lg`+), live notifications, and a profile menu with a
  * working log out that clears the session and redirects to /login.
@@ -287,9 +287,9 @@ export function DashboardHeader(): React.JSX.Element {
 
   const displayName = user?.displayName ?? user?.email ?? "Account";
   const email = user?.email ?? "";
-  const isDeveloper = user?.role === "developer";
-  const profileHref = isDeveloper ? "/developer/profile" : "/dashboard/profile";
-  const settingsHref = isDeveloper ? "/developer/settings" : "/dashboard/settings";
+  const isSeller = user?.role === "seller";
+  const profileHref = isSeller ? "/seller/profile" : "/dashboard/profile";
+  const settingsHref = isSeller ? "/seller/settings" : "/dashboard/settings";
 
   async function handleLogout(): Promise<void> {
     setLoggingOut(true);

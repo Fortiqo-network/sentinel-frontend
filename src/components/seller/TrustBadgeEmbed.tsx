@@ -14,10 +14,10 @@ const SNIPPET_TABS: { key: SnippetKind; label: string }[] = [
 ];
 
 /**
- * "Verified by Sentinel" badge embed panel for the developer portal (B3).
+ * "Verified by Sentinel" badge embed panel for the seller portal (B3).
  *
  * Shows a live preview of the agent's trust badge (served by the Sentinel API)
- * and gives developers copy-paste HTML / Markdown / iframe snippets to drop the
+ * and gives sellers copy-paste HTML / Markdown / iframe snippets to drop the
  * badge onto their own site. The badge is fetched live, so the score it shows is
  * always current — there is nothing to keep in sync.
  */

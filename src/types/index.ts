@@ -63,8 +63,8 @@ export interface AgentOwner {
   displayName: string;
   companyName?: string;
   avatarUrl?: string;
-  /** Verified developer badge. */
-  isVerifiedDeveloper: boolean;
+  /** Verified seller badge. */
+  isVerifiedSeller: boolean;
 }
 
 /**

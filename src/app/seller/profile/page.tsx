@@ -4,7 +4,7 @@ import { getServerUser } from "@/lib/api/server-auth";
 import { Avatar } from "@/components/ui/avatar";
 
 export const metadata: Metadata = {
-  title: "My Profile — Sentinel Developer",
+  title: "My Profile — Sentinel Seller",
 };
 
 function formatDate(iso: string): string {
@@ -16,9 +16,9 @@ function formatDate(iso: string): string {
 }
 
 /**
- * Developer profile page. Displays account details fetched from the session.
+ * Seller profile page. Displays account details fetched from the session.
  */
-export default async function DeveloperProfilePage(): Promise<React.JSX.Element> {
+export default async function SellerProfilePage(): Promise<React.JSX.Element> {
   const user = await getServerUser();
   if (!user) redirect("/login");
 

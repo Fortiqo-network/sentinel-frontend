@@ -8,7 +8,7 @@ const FOOTER_LINKS = [
     links: [
       { href: "/agents", label: "Marketplace" },
       { href: "/playground", label: "Playground" },
-      { href: "/developer", label: "For Developers" },
+      { href: "/seller", label: "For Sellers" },
     ],
   },
   {

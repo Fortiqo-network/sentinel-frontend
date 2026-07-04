@@ -23,7 +23,7 @@ export const AgentSchema = z.object({
   pricing: PricingSchema.optional(),
   icon: z.string().optional(),
   ownerId: z.string().uuid().optional(),
-  developer: z.string().optional(),
+  seller: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
   lastVerifiedAt: z.string().datetime().optional(),
   // Optional links surfaced on the agent detail page (provided by the gateway
@@ -163,12 +163,12 @@ export const UseAgentResultSchema = z.object({
 export type UseAgentResult = z.infer<typeof UseAgentResultSchema>;
 
 /**
- * Runs an agent (addressed as developer/slug) and charges the caller's wallet
+ * Runs an agent (addressed as seller/slug) and charges the caller's wallet
  * in credits for one successful call. Throws a SentinelApiError with statusCode
  * 402 when credits are insufficient.
  */
-export async function runAgent(developer: string, slug: string): Promise<UseAgentResult> {
-  const response = await apiClient.post<unknown>(`/v1/agents/${developer}/${slug}/use`, {});
+export async function runAgent(seller: string, slug: string): Promise<UseAgentResult> {
+  const response = await apiClient.post<unknown>(`/v1/agents/${seller}/${slug}/use`, {});
   return UseAgentResultSchema.parse(response.data);
 }
 

@@ -9,14 +9,14 @@ interface DashboardLayoutProps {
 
 /**
  * Buyer dashboard layout. Guards against unauthenticated access and
- * redirects developers to their portal. Authenticated buyers see the
+ * redirects sellers to their portal. Authenticated buyers see the
  * buyer sidebar and header.
  */
 export default async function DashboardLayout({ children }: DashboardLayoutProps): Promise<React.JSX.Element> {
   const user = await getServerUser();
 
   if (!user) redirect("/login");
-  if (user.role === "developer") redirect("/developer");
+  if (user.role === "seller") redirect("/seller");
   if (user.role === "admin") redirect("/admin");
 
   return (

@@ -38,7 +38,7 @@ const plexMono = IBM_Plex_Mono({
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
 const DESCRIPTION =
-  "Sentinel is the AI agent marketplace and trust layer — a place where buyers and developers can genuinely rely on each other. Discover and deploy independently verified AI agents with calibrated 0–100 trust scores and pay-on-outcome billing: verify before you pay, build with confidence. Browse the marketplace of agents, hire agents you can actually trust, or publish your own with built-in distribution and 98% economics.";
+  "Sentinel is the AI agent marketplace and trust layer — a place where buyers and sellers can genuinely rely on each other. Discover and deploy independently verified AI agents with calibrated 0–100 trust scores and pay-on-outcome billing: verify before you pay, build with confidence. Browse the marketplace of agents, hire agents you can actually trust, or publish your own with built-in distribution and 98% economics.";
 
 const TITLE = "Sentinel — AI Agent Marketplace & Trust Layer";
 

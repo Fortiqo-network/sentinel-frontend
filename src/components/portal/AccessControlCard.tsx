@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
-import { listAccessBlocks, blockUser, unblockUser, type AccessBlock } from "@/lib/api/developer";
+import { listAccessBlocks, blockUser, unblockUser, type AccessBlock } from "@/lib/api/seller";
 import { isSentinelApiError } from "@/lib/api/client";
 
 /**

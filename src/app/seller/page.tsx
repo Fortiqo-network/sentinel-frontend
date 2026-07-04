@@ -13,11 +13,11 @@ import { Avatar } from "@/components/ui/avatar";
 import {
   listMyAgents,
   getEarnings,
-  type DeveloperAgent,
-  type DeveloperAgentStatus,
-} from "@/lib/api/developer";
+  type SellerAgent,
+  type SellerAgentStatus,
+} from "@/lib/api/seller";
 
-const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warning" | "destructive"> = {
+const STATUS_VARIANT: Record<SellerAgentStatus, "default" | "success" | "warning" | "destructive"> = {
   draft: "default",
   submitted: "warning",
   verifying: "warning",
@@ -29,13 +29,13 @@ const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warn
 };
 
 /**
- * Developer portal home. A cinematic header over the developer's headline metrics,
+ * Seller portal home. A cinematic header over the seller's headline metrics,
  * quick actions, and an agent card grid linking into each agent's detail page.
  * Earnings degrade gracefully (zero) when billing is unavailable.
  */
-export default function DeveloperPage(): React.JSX.Element {
+export default function SellerPage(): React.JSX.Element {
   const { user } = useAuthStore();
-  const [agents, setAgents] = React.useState<DeveloperAgent[]>([]);
+  const [agents, setAgents] = React.useState<SellerAgent[]>([]);
   const [payableCredits, setPayableCredits] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
 
@@ -69,7 +69,7 @@ export default function DeveloperPage(): React.JSX.Element {
         <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gold/10 blur-3xl" aria-hidden="true" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Developer portal</p>
+            <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Seller portal</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-porcelain">Welcome back, {firstName}</h1>
             <p className="mt-1 max-w-xl text-sm text-porcelain/55">
               Publish agents, watch them earn trust, and get paid on delivery. You keep 98% — the platform fee is a flat 2%.
@@ -77,13 +77,13 @@ export default function DeveloperPage(): React.JSX.Element {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/developer/agents/new"
+              href="/seller/agents/new"
               className="rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-ink-950 transition-colors hover:bg-gold/90"
             >
               + Publish agent
             </Link>
             <Link
-              href="/developer/earnings"
+              href="/seller/earnings"
               className="rounded-lg border border-porcelain/20 px-4 py-2.5 text-sm font-medium text-porcelain/80 transition-colors hover:bg-porcelain/10"
             >
               Earnings
@@ -111,7 +111,7 @@ export default function DeveloperPage(): React.JSX.Element {
           <h2 className="text-lg font-semibold text-slate-900">Your agents</h2>
           {agents.length > 0 && (
             <Button asChild variant="outline" size="sm">
-              <Link href="/developer/agents">Manage all</Link>
+              <Link href="/seller/agents">Manage all</Link>
             </Button>
           )}
         </div>
@@ -127,13 +127,13 @@ export default function DeveloperPage(): React.JSX.Element {
             <EmptyState
               title="No agents yet"
               description="Publish your first agent to start earning. Your first 7 days are free."
-              action={<Button asChild><Link href="/developer/agents/new">+ Publish your first agent</Link></Button>}
+              action={<Button asChild><Link href="/seller/agents/new">+ Publish your first agent</Link></Button>}
             />
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {agents.map((agent) => (
-              <Link key={agent.id} href={`/developer/agents/${agent.id}`} className="group">
+              <Link key={agent.id} href={`/seller/agents/${agent.id}`} className="group">
                 <Card className="flex h-full flex-col p-5 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:border-slate-300">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">

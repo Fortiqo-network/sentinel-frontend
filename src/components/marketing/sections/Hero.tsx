@@ -102,7 +102,7 @@ export function Hero(): React.JSX.Element {
 
         <Reveal delay={0.2}>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <MagneticButton href="/register?role=developer" variant="primary">
+            <MagneticButton href="/register?role=seller" variant="primary">
               Start building
             </MagneticButton>
             <MagneticButton href="/agents" variant="ghost">

@@ -28,7 +28,7 @@ const PUBLIC_NAV: NavLink[] = [
 // ---------------------------------------------------------------------------
 
 interface DashboardDropdownProps {
-  role: "buyer" | "developer" | "admin";
+  role: "buyer" | "seller" | "admin";
 }
 
 function DashboardDropdown({ role }: DashboardDropdownProps): React.JSX.Element {
@@ -114,7 +114,7 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   isAuthenticated: boolean;
-  role?: "buyer" | "developer" | "admin";
+  role?: "buyer" | "seller" | "admin";
 }
 
 function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): React.JSX.Element | null {
@@ -185,7 +185,7 @@ function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): 
 /**
  * Global navigation header. Shows public nav links (Marketplace, Docs, Pricing),
  * a Dashboard dropdown when authenticated with links to Buyer Dashboard and
- * Developer Dashboard, and Login/Get Started when not authenticated.
+ * Seller Dashboard, and Login/Get Started when not authenticated.
  * Includes a mobile-responsive hamburger menu.
  *
  * @example

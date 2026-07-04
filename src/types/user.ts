@@ -5,7 +5,7 @@
  */
 
 /** Primary role assigned at registration. */
-export type UserRole = "buyer" | "developer" | "admin";
+export type UserRole = "buyer" | "seller" | "admin";
 
 /** Authenticated user profile as returned by GET /v1/auth/me. */
 export interface User {

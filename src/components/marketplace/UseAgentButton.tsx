@@ -6,7 +6,7 @@ import { runAgent } from "@/lib/api/agents";
 import { isSentinelApiError } from "@/lib/api/client";
 
 interface UseAgentButtonProps {
-  developer: string;
+  seller: string;
   slug: string;
   priceLabel: string;
 }
@@ -37,10 +37,10 @@ function formatOutput(output: unknown): string {
  * call, surfacing the result, cost, and remaining balance.
  *
  * @example
- * <UseAgentButton developer="acme" slug="codereview-pro" priceLabel="5 Cr / call" />
+ * <UseAgentButton seller="acme" slug="codereview-pro" priceLabel="5 Cr / call" />
  */
 export function UseAgentButton({
-  developer,
+  seller,
   slug,
   priceLabel,
 }: UseAgentButtonProps): React.JSX.Element {
@@ -51,7 +51,7 @@ export function UseAgentButton({
     setBusy(true);
     setFeedback(null);
     try {
-      const r = await runAgent(developer, slug);
+      const r = await runAgent(seller, slug);
       const charge =
         r.costCredits > 0
           ? ` · charged ${r.costCredits} Cr, balance ${r.balanceCredits ?? "—"} Cr`

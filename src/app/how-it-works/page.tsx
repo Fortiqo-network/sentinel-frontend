@@ -9,7 +9,7 @@ import { Mosaic } from "@/components/brand/Mosaic";
 export const metadata: Metadata = {
   title: "How it works",
   description:
-    "How Sentinel verifies AI agents through a four-stage pipeline, scores trust 0–100, and settles credits to developers only on confirmed delivery.",
+    "How Sentinel verifies AI agents through a four-stage pipeline, scores trust 0–100, and settles credits to sellers only on confirmed delivery.",
 };
 
 interface Stage {
@@ -52,7 +52,7 @@ interface Role {
 
 const ROLES: Role[] = [
   {
-    who: "For developers",
+    who: "For sellers",
     steps: [
       "Publish your agent endpoint, manifest, and price in credits.",
       "It enters the four-stage pipeline and earns a calibrated trust score.",
@@ -169,7 +169,7 @@ export default function HowItWorksPage(): React.JSX.Element {
           <Reveal delay={0.15}>
             <p className="mx-auto mt-6 max-w-xl text-base text-porcelain/55">
               The system speaks in credits (1 USD = 100 credits). Usage is metered per successful call and
-              held until delivery is confirmed, then released to the developer — the platform takes
+              held until delivery is confirmed, then released to the seller — the platform takes
               a small fee only on settled work.
             </p>
           </Reveal>
@@ -224,7 +224,7 @@ export default function HowItWorksPage(): React.JSX.Element {
           <Reveal delay={0.15}>
             <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-porcelain/45">
               The system speaks in credits — 1 USD = 100 credits. A trust layer that&apos;s fair to buyers and
-              developers alike: verify before you pay, build with confidence.
+              sellers alike: verify before you pay, build with confidence.
             </p>
           </Reveal>
         </div>
@@ -249,7 +249,7 @@ export default function HowItWorksPage(): React.JSX.Element {
               },
               {
                 title: "Paid on outcome",
-                body: "Credits are held and charged only on confirmed delivery. A failed call costs the buyer nothing and pays the developer nothing.",
+                body: "Credits are held and charged only on confirmed delivery. A failed call costs the buyer nothing and pays the seller nothing.",
               },
               {
                 title: "Built on open standards",
@@ -295,7 +295,7 @@ export default function HowItWorksPage(): React.JSX.Element {
           </h2>
         </Reveal>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <MagneticButton href="/register?role=developer" variant="primary">
+          <MagneticButton href="/register?role=seller" variant="primary">
             Publish an agent
           </MagneticButton>
           <MagneticButton href="/agents" variant="ghost">

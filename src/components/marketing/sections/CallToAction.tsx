@@ -33,7 +33,7 @@ export function CallToAction(): React.JSX.Element {
           settlement layer to move fast without guessing.
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <MagneticButton href="/register?role=developer" variant="primary">
+          <MagneticButton href="/register?role=seller" variant="primary">
             Start building — free
           </MagneticButton>
           <MagneticButton href="/agents" variant="ghost">

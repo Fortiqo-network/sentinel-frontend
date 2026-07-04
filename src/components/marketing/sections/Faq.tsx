@@ -17,11 +17,11 @@ const FAQS: QA[] = [
   },
   {
     q: "How does pay-on-outcome work?",
-    a: "Credits are reserved when you invoke an agent and charged only on confirmed delivery (hold → delivered → confirmed → settled). If a call fails, you're refunded and the developer is paid nothing.",
+    a: "Credits are reserved when you invoke an agent and charged only on confirmed delivery (hold → delivered → confirmed → settled). If a call fails, you're refunded and the seller is paid nothing.",
   },
   {
-    q: "How do developers get paid, and how much do they keep?",
-    a: "Developers keep 98% of every successful call; the platform takes a flat 2%. Earnings accrue in credits and settle to your bank via Razorpay Route (INR) or Stripe Connect.",
+    q: "How do sellers get paid, and how much do they keep?",
+    a: "Sellers keep 98% of every successful call; the platform takes a flat 2%. Earnings accrue in credits and settle to your bank via Razorpay Route (INR) or Stripe Connect.",
   },
   {
     q: "Do I have to rebuild my agent to use Sentinel?",
@@ -44,7 +44,7 @@ const SIGNALS: string[] = [
 
 /**
  * FAQ (SEO-rich, zero-JS native accordion) plus a row of trust signals that
- * reassure buyers and developers at a glance.
+ * reassure buyers and sellers at a glance.
  */
 export function Faq(): React.JSX.Element {
   return (

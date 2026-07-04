@@ -13,7 +13,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AccessControlCard } from "@/components/portal/AccessControlCard";
 import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
-import { TrustBadgeEmbed } from "@/components/developer/TrustBadgeEmbed";
+import { TrustBadgeEmbed } from "@/components/seller/TrustBadgeEmbed";
 import {
   getMyAgent,
   payListing,
@@ -25,15 +25,15 @@ import {
   getAgentAudience,
   blockUserId,
   unblockUser,
-  type DeveloperAgent,
-  type DeveloperAgentStatus,
+  type SellerAgent,
+  type SellerAgentStatus,
   type AgentMetrics,
   type AudienceUser,
-} from "@/lib/api/developer";
+} from "@/lib/api/seller";
 import { isSentinelApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
 
-const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warning" | "destructive"> = {
+const STATUS_VARIANT: Record<SellerAgentStatus, "default" | "success" | "warning" | "destructive"> = {
   draft: "default",
   submitted: "warning",
   verifying: "warning",
@@ -46,7 +46,7 @@ const STATUS_VARIANT: Record<DeveloperAgentStatus, "default" | "success" | "warn
 
 const PAGE_SIZE = 8;
 
-function trialLabel(agent: DeveloperAgent): { label: string; tone: "ok" | "trial" | "expired"; showPay: boolean } {
+function trialLabel(agent: SellerAgent): { label: string; tone: "ok" | "trial" | "expired"; showPay: boolean } {
   if (agent.listingPaid) return { label: "Listing fee paid", tone: "ok", showPay: false };
   if (!agent.trialEndsAt) return { label: "Listed", tone: "ok", showPay: false };
   const days = Math.ceil((new Date(agent.trialEndsAt).getTime() - Date.now()) / 86_400_000);
@@ -59,16 +59,16 @@ function formatCredits(n: number): string {
 }
 
 /**
- * Developer agent detail. A cinematic header over the agent's live state, headline
+ * Seller agent detail. A cinematic header over the agent's live state, headline
  * metrics, listing status, a paginated audience table with inline access control,
  * and a danger zone to disable the agent.
  */
-export default function DeveloperAgentDetailPage(): React.JSX.Element {
+export default function SellerAgentDetailPage(): React.JSX.Element {
   const params = useParams<{ agentId: string }>();
   const router = useRouter();
   const agentId = params.agentId;
 
-  const [agent, setAgent] = React.useState<DeveloperAgent | null>(null);
+  const [agent, setAgent] = React.useState<SellerAgent | null>(null);
   const [metrics, setMetrics] = React.useState<AgentMetrics | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [notFound, setNotFound] = React.useState(false);
@@ -158,7 +158,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
     try {
       if (agent.status === "draft" || agent.status === "rejected") await deleteAgent(agentId);
       else await retireAgent(agentId);
-      router.push("/developer/agents");
+      router.push("/seller/agents");
       router.refresh();
     } finally {
       setDisabling(false);
@@ -195,7 +195,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
         <EmptyState
           title="Agent not found"
           description="This agent doesn't exist or you don't own it."
-          action={<Button asChild><Link href="/developer/agents">Back to my agents</Link></Button>}
+          action={<Button asChild><Link href="/seller/agents">Back to my agents</Link></Button>}
         />
       </Card>
     );
@@ -214,7 +214,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
           <div className="flex items-center gap-4">
             <Avatar src={agent.slug} name={agent.name} size="xl" />
             <div>
-              <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Developer · Agent</p>
+              <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Seller · Agent</p>
               <h1 className="mt-1 text-2xl font-bold tracking-tight text-porcelain">{agent.name}</h1>
               <p className="font-mono text-sm text-porcelain/45">/{agent.slug}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -249,7 +249,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
                 </button>
               )}
               <Link
-                href="/developer/agents"
+                href="/seller/agents"
                 className="rounded-lg border border-porcelain/20 px-4 py-2 text-center text-sm font-medium text-porcelain/80 transition-colors hover:bg-porcelain/10"
               >
                 All agents
@@ -306,7 +306,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
         </CardContent>
       </Card>
 
-      {/* "Verified by Sentinel" badge — embeddable on the developer's own site.
+      {/* "Verified by Sentinel" badge — embeddable on the seller's own site.
           Only meaningful once the agent is live and listed. */}
       {agent.status === "live" && <TrustBadgeEmbed slug={agent.slug} />}
 
@@ -386,7 +386,7 @@ export default function DeveloperAgentDetailPage(): React.JSX.Element {
       </Card>
 
       {/* Endpoint ownership proof — only for proxy agents. Sentinel-hosted (managed)
-          agents have no developer endpoint to prove; we control and generate it. */}
+          agents have no seller endpoint to prove; we control and generate it. */}
       {agent.tier === "managed" ? (
         <Card className="p-6">
           <h2 className="text-base font-semibold text-slate-900">Hosting</h2>

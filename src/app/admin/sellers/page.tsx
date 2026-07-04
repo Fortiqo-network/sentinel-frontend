@@ -4,12 +4,12 @@ import * as React from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import {
-  listAdminDevelopers,
-  settleDeveloper,
+  listAdminSellers,
+  settleSeller,
   blockUser,
   unblockUser,
   unitsToCredits,
-  type AdminDeveloperRow,
+  type AdminSellerRow,
 } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
 
@@ -18,12 +18,12 @@ function credits(units: number): string {
 }
 
 /**
- * Admin developers console — accrued (payable) vs withdrawable (available)
- * balances per developer, with a Settle action that moves payable → available so
- * the developer can withdraw it from their portal.
+ * Admin sellers console — accrued (payable) vs withdrawable (available)
+ * balances per seller, with a Settle action that moves payable → available so
+ * the seller can withdraw it from their portal.
  */
-export default function AdminDevelopersPage(): React.JSX.Element {
-  const [rows, setRows] = React.useState<AdminDeveloperRow[]>([]);
+export default function AdminSellersPage(): React.JSX.Element {
+  const [rows, setRows] = React.useState<AdminSellerRow[]>([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -34,12 +34,12 @@ export default function AdminDevelopersPage(): React.JSX.Element {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const result = await listAdminDevelopers({ q: q.trim() || undefined, pageSize: 100 });
-      setRows(result.developers);
+      const result = await listAdminSellers({ q: q.trim() || undefined, pageSize: 100 });
+      setRows(result.sellers);
       setTotal(result.total);
       setError(null);
     } catch (err) {
-      setError(isSentinelApiError(err) ? err.message : "Unable to load developers.");
+      setError(isSentinelApiError(err) ? err.message : "Unable to load sellers.");
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
     void load();
   }, [load]);
 
-  async function toggleBlock(d: AdminDeveloperRow): Promise<void> {
+  async function toggleBlock(d: AdminSellerRow): Promise<void> {
     setBusyId(d.id);
     setNotice(null);
     try {
@@ -66,7 +66,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
     setBusyId(id);
     setNotice(null);
     try {
-      const result = await settleDeveloper(id);
+      const result = await settleSeller(id);
       setRows((prev) =>
         prev.map((r) =>
           r.id === id ? { ...r, payable_units: 0, available_units: result.available_units } : r,
@@ -74,7 +74,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
       );
       setNotice(
         result.settled_units > 0
-          ? `Settled ${credits(result.settled_units)} for the developer.`
+          ? `Settled ${credits(result.settled_units)} for the seller.`
           : "Nothing to settle — payable balance was already zero.",
       );
     } catch (err) {
@@ -88,8 +88,8 @@ export default function AdminDevelopersPage(): React.JSX.Element {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Admin"
-        title="Developers"
-        description={`${total} developer${total === 1 ? "" : "s"}. Settle accrued earnings into withdrawable balances.`}
+        title="Sellers"
+        description={`${total} seller${total === 1 ? "" : "s"}. Settle accrued earnings into withdrawable balances.`}
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -113,7 +113,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
         <table className="w-full min-w-[760px] text-sm">
           <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-4 py-3 font-medium">Developer</th>
+              <th className="px-4 py-3 font-medium">Seller</th>
               <th className="px-4 py-3 font-medium">Agents</th>
               <th className="px-4 py-3 text-right font-medium">Payable</th>
               <th className="px-4 py-3 text-right font-medium">Available</th>
@@ -130,7 +130,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
             ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
-                  No developers match.
+                  No sellers match.
                 </td>
               </tr>
             ) : (
@@ -173,7 +173,7 @@ export default function AdminDevelopersPage(): React.JSX.Element {
 
       <p className="text-xs text-slate-400">
         Payable is accrued from delivered calls and awaits settlement; available is withdrawable by
-        the developer. Balances show as 0 if the billing service is unavailable.
+        the seller. Balances show as 0 if the billing service is unavailable.
       </p>
     </div>
   );

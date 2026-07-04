@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps): Promi
   const user = await getServerUser();
 
   if (!user) redirect("/login");
-  if (user.role !== "admin") redirect(user.role === "developer" ? "/developer" : "/dashboard");
+  if (user.role !== "admin") redirect(user.role === "seller" ? "/seller" : "/dashboard");
 
   return (
     <div className="flex h-screen overflow-hidden">

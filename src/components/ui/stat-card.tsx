@@ -26,7 +26,7 @@ export interface StatCardProps {
 }
 
 /**
- * Headline metric tile used across the buyer and developer portals. Optionally
+ * Headline metric tile used across the buyer and seller portals. Optionally
  * shows an icon, a supporting line, and a coloured trend chip.
  *
  * @example

@@ -7,7 +7,7 @@
  *   - a preset reference       → "preset:aurora"
  *   - undefined / empty        → render initials fallback
  *
- * The same model is reused for agent logos: a developer-hosted logo URL is used
+ * The same model is reused for agent logos: a seller-hosted logo URL is used
  * verbatim; otherwise a preset (and, later, an R2-hosted upload) is used.
  */
 

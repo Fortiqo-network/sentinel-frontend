@@ -2,11 +2,11 @@ import * as React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getDeveloperProfile } from "@/lib/api/developers-public";
+import { getSellerProfile } from "@/lib/api/sellers-public";
 import { isSentinelApiError } from "@/lib/api/client";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils/cn";
-import type { PublicAgentSummary } from "@/lib/api/developers-public";
+import type { PublicAgentSummary } from "@/lib/api/sellers-public";
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -15,14 +15,14 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
   try {
-    const dev = await getDeveloperProfile(handle);
-    const name = dev.displayName ?? "Developer";
+    const dev = await getSellerProfile(handle);
+    const name = dev.displayName ?? "Seller";
     return {
-      title: `${name} — Sentinel Developer`,
+      title: `${name} — Sentinel Seller`,
       description: dev.bio ?? `View ${name}'s agents and profile on Sentinel.`,
     };
   } catch {
-    return { title: "Developer — Sentinel" };
+    return { title: "Seller — Sentinel" };
   }
 }
 
@@ -124,24 +124,24 @@ function SocialLink({
 }
 
 /**
- * Public shareable developer profile page.
+ * Public shareable seller profile page.
  * Renders on the cinematic ink surface — no auth required.
  *
  * @example
- * /developers/550e8400-e29b-41d4-a716-446655440000
+ * /sellers/550e8400-e29b-41d4-a716-446655440000
  */
-export default async function DeveloperProfilePage({ params }: Props): Promise<React.JSX.Element> {
+export default async function SellerProfilePage({ params }: Props): Promise<React.JSX.Element> {
   const { handle } = await params;
 
   let dev;
   try {
-    dev = await getDeveloperProfile(handle);
+    dev = await getSellerProfile(handle);
   } catch (err: unknown) {
     if (isSentinelApiError(err) && err.statusCode === 404) notFound();
     notFound();
   }
 
-  const name = dev.displayName ?? "Anonymous Developer";
+  const name = dev.displayName ?? "Anonymous Seller";
 
   return (
     <div className="min-h-screen bg-void text-porcelain">

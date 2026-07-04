@@ -15,7 +15,7 @@ export const PublicAgentSummarySchema = z.object({
 
 export type PublicAgentSummary = z.infer<typeof PublicAgentSummarySchema>;
 
-export const DeveloperPublicProfileSchema = z.object({
+export const SellerPublicProfileSchema = z.object({
   id: z.string().uuid(),
   displayName: z.string().nullable().optional(),
   avatarUrl: z.string().nullable().optional(),
@@ -28,15 +28,15 @@ export const DeveloperPublicProfileSchema = z.object({
   agents: z.array(PublicAgentSummarySchema).default([]),
 });
 
-export type DeveloperPublicProfile = z.infer<typeof DeveloperPublicProfileSchema>;
+export type SellerPublicProfile = z.infer<typeof SellerPublicProfileSchema>;
 
 // ── API function ──────────────────────────────────────────────────────────────
 
 /**
- * Fetches a developer's public profile including their live agents.
+ * Fetches a seller's public profile including their live agents.
  * No authentication required — publicly accessible.
  */
-export async function getDeveloperProfile(userId: string): Promise<DeveloperPublicProfile> {
-  const response = await apiClient.get<unknown>(`/v1/developers/${userId}`);
-  return DeveloperPublicProfileSchema.parse(response.data);
+export async function getSellerProfile(userId: string): Promise<SellerPublicProfile> {
+  const response = await apiClient.get<unknown>(`/v1/sellers/${userId}`);
+  return SellerPublicProfileSchema.parse(response.data);
 }

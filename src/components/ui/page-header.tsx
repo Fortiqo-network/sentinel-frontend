@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 export interface PageHeaderProps {
   title: string;
   description?: string;
-  /** Optional eyebrow label above the title (e.g. "Developer portal"). */
+  /** Optional eyebrow label above the title (e.g. "Seller portal"). */
   eyebrow?: string;
   /** Action buttons rendered on the right (wraps on mobile). */
   actions?: React.ReactNode;

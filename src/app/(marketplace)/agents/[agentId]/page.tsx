@@ -51,7 +51,7 @@ export async function generateMetadata({
   const trust = `Trust score ${agent.trustScore}/100`;
   return {
     title: `${agent.name} — Verified AI Agent (${trust})`,
-    description: `${agent.description} ${trust}, independently verified by Sentinel. Hire it with pay-on-outcome billing — trust you can verify, for buyers and developers alike.`,
+    description: `${agent.description} ${trust}, independently verified by Sentinel. Hire it with pay-on-outcome billing — trust you can verify, for buyers and sellers alike.`,
     alternates: { canonical: `/agents/${agentId}` },
     openGraph: {
       type: "website",
@@ -124,7 +124,7 @@ export default async function AgentDetailPage({
 
   // Standard integration URLs derived from the agent identity + the public gateway.
   const GATEWAY = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://sentinel-api.fortiqo.xyz";
-  const dev = agent.developer ?? "";
+  const dev = agent.seller ?? "";
   const metadataUrl = agent.metadataUrl ?? (dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/metadata` : undefined);
   const restUrl = dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/use` : undefined;
   const sseUrl = `${GATEWAY}/v1/agents/${agent.id}/chat`;
@@ -134,7 +134,7 @@ export default async function AgentDetailPage({
     ...(agent.repoUrl ? [{ label: "Source / GitHub", href: agent.repoUrl }] : []),
     ...(agent.homepageUrl ? [{ label: "Homepage", href: agent.homepageUrl }] : []),
     ...(agent.docsUrl ? [{ label: "Documentation", href: agent.docsUrl }] : []),
-    ...(agent.endpointUrl ? [{ label: "Developer endpoint", href: agent.endpointUrl }] : []),
+    ...(agent.endpointUrl ? [{ label: "Seller endpoint", href: agent.endpointUrl }] : []),
   ];
 
   return (
@@ -275,7 +275,7 @@ export default async function AgentDetailPage({
             </p>
             <div className="mt-5">
               <UseAgentButton
-                developer={agent.developer ?? ""}
+                seller={agent.seller ?? ""}
                 slug={agent.slug}
                 priceLabel={priceCredits != null ? `${priceCredits} Cr / call` : "Free"}
               />
@@ -299,9 +299,9 @@ export default async function AgentDetailPage({
         <AgentReviews agentId={agent.id} />
       </section>
 
-      {/* Developer & integration */}
+      {/* Seller & integration */}
       <section className="mt-6 glass ring-hairline rounded-2xl p-6">
-        <h2 className="text-base font-semibold text-porcelain">Developer &amp; integration</h2>
+        <h2 className="text-base font-semibold text-porcelain">Seller &amp; integration</h2>
         <p className="mt-0.5 text-xs text-porcelain/40">
           Identity, source, and the endpoints to call this agent from your own code.
         </p>
@@ -310,11 +310,11 @@ export default async function AgentDetailPage({
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between gap-3">
-              <dt className="text-porcelain/40">Developer</dt>
+              <dt className="text-porcelain/40">Seller</dt>
               <dd className="text-porcelain/80">
-                {agent.developer ? (
-                  <Link href={`/developers/${agent.developer}`} className="text-gold hover:underline">
-                    @{agent.developer}
+                {agent.seller ? (
+                  <Link href={`/sellers/${agent.seller}`} className="text-gold hover:underline">
+                    @{agent.seller}
                   </Link>
                 ) : (
                   "—"
