@@ -258,3 +258,20 @@ the request.
 > was done, tick completed items, add any new task discovered, and mark in-progress work. Never
 > delete a line. No change ships without its TODO update — the board must always reflect reality
 > and the history of what happened.
+
+## CI / deployment: docs-only changes never redeploy
+
+Pushing to `main` may trigger this repo's GitHub Actions deploy workflow (build image → GHCR →
+redeploy the container). **Documentation-only changes must not trigger a redeploy.** Two guards
+enforce this on deploy workflows:
+
+- **`paths-ignore`** on the push trigger — a push that changes only markdown/docs
+  (`**.md`, `docs/**`, `master-doc/**`) does not start the workflow at all.
+- **Commit-message guard** — if the head commit message starts with `docs:`, `docs(`, or `doc:`,
+  the build + deploy jobs are skipped (an `if:` on the root job cascades through `needs`).
+
+**Convention:** use the `docs:` (or `docs(scope):`) conventional-commit type for any pure
+documentation, todo, or markdown update — it is committed and pushed but does **not** redeploy the
+service. Use a functional type (`feat:`, `fix:`, `refactor:`, `ci:`, …) only when a redeploy is
+actually intended. (Frontend/docs sites deploy via their host's build, not GitHub Actions —
+configure the equivalent ignore-build-step there.)
