@@ -36,6 +36,10 @@ export interface Agent {
   description: string;
   /** Calibrated 0–100 trust score. Updated continuously. */
   trustScore: number;
+  /** Mean buyer rating (1–5), null/absent when there are no reviews. */
+  ratingAvg?: number | null;
+  /** Number of buyer ratings. */
+  ratingCount?: number;
   tier: AgentTier;
   tags: string[];
   /** Business vertical (e.g. "Engineering", "Legal"). Optional. */

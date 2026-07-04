@@ -15,6 +15,8 @@ export const AgentSchema = z.object({
   slug: z.string().min(1),
   description: z.string(),
   trustScore: z.number().int().min(0).max(100),
+  ratingAvg: z.number().nullable().optional(),
+  ratingCount: z.number().int().optional(),
   tier: z.enum(["verified", "managed", "registry", "proxy"]),
   tags: z.array(z.string()),
   vertical: z.string().optional(),

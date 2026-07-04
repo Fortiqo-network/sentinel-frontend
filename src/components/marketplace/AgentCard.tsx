@@ -256,6 +256,19 @@ export function AgentCard({
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <TierBadge tier={agent.tier} dark={dark} />
             <CertBadge status={certStatus} dark={dark} />
+            {(agent.ratingCount ?? 0) > 0 && (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-medium",
+                  dark ? "bg-ink-700 text-gold" : "bg-amber-50 text-amber-600",
+                )}
+              >
+                ★ {(agent.ratingAvg ?? 0).toFixed(1)}
+                <span className={dark ? "text-porcelain/40" : "text-slate-400"}>
+                  ({agent.ratingCount})
+                </span>
+              </span>
+            )}
           </div>
           {agent.health?.lastCheckAt && (
             <p className={cn("mt-1 text-xs", dark ? "text-porcelain/40" : "text-slate-400")}>

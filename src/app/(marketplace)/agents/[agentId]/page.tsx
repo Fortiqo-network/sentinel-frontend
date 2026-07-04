@@ -9,6 +9,7 @@ import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
 import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
 import { ReportAgentButton } from "@/components/marketplace/ReportAgentButton";
 import { TrustReportPanel } from "@/components/marketplace/TrustReportPanel";
+import { AgentReviews } from "@/components/marketplace/AgentReviews";
 import type { Agent } from "@/types/agent";
 
 type CertLevel = "certified_managed" | "certified" | "provisional" | "uncertified";
@@ -292,6 +293,11 @@ export default async function AgentDetailPage({
           </section>
         </div>
       </div>
+
+      {/* Reviews & ratings */}
+      <section className="mt-6 glass ring-hairline rounded-2xl p-6">
+        <AgentReviews agentId={agent.id} />
+      </section>
 
       {/* Developer & integration */}
       <section className="mt-6 glass ring-hairline rounded-2xl p-6">
