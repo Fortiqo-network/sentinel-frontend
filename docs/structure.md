@@ -41,7 +41,7 @@ user-facing unit (**1 USD = 100 credits**; never show units/₹/$).
 | **sentinel-frontend** | Marketplace + buyer dashboard + developer portal + playground + marketing (Tessera brand) | Next.js 16 · React 19 · Tailwind | **Live** |
 | **sentinel-contracts** | On-chain identity (ERC-8004) + staked bonds | Solidity · Hardhat | **Scaffolded** (M9+) |
 | **sentinel-agent-templates** | Starter agents (Py/TS) + golden-task fixtures for verification calibration | Python + TypeScript | **Built** |
-| **sentinel-infra** | IaC: docker-compose (local), Terraform (AWS), Helm (k8s), CI/CD | Terraform · Helm · GH Actions | **Built** |
+| **sentinel-infra** | IaC: single-host docker-compose (prod) + CI/CD | Docker Compose · GH Actions | **Built** |
 | **sentinel-docs** | Standalone docs **site** (markdown + thin Next renderer; `nav.json`) at `docs.fortiqo.xyz` | Next.js (Mintlify removed) | **Live** |
 
 ---
@@ -143,7 +143,7 @@ Ownership proof (Phase A): `POST /internal/ownership/challenge` (issue token), `
 **registry** (`:8003`): `/v1/artifacts` (publish), `/v1/artifacts/{agent_id}[/{version}]`,
 `/v1/artifacts/{agent_id}/{version}/download` (presigned), `/v1/cards/{agent_id}`, `/v1/cards` (publish).
 
-**runtime** (stub, `:8003` per its config — not yet wired in compose; reconcile port): `/v1/execute`,
+**runtime** (stub, `:8004`, wired in compose): `/v1/execute`,
 `/v1/execute/{task_id}` (GET/DELETE), `/v1/health`, `/v1/ready`. **All execute endpoints return 501.**
 
 ---
@@ -193,7 +193,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
   `templates/typescript/basic-agent`; golden fixtures `fixtures/golden-tasks/{expense-review,icd10-coding}`
   (input/expected). Manifests validate against shared schema; fixtures calibrate verify.
 - **infra** — `docker/docker-compose.yml` wires postgres, redis, localstack + gateway:8080, core-api:8000,
-  verify:8001, billing:8002, registry:8003; Terraform modules (vpc/rds/redis/ecs/s3) + dev/staging/prod;
+  verify:8001, billing:8002, registry:8003; single-host docker-compose (Terraform/Helm IaC removed — A11);
   Helm charts (gateway/core-api/verify/billing); GH Actions CI + deploy-dev (self-hosted runner).
   Prod edge is a **Cloudflare tunnel** to the gateway (`sentinel-api.fortiqo.xyz`); frontend on Vercel.
 - **docs** — standalone Next.js site (Mintlify removed) deployed to `https://docs.fortiqo.xyz`
@@ -273,7 +273,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 |---|---|
 | Frontend (Vercel) | `https://sentinel.fortiqo.xyz` |
 | Gateway (public API, Cloudflare tunnel) | `https://sentinel-api.fortiqo.xyz` |
-| Local ports | gateway 8080 · core-api 8000 · verify 8001 · billing 8002 · registry 8003 · runtime 8003 (stub) |
+| Local ports | gateway 8080 · core-api 8000 · verify 8001 · billing 8002 · registry 8003 · runtime 8004 (stub) |
 | Brand | Tessera — ink `#0B0C0F` · porcelain `#ECEAE3` · gold `#E7A03C`; Sora + IBM Plex Mono |
 | Contact | balraj.fortiqo@gmail.com |
 
@@ -327,7 +327,7 @@ Prod: `https://sentinel.fortiqo.xyz`. Talks only to the gateway through its BFF.
 
 **sentinel-contracts** — `contracts/src/{SentinelAgentRegistry,SentinelBond}.sol` + `interfaces/` · `scripts/deploy.ts` · `test/`
 **sentinel-agent-templates** — `templates/{python,typescript}/*` · `fixtures/golden-tasks/*`
-**sentinel-infra** — `docker/docker-compose*.yml` · `terraform/{modules,environments}/` · `helm/sentinel-*/` · `.github/workflows/`
+**sentinel-infra** — `docker/docker-compose*.yml` · `.github/workflows/` (Terraform/Helm removed — A11)
 **sentinel-docs** (standalone Next site) — `nav.json` · `docs/**/*.{md,mdx}` + `index.mdx`/`quickstart.mdx` (content) · `app/[[...slug]]/page.tsx` + `app/layout.tsx` · `lib/docs.ts` · `components/{mdx-components,DocsSidebar,DocsToc}.tsx` · `tailwind.config.ts`
 
 ---
