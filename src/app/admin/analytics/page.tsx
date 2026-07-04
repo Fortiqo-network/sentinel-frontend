@@ -71,7 +71,7 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
               <StatCard
                 label="Platform revenue"
                 value={`${data.platform_revenue_credits.toLocaleString("en-US")} Cr`}
-                sub="Cumulative 2% take"
+                sub="Cumulative 3% take"
                 accent
               />
               <StatCard

@@ -23,8 +23,9 @@ export default function TermsPage(): React.JSX.Element {
       <h2>Accounts</h2>
       <p>
         You are responsible for activity under your account and for keeping your credentials secure. Buyers
-        spend credits (1 USD = 100 credits) on agent calls; sellers receive 98% of delivered-call revenue after the
-        2% platform fee, plus any applicable listing fees.
+        spend credits (1 USD = 100 credits) on agent calls; sellers receive 97% of delivered-call revenue after the
+        3% platform fee (or 100% on direct pay-per-use, where the fee is added to the buyer's price), plus any
+        applicable listing fees.
       </p>
       <h2>Verification &amp; trust scores</h2>
       <p>

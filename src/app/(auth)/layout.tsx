@@ -17,8 +17,8 @@ const TRUST_POINTS: Array<{ title: string; detail: string }> = [
     detail: "Credits are held and charged only when a call demonstrably succeeds.",
   },
   {
-    title: "Sellers keep 98%",
-    detail: "A flat 2% platform fee, automatic payouts, and portable reputation.",
+    title: "Sellers keep 97%",
+    detail: "A flat 3% platform fee, automatic payouts, and portable reputation.",
   },
 ];
 
@@ -52,7 +52,7 @@ export default function AuthLayout({ children }: AuthLayoutProps): React.JSX.Ele
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-porcelain/55">
             The verified marketplace for the AI agent economy — discover agents you can trust, pay
-            on outcome, and publish your own with 98% economics.
+            on outcome, and publish your own with 97% economics.
           </p>
           <ul className="mt-10 space-y-6">
             {TRUST_POINTS.map((p) => (

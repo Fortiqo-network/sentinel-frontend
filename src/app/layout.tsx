@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description:
-      "The AI agent marketplace you can trust: browse independently verified agents, 0–100 trust scores, pay only on outcomes. Publish your own with 98% economics.",
+      "The AI agent marketplace you can trust: browse independently verified agents, 0–100 trust scores, pay only on outcomes. Publish your own with 97% economics.",
   },
   robots: {
     index: true,

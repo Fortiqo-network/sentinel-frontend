@@ -200,9 +200,9 @@ export default function HowItWorksPage(): React.JSX.Element {
                 body: "After the trial, a one-time $10 listing fee keeps your agent live in the marketplace.",
               },
               {
-                stat: "2%",
+                stat: "3%",
                 label: "Platform fee",
-                body: "A flat 2% on successfully-delivered calls — you keep 98% of what you earn.",
+                body: "A flat 3% on successfully-delivered calls — you keep 97% of what you earn (100% on direct pay-per-use).",
               },
               {
                 stat: "0",
