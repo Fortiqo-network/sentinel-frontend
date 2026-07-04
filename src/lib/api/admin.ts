@@ -389,3 +389,58 @@ export async function featureAgent(agentId: string, order?: number): Promise<voi
 export async function unfeatureAgent(agentId: string): Promise<void> {
   await apiClient.post(`/v1/admin/agents/${agentId}/unfeature`, {});
 }
+
+// ── Sybil / multi-account detection (B15) ───────────────────────────────────────
+
+export const SybilAccountSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  display_name: z.string().nullable(),
+  signup_ip: z.string().nullable(),
+  is_active: z.boolean(),
+  created_at: z.string(),
+});
+export type SybilAccount = z.infer<typeof SybilAccountSchema>;
+
+export const SybilClusterSchema = z.object({
+  reason: z.enum(["email_alias", "shared_ip"]),
+  key: z.string(),
+  size: z.number().int(),
+  accounts: z.array(SybilAccountSchema),
+});
+export type SybilCluster = z.infer<typeof SybilClusterSchema>;
+
+const SybilResponseSchema = z.object({
+  clusters: z.array(SybilClusterSchema),
+  total: z.number().int(),
+});
+
+/** Returns suspected multi-account clusters (shared email/IP) for admin review. */
+export async function getSybilClusters(): Promise<{ clusters: SybilCluster[]; total: number }> {
+  const response = await apiClient.get<unknown>("/v1/admin/sybil");
+  return SybilResponseSchema.parse(response.data);
+}
+
+// ── Feature flags / runtime config (B18) ────────────────────────────────────────
+
+export const FeatureFlagSchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  description: z.string(),
+  type: z.string(),
+  default: z.unknown(),
+  value: z.unknown(),
+});
+export type FeatureFlag = z.infer<typeof FeatureFlagSchema>;
+
+/** Returns the runtime feature flags with values + metadata. */
+export async function getFeatureFlags(): Promise<FeatureFlag[]> {
+  const response = await apiClient.get<unknown>("/v1/admin/flags");
+  return z.object({ flags: z.array(FeatureFlagSchema) }).parse(response.data).flags;
+}
+
+/** Updates a feature flag's value (coerced server-side to its type). */
+export async function setFeatureFlag(key: string, value: unknown): Promise<FeatureFlag> {
+  const response = await apiClient.put<unknown>(`/v1/admin/flags/${key}`, { value });
+  return FeatureFlagSchema.parse(response.data);
+}

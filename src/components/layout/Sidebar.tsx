@@ -149,6 +149,8 @@ const ADMIN_LINKS: SidebarLink[] = [
   { href: "/admin/moderation", label: "Moderation", icon: <IconShield /> },
   { href: "/admin/developers", label: "Developers", icon: <IconCurrencyRupee /> },
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
+  { href: "/admin/sybil", label: "Multi-accounts", icon: <IconUsers /> },
+  { href: "/admin/flags", label: "Feature flags", icon: <IconCog /> },
 ];
 
 function resolveLinks(
