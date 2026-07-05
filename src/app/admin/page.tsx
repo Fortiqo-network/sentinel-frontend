@@ -94,12 +94,12 @@ export default function AdminOverviewPage(): React.JSX.Element {
       />
 
       {notice && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700 dark:border-gold/30 dark:bg-gold/15 dark:text-gold">
           {notice}
         </div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">
           {error}
         </div>
       )}
@@ -107,7 +107,7 @@ export default function AdminOverviewPage(): React.JSX.Element {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
+            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-porcelain/10 dark:bg-ink-700" />
           ))}
         </div>
       ) : data ? (
@@ -126,9 +126,9 @@ export default function AdminOverviewPage(): React.JSX.Element {
           </div>
 
           {diag && (
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-slate-900">Verification pipeline</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Verification pipeline</h2>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-porcelain/50">
                 For agents to reach <span className="font-medium">verified/live</span>, verify must be
                 reachable and the event-signature config must match.
               </p>
@@ -151,23 +151,25 @@ export default function AdminOverviewPage(): React.JSX.Element {
                 />
               </div>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600 dark:bg-ink-700 dark:text-porcelain/70">
                   {diag.agents_verifying} verifying
                 </span>
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600 dark:bg-ink-700 dark:text-porcelain/70">
                   {diag.agents_submitted} submitted
                 </span>
                 <span
                   className={
                     "rounded-full px-2.5 py-1 " +
-                    (diag.agents_stuck > 0 ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600")
+                    (diag.agents_stuck > 0
+                      ? "bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300"
+                      : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300")
                   }
                 >
                   {diag.agents_stuck} stuck
                 </span>
               </div>
               {!diag.verify_reachable && (
-                <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                <p className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-300">
                   Verify is unreachable — agents will sit in verifying. Confirm the verify service and
                   its Celery worker are running.
                 </p>
@@ -175,12 +177,12 @@ export default function AdminOverviewPage(): React.JSX.Element {
             </div>
           )}
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-slate-900">Platform settings</h2>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Platform settings</h2>
             <div className="mt-3 flex items-start justify-between gap-4">
               <div>
-                <div className="text-sm font-medium text-slate-800">Allow http:// agent endpoints</div>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <div className="text-sm font-medium text-slate-800 dark:text-porcelain">Allow http:// agent endpoints</div>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-porcelain/50">
                   When on, non-TLS (http) endpoints pass verification, ownership, and health checks.
                   Private/loopback addresses are always blocked. Turn off to require https for all new agents.
                 </p>
@@ -193,12 +195,12 @@ export default function AdminOverviewPage(): React.JSX.Element {
                 onClick={toggleAllowHttp}
                 className={
                   "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 " +
-                  (allowHttp ? "bg-indigo-500" : "bg-slate-300")
+                  (allowHttp ? "bg-indigo-500 dark:bg-gold" : "bg-slate-300 dark:bg-porcelain/20")
                 }
               >
                 <span
                   className={
-                    "inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform " +
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform dark:bg-ink-800 " +
                     (allowHttp ? "translate-x-5" : "translate-x-0.5")
                   }
                 />
@@ -224,11 +226,15 @@ function DiagRow({
   badText?: string;
   neutral?: boolean;
 }): React.JSX.Element {
-  const dot = ok ? "bg-emerald-500" : neutral ? "bg-slate-300" : "bg-rose-500";
-  const text = ok ? "text-emerald-600" : neutral ? "text-slate-400" : "text-rose-600";
+  const dot = ok ? "bg-emerald-500" : neutral ? "bg-slate-300 dark:bg-porcelain/30" : "bg-rose-500";
+  const text = ok
+    ? "text-emerald-600 dark:text-emerald-400"
+    : neutral
+      ? "text-slate-400 dark:text-porcelain/40"
+      : "text-rose-600 dark:text-rose-400";
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
-      <span className="text-slate-600">{label}</span>
+      <span className="text-slate-600 dark:text-porcelain/70">{label}</span>
       <span className={"inline-flex items-center gap-1.5 text-xs font-medium " + text}>
         <span className={"h-2 w-2 rounded-full " + dot} />
         {ok ? okText : badText}
@@ -241,10 +247,10 @@ function ConsoleLink({ href, title, desc }: { href: string; title: string; desc:
   return (
     <Link
       href={href}
-      className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-indigo-200 hover:bg-indigo-50/40"
+      className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-indigo-200 hover:bg-indigo-50/40 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-gold/30 dark:hover:bg-gold/15"
     >
-      <div className="text-base font-semibold text-slate-900">{title}</div>
-      <p className="mt-1 text-sm text-slate-500">{desc}</p>
+      <div className="text-base font-semibold text-slate-900 dark:text-porcelain">{title}</div>
+      <p className="mt-1 text-sm text-slate-500 dark:text-porcelain/50">{desc}</p>
     </Link>
   );
 }

@@ -203,12 +203,12 @@ function SidebarNav({ links, collapsed, onNavigate }: SidebarNavProps): React.JS
               "flex items-center rounded-lg text-sm font-medium transition-colors",
               collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-3 py-2.5",
               active
-                ? "bg-indigo-100 text-indigo-700"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                ? "bg-indigo-100 text-indigo-700 dark:bg-gold/15 dark:text-gold"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-porcelain/70 dark:hover:bg-ink-700 dark:hover:text-porcelain",
             )}
             aria-current={active ? "page" : undefined}
           >
-            <span className={cn("flex-shrink-0", active ? "text-indigo-600" : "text-slate-400")}>
+            <span className={cn("flex-shrink-0", active ? "text-indigo-600 dark:text-gold" : "text-slate-400 dark:text-porcelain/40")}>
               {icon}
             </span>
             {!collapsed && label}
@@ -252,20 +252,20 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
       {/* Desktop rail */}
       <aside
         className={cn(
-          "hidden shrink-0 flex-col border-r border-slate-200 bg-slate-50 overflow-y-auto transition-all duration-300 lg:flex",
+          "hidden shrink-0 flex-col border-r border-slate-200 bg-slate-50 overflow-y-auto transition-all duration-300 dark:border-porcelain/10 dark:bg-ink-900 lg:flex",
           collapsed ? "w-14" : "w-56",
           className,
         )}
       >
         <div
           className={cn(
-            "flex border-b border-slate-200",
+            "flex border-b border-slate-200 dark:border-porcelain/10",
             collapsed ? "justify-center px-0 py-4" : "flex-col gap-0.5 px-5 py-4",
           )}
         >
-          <Logo href="/" sealStroke="currentColor" showWordmark={!collapsed} className="text-slate-900" />
+          <Logo href="/" sealStroke="currentColor" showWordmark={!collapsed} className="text-slate-900 dark:text-porcelain" />
           {!collapsed && (
-            <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600">
+            <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600 dark:text-gold">
               {modeLabel} Portal
             </span>
           )}
@@ -277,11 +277,11 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={closeMobile} aria-hidden="true" />
-          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-slate-200 bg-white shadow-xl animate-slide-up">
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-slate-200 bg-white shadow-xl animate-slide-up dark:border-porcelain/10 dark:bg-ink-900">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-porcelain/10">
               <div className="flex flex-col gap-0.5">
-                <Logo href="/" sealStroke="currentColor" className="text-slate-900" />
-                <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600">
+                <Logo href="/" sealStroke="currentColor" className="text-slate-900 dark:text-porcelain" />
+                <span className="mt-1 text-xs font-medium uppercase tracking-wide text-indigo-600 dark:text-gold">
                   {modeLabel} Portal
                 </span>
               </div>
@@ -289,7 +289,7 @@ export function Sidebar({ mode = "buyer", className, links: overrideLinks }: Sid
                 type="button"
                 onClick={closeMobile}
                 aria-label="Close menu"
-                className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-porcelain/60 dark:hover:bg-ink-700 dark:hover:text-porcelain"
               >
                 <IconClose />
               </button>

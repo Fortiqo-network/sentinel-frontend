@@ -108,7 +108,7 @@ export default function AdminModerationPage(): React.JSX.Element {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:focus:border-gold"
         >
           {STATUS_FILTERS.map((s) => (
             <option key={s} value={s}>
@@ -119,15 +119,15 @@ export default function AdminModerationPage(): React.JSX.Element {
       </div>
 
       {note && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{note}</div>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">{note}</div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
         <table className="w-full min-w-[880px] text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
               <th className="px-4 py-3 font-medium">Agent</th>
               <th className="px-4 py-3 font-medium">Reason</th>
@@ -137,30 +137,30 @@ export default function AdminModerationPage(): React.JSX.Element {
               <th className="px-4 py-3 text-right font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   Loading…
                 </td>
               </tr>
             ) : reports.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   No reports in this view.
                 </td>
               </tr>
             ) : (
               reports.map((r) => (
                 <tr key={r.id}>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-600">{shortId(r.agent_id)}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-porcelain/70">{shortId(r.agent_id)}</td>
                   <td className="px-4 py-3">
                     <Badge variant="info">{r.reason}</Badge>
                   </td>
-                  <td className="max-w-[260px] px-4 py-3 text-slate-600">
+                  <td className="max-w-[260px] px-4 py-3 text-slate-600 dark:text-porcelain/70">
                     <span className="line-clamp-2">{r.details ?? "—"}</span>
                   </td>
-                  <td className="px-4 py-3 text-slate-500">{fmtDate(r.created_at)}</td>
+                  <td className="px-4 py-3 text-slate-500 dark:text-porcelain/50">{fmtDate(r.created_at)}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
                   </td>

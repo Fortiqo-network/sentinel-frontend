@@ -30,14 +30,14 @@ export function ConnectedAccountsCard({ activeMethod = "email" }: { activeMethod
         <CardTitle>Sign-in methods</CardTitle>
         <CardDescription>Link additional ways to access your account.</CardDescription>
       </CardHeader>
-      <CardContent className="divide-y divide-slate-100">
+      <CardContent className="divide-y divide-slate-100 dark:divide-porcelain/10">
         {PROVIDERS.map((p) => {
           const active = p.id === activeMethod;
           return (
             <div key={p.id} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-800">{p.name}</p>
-                <p className="truncate text-xs text-slate-500">{p.detail}</p>
+                <p className="text-sm font-medium text-slate-800 dark:text-porcelain">{p.name}</p>
+                <p className="truncate text-xs text-slate-500 dark:text-porcelain/50">{p.detail}</p>
               </div>
               {active ? (
                 <Badge variant="success">Active</Badge>
@@ -45,7 +45,7 @@ export function ConnectedAccountsCard({ activeMethod = "email" }: { activeMethod
                 <button
                   type="button"
                   disabled
-                  className="cursor-not-allowed rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-400"
+                  className="cursor-not-allowed rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-400 dark:border-porcelain/10 dark:text-porcelain/40"
                   title="Coming soon"
                 >
                   Connect · soon

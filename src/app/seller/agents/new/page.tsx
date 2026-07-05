@@ -16,13 +16,13 @@ export default function SubmitAgentPage(): React.JSX.Element {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Submit an Agent</h1>
-        <p className="mt-1 text-slate-600">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-porcelain">Submit an Agent</h1>
+        <p className="mt-1 text-slate-600 dark:text-porcelain/70">
           Fill in your agent&apos;s details and endpoint. Sentinel will run the verification pipeline
           automatically and keep scores up to date as your agent evolves.
         </p>
       </div>
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+      <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800 dark:border-gold/30 dark:bg-gold/15 dark:text-gold">
         <span className="font-semibold">Free for 7 days.</span> Your agent lists and goes live free for its
         first 7 days. After the trial, a one-time <span className="font-semibold">$10 listing fee</span>{" "}
         keeps it listed. You always keep <span className="font-semibold">98%</span> — the platform fee is a

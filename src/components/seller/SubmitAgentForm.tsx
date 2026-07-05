@@ -125,7 +125,7 @@ export function SubmitAgentForm(): React.JSX.Element {
             hint="URL-safe identifier. Lowercase letters, numbers, and hyphens (3-128 chars). Must be unique across Sentinel."
           />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-porcelain/70">
               Description
             </label>
             <textarea
@@ -133,11 +133,11 @@ export function SubmitAgentForm(): React.JSX.Element {
               rows={3}
               placeholder="What does this agent do? Be specific — this is the public-facing description."
               required
-              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus-visible:ring-gold"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">How will your agent run?</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-porcelain/70">How will your agent run?</label>
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
@@ -146,12 +146,12 @@ export function SubmitAgentForm(): React.JSX.Element {
                 className={
                   "rounded-xl border p-4 text-left transition-colors " +
                   (!isManaged
-                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300"
-                    : "border-slate-200 bg-white hover:border-slate-300")
+                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300 dark:border-gold/50 dark:bg-gold/15 dark:ring-gold/40"
+                    : "border-slate-200 bg-white hover:border-slate-300 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-porcelain/20")
                 }
               >
-                <div className="text-sm font-semibold text-slate-900">Connect your hosted agent</div>
-                <p className="mt-1 text-xs text-slate-500">
+                <div className="text-sm font-semibold text-slate-900 dark:text-porcelain">Connect your hosted agent</div>
+                <p className="mt-1 text-xs text-slate-500 dark:text-porcelain/50">
                   You run it. Give us the URL and Sentinel routes each call to your endpoint.
                 </p>
               </button>
@@ -162,17 +162,17 @@ export function SubmitAgentForm(): React.JSX.Element {
                 className={
                   "rounded-xl border p-4 text-left transition-colors " +
                   (isManaged
-                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300"
-                    : "border-slate-200 bg-white hover:border-slate-300")
+                    ? "border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300 dark:border-gold/50 dark:bg-gold/15 dark:ring-gold/40"
+                    : "border-slate-200 bg-white hover:border-slate-300 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-porcelain/20")
                 }
               >
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-porcelain">
                   Let Sentinel host it
-                  <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                  <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
                     Early access
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-porcelain/50">
                   Upload your agent — Sentinel verifies, runs it, and assigns the endpoint for you.
                 </p>
               </button>
@@ -180,7 +180,7 @@ export function SubmitAgentForm(): React.JSX.Element {
           </div>
 
           {isManaged ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200">
               Sentinel-hosted agents don&apos;t need an endpoint URL or ownership proof — we generate and
               control the endpoint, and health/ownership are satisfied automatically. Package upload is
               rolling out in early access; until your build is accepted, the listing stays in review.
@@ -195,7 +195,7 @@ export function SubmitAgentForm(): React.JSX.Element {
             />
           )}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-porcelain/70">
               Price per call (optional)
             </label>
             <div className="flex gap-2">
@@ -205,18 +205,18 @@ export function SubmitAgentForm(): React.JSX.Element {
                 min="0"
                 step="any"
                 placeholder="e.g. 5"
-                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus-visible:ring-gold"
               />
               <select
                 name="priceCurrency"
                 defaultValue="credits"
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:focus-visible:ring-gold"
               >
                 <option value="credits">Credits</option>
                 <option value="usd">USD</option>
               </select>
             </div>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-slate-400 dark:text-porcelain/40">
               Charged from the buyer&apos;s wallet only on a successful call. USD is converted at
               1 USD = 100 credits. Leave blank for free.
             </p>
@@ -240,14 +240,14 @@ export function SubmitAgentForm(): React.JSX.Element {
           />
 
           {error && (
-            <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-300">
               {error}
             </p>
           )}
 
           <Button
             type="submit"
-            className="w-full bg-indigo-500 hover:bg-indigo-400"
+            className="w-full bg-indigo-500 hover:bg-indigo-400 dark:bg-gold dark:text-ink-950 dark:hover:bg-gold/90"
             disabled={submitting}
           >
             {submitting ? "Submitting…" : "Submit for Verification"}

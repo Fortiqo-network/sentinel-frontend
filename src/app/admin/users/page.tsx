@@ -71,12 +71,12 @@ export default function AdminUsersPage(): React.JSX.Element {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search email or name…"
-          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:focus:border-gold"
         >
           {ROLE_FILTERS.map((r) => (
             <option key={r} value={r}>
@@ -87,12 +87,12 @@ export default function AdminUsersPage(): React.JSX.Element {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
         <table className="w-full min-w-[720px] text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
               <th className="px-4 py-3 font-medium">User</th>
               <th className="px-4 py-3 font-medium">Roles</th>
@@ -100,30 +100,30 @@ export default function AdminUsersPage(): React.JSX.Element {
               <th className="px-4 py-3 text-right font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   Loading…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   No users match.
                 </td>
               </tr>
             ) : (
               rows.map((u) => (
-                <tr key={u.id} className={u.is_active ? "" : "bg-slate-50/60"}>
+                <tr key={u.id} className={u.is_active ? "" : "bg-slate-50/60 dark:bg-ink-900/40"}>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-slate-900">{u.display_name || u.email}</div>
-                    <div className="text-xs text-slate-400">{u.email}</div>
+                    <div className="font-medium text-slate-900 dark:text-porcelain">{u.display_name || u.email}</div>
+                    <div className="text-xs text-slate-400 dark:text-porcelain/40">{u.email}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1.5">
                       {u.roles.length === 0 ? (
-                        <span className="text-xs text-slate-400">—</span>
+                        <span className="text-xs text-slate-400 dark:text-porcelain/40">—</span>
                       ) : (
                         u.roles.map((r) => (
                           <Badge key={r} variant={roleVariant(r)}>
@@ -135,14 +135,14 @@ export default function AdminUsersPage(): React.JSX.Element {
                   </td>
                   <td className="px-4 py-3">
                     {u.is_active ? (
-                      <span className="text-xs font-medium text-emerald-600">Active</span>
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Active</span>
                     ) : (
-                      <span className="text-xs font-medium text-slate-400">Inactive</span>
+                      <span className="text-xs font-medium text-slate-400 dark:text-porcelain/40">Inactive</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {u.roles.includes("admin") ? (
-                      <span className="text-xs text-slate-300">—</span>
+                      <span className="text-xs text-slate-300 dark:text-porcelain/30">—</span>
                     ) : u.is_active ? (
                       <Button size="sm" variant="destructive" disabled={busyId === u.id} onClick={() => toggleBlock(u)}>
                         {busyId === u.id ? "…" : "Block"}
@@ -160,7 +160,7 @@ export default function AdminUsersPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-400 dark:text-porcelain/40">
         Blocking suspends the account (the user can no longer log in) — it is reversible and the
         record is kept. Admin accounts cannot be blocked here. Agent-level moderation is under Agents.
       </p>

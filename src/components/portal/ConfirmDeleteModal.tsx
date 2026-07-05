@@ -57,11 +57,11 @@ export function ConfirmDeleteModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title}>
       <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => !busy && onClose()} aria-hidden="true" />
-      <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        <div className="mt-2 text-sm text-slate-600">{description}</div>
-        <label htmlFor="confirm-word" className="mt-5 block text-sm font-medium text-slate-700">
-          Type <span className="font-mono font-semibold text-rose-600">{confirmWord}</span> to confirm
+      <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-porcelain/10 dark:bg-ink-800">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-porcelain">{title}</h2>
+        <div className="mt-2 text-sm text-slate-600 dark:text-porcelain/70">{description}</div>
+        <label htmlFor="confirm-word" className="mt-5 block text-sm font-medium text-slate-700 dark:text-porcelain/70">
+          Type <span className="font-mono font-semibold text-rose-600 dark:text-rose-300">{confirmWord}</span> to confirm
         </label>
         <input
           id="confirm-word"
@@ -69,7 +69,7 @@ export function ConfirmDeleteModal({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={confirmWord}
-          className="sentinel-focus mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-300"
+          className="sentinel-focus mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-300 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
         />
         <div className="mt-6 flex justify-end gap-3">
           <Button variant="ghost" onClick={onClose} disabled={busy}>

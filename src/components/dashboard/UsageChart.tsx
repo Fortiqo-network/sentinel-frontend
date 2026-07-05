@@ -48,10 +48,10 @@ export function UsageChart({ data = PLACEHOLDER_DATA, height = 300 }: UsageChart
   if (!hasData) {
     return (
       <div
-        className="flex items-center justify-center rounded-lg bg-slate-50"
+        className="flex items-center justify-center rounded-lg bg-slate-50 dark:bg-ink-900"
         style={{ height }}
       >
-        <div className="text-center text-sm text-slate-400">
+        <div className="text-center text-sm text-slate-400 dark:text-porcelain/40">
           <div className="text-2xl mb-2">📈</div>
           No usage data yet. Connect an agent to start tracking.
         </div>

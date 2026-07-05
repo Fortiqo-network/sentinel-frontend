@@ -194,9 +194,18 @@ export default function RootLayout({ children }: RootLayoutProps): React.JSX.Ele
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${archivo.variable} ${plexMono.variable}`}
     >
       <body className="font-sans antialiased">
+        <script
+          // Resolve the theme before first paint so there is no light/dark flash.
+          // Mirrors the logic in ThemeToggle (localStorage 'sentinel-theme', else OS).
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('sentinel-theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
+          }}
+        />
         <script
           type="application/ld+json"
           // Structured data is static and trusted (built from constants above).

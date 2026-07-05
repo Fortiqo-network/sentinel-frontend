@@ -98,20 +98,20 @@ export default function AdminSellersPage(): React.JSX.Element {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search email or name…"
-          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
         />
       </div>
 
       {notice && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">{notice}</div>
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700 dark:border-gold/30 dark:bg-gold/15 dark:text-gold">{notice}</div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
         <table className="w-full min-w-[760px] text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
               <th className="px-4 py-3 font-medium">Seller</th>
               <th className="px-4 py-3 font-medium">Agents</th>
@@ -120,29 +120,29 @@ export default function AdminSellersPage(): React.JSX.Element {
               <th className="px-4 py-3 text-right font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   Loading…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   No sellers match.
                 </td>
               </tr>
             ) : (
               rows.map((d) => (
-                <tr key={d.id} className={d.is_active ? "" : "bg-slate-50/60"}>
+                <tr key={d.id} className={d.is_active ? "" : "bg-slate-50/60 dark:bg-ink-900/40"}>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-slate-900">{d.display_name || d.email}</div>
-                    <div className="text-xs text-slate-400">{d.email}</div>
+                    <div className="font-medium text-slate-900 dark:text-porcelain">{d.display_name || d.email}</div>
+                    <div className="text-xs text-slate-400 dark:text-porcelain/40">{d.email}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{d.agents}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-amber-600">{credits(d.payable_units)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900">{credits(d.available_units)}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-porcelain/70">{d.agents}</td>
+                  <td className="px-4 py-3 text-right tabular-nums text-amber-600 dark:text-amber-400">{credits(d.payable_units)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900 dark:text-porcelain">{credits(d.available_units)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -171,7 +171,7 @@ export default function AdminSellersPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-400 dark:text-porcelain/40">
         Payable is accrued from delivered calls and awaits settlement; available is withdrawable by
         the seller. Balances show as 0 if the billing service is unavailable.
       </p>

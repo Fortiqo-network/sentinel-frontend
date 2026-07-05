@@ -43,7 +43,7 @@ export function DialogContent({
       <DialogPrimitive.Content
         className={cn(
           "fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2",
-          "rounded-xl border border-slate-200 bg-white shadow-xl",
+          "rounded-xl border border-slate-200 bg-white shadow-xl dark:border-porcelain/10 dark:bg-ink-800",
           "p-6",
           "animate-slide-up",
           "focus-visible:outline-none",
@@ -54,8 +54,8 @@ export function DialogContent({
         {children}
         <DialogPrimitive.Close
           className={cn(
-            "absolute right-4 top-4 rounded-md p-1 text-slate-400",
-            "hover:text-slate-700 hover:bg-slate-100",
+            "absolute right-4 top-4 rounded-md p-1 text-slate-400 dark:text-porcelain/40",
+            "hover:text-slate-700 hover:bg-slate-100 dark:hover:text-porcelain dark:hover:bg-ink-700",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
             "transition-colors",
           )}
@@ -77,7 +77,7 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
 export function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps & { className?: string }): React.JSX.Element {
   return (
     <DialogPrimitive.Title
-      className={cn("text-lg font-semibold text-slate-900", className)}
+      className={cn("text-lg font-semibold text-slate-900 dark:text-porcelain", className)}
       {...props}
     />
   );
@@ -87,7 +87,7 @@ export function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitle
 export function DialogDescription({ className, ...props }: DialogPrimitive.DialogDescriptionProps & { className?: string }): React.JSX.Element {
   return (
     <DialogPrimitive.Description
-      className={cn("text-sm text-slate-500", className)}
+      className={cn("text-sm text-slate-500 dark:text-porcelain/50", className)}
       {...props}
     />
   );

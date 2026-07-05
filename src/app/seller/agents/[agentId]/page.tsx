@@ -179,10 +179,10 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-40 animate-pulse rounded-2xl bg-slate-100" />
+        <div className="h-40 animate-pulse rounded-2xl bg-slate-100 dark:bg-ink-700" />
         <div className="grid gap-4 sm:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl bg-slate-100" />
+            <div key={i} className="h-28 animate-pulse rounded-xl bg-slate-100 dark:bg-ink-700" />
           ))}
         </div>
       </div>
@@ -263,11 +263,11 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
 
       {/* Archived banner */}
       {agent.isDeleted && (
-        <Card className="border-amber-300 bg-amber-50">
+        <Card className="border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/15">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
-              <p className="font-semibold text-amber-800">This agent is archived</p>
-              <p className="text-sm text-amber-700">
+              <p className="font-semibold text-amber-800 dark:text-amber-200">This agent is archived</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
                 It&apos;s hidden from the marketplace. Re-enable it via listing — live instantly if the
                 listing fee is paid, otherwise it gets a fresh 7-day free trial.
               </p>
@@ -287,7 +287,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
         <StatCard label="Earnings (30d)" value={metrics ? formatCredits(metrics.earnings30dCredits) : "—"} sub="Last 30 days" accent="amber" />
       </div>
       {metrics && metrics.invocationsTotal === 0 && (
-        <p className="-mt-4 text-xs text-slate-400">Invocation &amp; earnings metrics populate as your agent receives calls.</p>
+        <p className="-mt-4 text-xs text-slate-400 dark:text-porcelain/40">Invocation &amp; earnings metrics populate as your agent receives calls.</p>
       )}
 
       {/* Listing */}
@@ -320,7 +320,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
         </CardHeader>
         <CardContent>
           {audienceLoading ? (
-            <p className="py-6 text-sm text-slate-400">Loading audience…</p>
+            <p className="py-6 text-sm text-slate-400 dark:text-porcelain/40">Loading audience…</p>
           ) : audience.length === 0 ? (
             <EmptyState title="No users yet" description="When buyers save or call this agent, they'll appear here." />
           ) : (
@@ -328,26 +328,26 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+                    <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:text-porcelain/50">
                       <th className="px-3 py-2 font-medium">User</th>
                       <th className="px-3 py-2 font-medium">Since</th>
                       <th className="px-3 py-2 font-medium">Status</th>
                       <th className="px-3 py-2 text-right font-medium">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-slate-50 dark:divide-porcelain/10">
                     {audience.map((u) => (
-                      <tr key={u.userId} className={cn("transition-colors hover:bg-slate-50", u.blocked && "bg-rose-50/40")}>
+                      <tr key={u.userId} className={cn("transition-colors hover:bg-slate-50 dark:hover:bg-ink-700", u.blocked && "bg-rose-50/40 dark:bg-rose-500/10")}>
                         <td className="px-3 py-3">
                           <div className="flex items-center gap-2.5">
                             <Avatar name={u.displayName || u.email} size="sm" />
                             <div className="min-w-0">
-                              <p className="truncate font-medium text-slate-800">{u.displayName || u.email}</p>
-                              <p className="truncate text-xs text-slate-400">{u.email}</p>
+                              <p className="truncate font-medium text-slate-800 dark:text-porcelain">{u.displayName || u.email}</p>
+                              <p className="truncate text-xs text-slate-400 dark:text-porcelain/40">{u.email}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-slate-500">
+                        <td className="px-3 py-3 text-slate-500 dark:text-porcelain/50">
                           {new Date(u.since).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </td>
                         <td className="px-3 py-3">
@@ -368,7 +368,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
+              <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-porcelain/50">
                 <span>{audienceTotal.toLocaleString("en-IN")} user{audienceTotal === 1 ? "" : "s"}</span>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
@@ -389,8 +389,8 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
           agents have no seller endpoint to prove; we control and generate it. */}
       {agent.tier === "managed" ? (
         <Card className="p-6">
-          <h2 className="text-base font-semibold text-slate-900">Hosting</h2>
-          <p className="mt-1 text-sm text-slate-600">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Hosting</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-porcelain/70">
             This is a <span className="font-medium">Sentinel-hosted</span> agent — we generate and
             control its endpoint, so there&apos;s no endpoint URL to set or ownership to prove.
             Health and ownership are satisfied automatically once the build is accepted.
@@ -404,9 +404,9 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
       <AccessControlCard agentId={agent.id} />
 
       {/* Danger zone */}
-      <Card className="border-rose-200">
+      <Card className="border-rose-200 dark:border-rose-500/30">
         <CardHeader>
-          <CardTitle className="text-rose-700">Danger zone</CardTitle>
+          <CardTitle className="text-rose-700 dark:text-rose-300">Danger zone</CardTitle>
           <CardDescription>
             Disable this agent to delist it from the marketplace.{" "}
             {agent.status === "draft" || agent.status === "rejected"
@@ -428,7 +428,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
         confirmLabel="Disable agent"
         description={
           <p>
-            <span className="font-semibold text-slate-800">{agent.name}</span> will be removed from the marketplace
+            <span className="font-semibold text-slate-800 dark:text-porcelain">{agent.name}</span> will be removed from the marketplace
             immediately and can no longer be invoked.
             {agent.status === "draft" || agent.status === "rejected"
               ? " This draft will be permanently deleted."

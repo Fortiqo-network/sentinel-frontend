@@ -52,22 +52,22 @@ export default function AdminFlagsPage(): React.JSX.Element {
       <PageHeader eyebrow="Admin" title="Feature flags" description="Toggle platform behaviour at runtime." />
 
       {note && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{note}</div>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300">{note}</div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
       {loading ? (
-        <div className="text-sm text-slate-400">Loading…</div>
+        <div className="text-sm text-slate-400 dark:text-porcelain/40">Loading…</div>
       ) : (
         <div className="space-y-3">
           {flags.map((f) => (
-            <div key={f.key} className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div key={f.key} className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
               <div className="min-w-0">
-                <div className="font-medium text-slate-900">{f.label}</div>
-                <div className="mt-0.5 text-sm text-slate-500">{f.description}</div>
-                <div className="mt-1 font-mono text-xs text-slate-400">{f.key}</div>
+                <div className="font-medium text-slate-900 dark:text-porcelain">{f.label}</div>
+                <div className="mt-0.5 text-sm text-slate-500 dark:text-porcelain/50">{f.description}</div>
+                <div className="mt-1 font-mono text-xs text-slate-400 dark:text-porcelain/40">{f.key}</div>
               </div>
               <div className="shrink-0">
                 {f.type === "bool" ? (
@@ -110,7 +110,7 @@ function InlineValue({
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="h-8 w-28 rounded-md border border-slate-200 px-2 text-sm focus:border-indigo-400 focus:outline-none"
+        className="h-8 w-28 rounded-md border border-slate-200 px-2 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
       />
       <Button size="sm" variant="outline" disabled={busy || value === initial} onClick={() => onSave(value)}>
         Save

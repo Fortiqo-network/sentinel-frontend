@@ -30,7 +30,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className={cn("text-sm font-medium", dark ? "text-porcelain/70" : "text-slate-700")}
+            className={cn("text-sm font-medium", dark ? "text-porcelain/70" : "text-slate-700 dark:text-porcelain/70")}
           >
             {label}
           </label>
@@ -49,8 +49,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ]
               : [
                   "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-0",
-                  error && "border-red-400 focus-visible:ring-red-400",
+                  "dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-0 dark:focus-visible:ring-gold/50",
+                  error && "border-red-400 focus-visible:ring-red-400 dark:border-red-500/60 dark:focus-visible:ring-red-500/50",
                 ],
             className,
           )}
@@ -62,7 +63,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <p
             id={`${inputId}-error`}
             role="alert"
-            className={cn("text-xs", dark ? "text-red-400" : "text-red-600")}
+            className={cn("text-xs", dark ? "text-red-400" : "text-red-600 dark:text-red-400")}
           >
             {error}
           </p>
@@ -70,7 +71,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {hint && !error && (
           <p
             id={`${inputId}-hint`}
-            className={cn("text-xs", dark ? "text-porcelain/45" : "text-slate-500")}
+            className={cn("text-xs", dark ? "text-porcelain/45" : "text-slate-500 dark:text-porcelain/50")}
           >
             {hint}
           </p>

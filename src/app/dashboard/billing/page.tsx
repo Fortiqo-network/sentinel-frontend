@@ -28,9 +28,9 @@ function formatDate(iso: string): string {
 }
 
 const INVOICE_STATUS_STYLES: Record<Invoice["status"], string> = {
-  paid: "bg-emerald-100 text-emerald-700",
-  unpaid: "bg-amber-100 text-amber-700",
-  void: "bg-slate-100 text-slate-500",
+  paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+  unpaid: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  void: "bg-slate-100 text-slate-500 dark:bg-ink-700 dark:text-porcelain/50",
 };
 
 /**
@@ -155,30 +155,30 @@ export default function BillingPage(): React.JSX.Element {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Billing</h1>
-        <p className="mt-1 text-slate-600">Manage credits, top up your wallet, and view invoices.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-porcelain">Billing</h1>
+        <p className="mt-1 text-slate-600 dark:text-porcelain/70">Manage credits, top up your wallet, and view invoices.</p>
       </div>
 
-      <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm flex items-center justify-between">
+      <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 shadow-sm flex items-center justify-between dark:border-gold/30 dark:bg-gold/15">
         <div>
-          <p className="text-sm font-medium text-indigo-600 uppercase tracking-wide">Credits Balance</p>
-          <p className="mt-1 text-4xl font-bold text-indigo-700">
+          <p className="text-sm font-medium text-indigo-600 uppercase tracking-wide dark:text-gold">Credits Balance</p>
+          <p className="mt-1 text-4xl font-bold text-indigo-700 dark:text-gold">
             {balanceCredits === null ? "…" : formatCredits(balanceCredits)}
           </p>
-          <p className="mt-1 text-xs text-indigo-500">Credits available for agent calls</p>
+          <p className="mt-1 text-xs text-indigo-500 dark:text-gold/70">Credits available for agent calls</p>
         </div>
         <div className="hidden sm:block">
-          <div className="h-16 w-16 rounded-full border-4 border-indigo-200 bg-white flex items-center justify-center">
-            <span className="text-xl font-bold text-indigo-600">Cr</span>
+          <div className="h-16 w-16 rounded-full border-4 border-indigo-200 bg-white flex items-center justify-center dark:border-gold/30 dark:bg-ink-800">
+            <span className="text-xl font-bold text-indigo-600 dark:text-gold">Cr</span>
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900 mb-4">Add Credits</h2>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+        <h2 className="text-base font-semibold text-slate-900 mb-4 dark:text-porcelain">Add Credits</h2>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-slate-700">Select Amount</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-porcelain/70">Select Amount</label>
           <div className="flex flex-wrap gap-3">
             {TOP_UP_PRESETS.map((preset) => (
               <button
@@ -192,8 +192,8 @@ export default function BillingPage(): React.JSX.Element {
                 className={cn(
                   "rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors",
                   selectedPreset === preset && !isCustom
-                    ? "border-indigo-500 bg-indigo-600 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
+                    ? "border-indigo-500 bg-indigo-600 text-white dark:border-gold dark:bg-gold dark:text-ink-950"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-porcelain/10 dark:bg-ink-800 dark:text-porcelain/70 dark:hover:border-gold/30 dark:hover:bg-gold/15",
                 )}
               >
                 ${preset}
@@ -211,8 +211,8 @@ export default function BillingPage(): React.JSX.Element {
               className={cn(
                 "rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors",
                 isCustom
-                  ? "border-indigo-500 bg-indigo-600 text-white"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50",
+                  ? "border-indigo-500 bg-indigo-600 text-white dark:border-gold dark:bg-gold dark:text-ink-950"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-porcelain/10 dark:bg-ink-800 dark:text-porcelain/70 dark:hover:border-gold/30 dark:hover:bg-gold/15",
               )}
             >
               Custom
@@ -222,7 +222,7 @@ export default function BillingPage(): React.JSX.Element {
 
         {isCustom && (
           <div className="mb-4">
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Custom amount (USD)</label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-porcelain/70">Custom amount (USD)</label>
             <input
               type="number"
               min="1"
@@ -231,14 +231,14 @@ export default function BillingPage(): React.JSX.Element {
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
               placeholder="Enter USD amount"
-              className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+              className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
             />
-            <p className="mt-1 text-xs text-slate-400">Min $1 — Max $5,000 · 1 USD = 100 credits</p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-porcelain/40">Min $1 — Max $5,000 · 1 USD = 100 credits</p>
           </div>
         )}
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-slate-700">Payment method</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-porcelain/70">Payment method</label>
           <div className="flex flex-wrap gap-3">
             {PROVIDERS.map((p) => (
               <button
@@ -248,21 +248,21 @@ export default function BillingPage(): React.JSX.Element {
                 className={cn(
                   "rounded-lg border px-4 py-2.5 text-left transition-colors",
                   provider === p.id
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200 bg-white hover:border-indigo-300",
+                    ? "border-indigo-500 bg-indigo-50 dark:border-gold dark:bg-gold/15"
+                    : "border-slate-200 bg-white hover:border-indigo-300 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-gold/30",
                 )}
               >
-                <span className="block text-sm font-semibold text-slate-800">{p.label}</span>
-                <span className="block text-xs text-slate-400">{p.hint}</span>
+                <span className="block text-sm font-semibold text-slate-800 dark:text-porcelain">{p.label}</span>
+                <span className="block text-xs text-slate-400 dark:text-porcelain/40">{p.hint}</span>
               </button>
             ))}
           </div>
         </div>
 
         {effectiveCredits !== null && effectiveCredits > 0 && (
-          <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700">
-            You will add <span className="font-semibold text-slate-900">{formatCredits(effectiveCredits)}</span>
-            {effectiveUsd !== null && <span className="text-slate-400"> (${effectiveUsd})</span>}.
+          <div className="mb-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3 text-sm text-slate-700 dark:bg-ink-900 dark:border-porcelain/10 dark:text-porcelain/70">
+            You will add <span className="font-semibold text-slate-900 dark:text-porcelain">{formatCredits(effectiveCredits)}</span>
+            {effectiveUsd !== null && <span className="text-slate-400 dark:text-porcelain/40"> (${effectiveUsd})</span>}.
           </div>
         )}
 
@@ -271,7 +271,7 @@ export default function BillingPage(): React.JSX.Element {
             role="status"
             className={cn(
               "mb-4 rounded-md px-3 py-2 text-sm",
-              feedback.kind === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700",
+              feedback.kind === "ok" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300",
             )}
           >
             {feedback.text}
@@ -282,28 +282,28 @@ export default function BillingPage(): React.JSX.Element {
           type="button"
           disabled={!isValid || submitting}
           onClick={() => void handleCheckout()}
-          className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gold dark:text-ink-950 dark:hover:bg-gold/90"
         >
           {submitting ? "Opening checkout…" : "Buy Credits"}
         </button>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-slate-400 dark:text-porcelain/40">
           You&apos;ll complete payment on the provider&apos;s secure hosted page; credits land in your wallet once
           the payment is confirmed. 1 USD = 100 credits.{" "}
-          <span className="font-medium text-slate-500">Credits are non-refundable once added</span> — you&apos;re
+          <span className="font-medium text-slate-500 dark:text-porcelain/50">Credits are non-refundable once added</span> — you&apos;re
           only charged on successful calls.
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900 mb-1">Redeem a promo code</h2>
-        <p className="mb-3 text-xs text-slate-400">Have a code? Redeem it for wallet credits (one use per code).</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+        <h2 className="text-base font-semibold text-slate-900 mb-1 dark:text-porcelain">Redeem a promo code</h2>
+        <p className="mb-3 text-xs text-slate-400 dark:text-porcelain/40">Have a code? Redeem it for wallet credits (one use per code).</p>
         <div className="flex flex-wrap gap-2">
           <input
             type="text"
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value)}
             placeholder="e.g. WELCOME10"
-            className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            className="w-full max-w-xs rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
           />
           <button
             type="button"
@@ -319,7 +319,7 @@ export default function BillingPage(): React.JSX.Element {
             role="status"
             className={cn(
               "mt-3 rounded-md px-3 py-2 text-sm",
-              promoFeedback.kind === "ok" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700",
+              promoFeedback.kind === "ok" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300",
             )}
           >
             {promoFeedback.text}
@@ -327,29 +327,29 @@ export default function BillingPage(): React.JSX.Element {
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h2 className="text-base font-semibold text-slate-900">Invoice History</h2>
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-porcelain/10 dark:bg-ink-800">
+        <div className="border-b border-slate-100 px-6 py-4 dark:border-porcelain/10">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Invoice History</h2>
         </div>
         {invoices.length === 0 ? (
-          <div className="px-6 py-12 text-center text-sm text-slate-400">No invoices yet.</div>
+          <div className="px-6 py-12 text-center text-sm text-slate-400 dark:text-porcelain/40">No invoices yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Credits</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
+                <tr className="border-b border-slate-100 bg-slate-50 dark:border-porcelain/10 dark:bg-ink-900">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Description</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Credits</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-50 dark:divide-porcelain/10">
                 {invoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 text-slate-700">{formatDate(invoice.createdAt)}</td>
-                    <td className="px-6 py-4 text-slate-600">Credits top-up</td>
-                    <td className="px-6 py-4 font-medium text-slate-900">{formatCredits(invoice.credits)}</td>
+                  <tr key={invoice.id} className="hover:bg-slate-50 transition-colors dark:hover:bg-ink-700">
+                    <td className="px-6 py-4 text-slate-700 dark:text-porcelain/70">{formatDate(invoice.createdAt)}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-porcelain/70">Credits top-up</td>
+                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-porcelain">{formatCredits(invoice.credits)}</td>
                     <td className="px-6 py-4">
                       <span
                         className={cn(

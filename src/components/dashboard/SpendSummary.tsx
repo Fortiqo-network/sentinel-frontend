@@ -33,10 +33,10 @@ function StatCard({ label, value, isLoading, highlight = false }: StatCardProps)
           </>
         ) : (
           <>
-            <div className={`text-2xl font-bold ${highlight ? "text-indigo-600" : "text-slate-900"}`}>
+            <div className={`text-2xl font-bold ${highlight ? "text-indigo-600 dark:text-gold" : "text-slate-900 dark:text-porcelain"}`}>
               {value}
             </div>
-            <div className="mt-1 text-sm text-slate-500">{label}</div>
+            <div className="mt-1 text-sm text-slate-500 dark:text-porcelain/50">{label}</div>
           </>
         )}
       </CardContent>

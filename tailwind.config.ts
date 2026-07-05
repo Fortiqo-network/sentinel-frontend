@@ -3,6 +3,7 @@ import { colors } from "./src/lib/design/colors";
 import { fontFamily, fontSize } from "./src/lib/design/typography";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",

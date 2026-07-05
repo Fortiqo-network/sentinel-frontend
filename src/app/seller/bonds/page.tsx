@@ -50,7 +50,7 @@ export default function SellerBondsPage(): React.JSX.Element {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-50 dark:border-porcelain/10 dark:bg-ink-900" />
           ))}
         </div>
       ) : bond ? (
@@ -90,11 +90,11 @@ export default function SellerBondsPage(): React.JSX.Element {
           <CardTitle>How bonding works</CardTitle>
           <CardDescription>The bond aligns incentives between you and the buyers who rely on your agents.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-slate-600">
-          <p><span className="font-semibold text-slate-800">Deposit.</span> Lock credits as a refundable bond. It is never spent on fees.</p>
-          <p><span className="font-semibold text-slate-800">Guarantee.</span> A bonded agent signals confidence and ranks higher in discovery.</p>
-          <p><span className="font-semibold text-slate-800">Disputes.</span> If a dispute is upheld, a graduated portion may be slashed to make the buyer whole.</p>
-          <p><span className="font-semibold text-slate-800">Release.</span> After a clean dispute window, the bond is released back in full.</p>
+        <CardContent className="space-y-3 text-sm text-slate-600 dark:text-porcelain/70">
+          <p><span className="font-semibold text-slate-800 dark:text-porcelain">Deposit.</span> Lock credits as a refundable bond. It is never spent on fees.</p>
+          <p><span className="font-semibold text-slate-800 dark:text-porcelain">Guarantee.</span> A bonded agent signals confidence and ranks higher in discovery.</p>
+          <p><span className="font-semibold text-slate-800 dark:text-porcelain">Disputes.</span> If a dispute is upheld, a graduated portion may be slashed to make the buyer whole.</p>
+          <p><span className="font-semibold text-slate-800 dark:text-porcelain">Release.</span> After a clean dispute window, the bond is released back in full.</p>
         </CardContent>
       </Card>
     </div>

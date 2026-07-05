@@ -64,7 +64,7 @@ export default function SubscriptionsPage(): React.JSX.Element {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl border border-slate-200 bg-slate-50" />
+            <div key={i} className="h-40 animate-pulse rounded-xl border border-slate-200 bg-slate-50 dark:border-porcelain/10 dark:bg-ink-900" />
           ))}
         </div>
       ) : agents.length === 0 ? (
@@ -87,30 +87,30 @@ export default function SubscriptionsPage(): React.JSX.Element {
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar src={agent.icon} name={agent.name} size="md" />
                   <div className="min-w-0">
-                    <Link href={`/agents/${agent.id}`} className="block truncate text-sm font-semibold text-slate-900 hover:text-indigo-600">
+                    <Link href={`/agents/${agent.id}`} className="block truncate text-sm font-semibold text-slate-900 hover:text-indigo-600 dark:text-porcelain dark:hover:text-gold">
                       {agent.name}
                     </Link>
-                    {agent.seller && <p className="truncate text-xs text-slate-400">by {agent.seller}</p>}
+                    {agent.seller && <p className="truncate text-xs text-slate-400 dark:text-porcelain/40">by {agent.seller}</p>}
                   </div>
                 </div>
                 <TrustScore score={agent.trustScore} size="sm" />
               </div>
-              <p className="mt-3 line-clamp-2 flex-1 text-sm text-slate-600">{agent.description}</p>
+              <p className="mt-3 line-clamp-2 flex-1 text-sm text-slate-600 dark:text-porcelain/70">{agent.description}</p>
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 {agent.vertical && <Badge variant="info">{agent.vertical}</Badge>}
                 {agent.pricing?.priceCredits != null && (
                   <Badge>{agent.pricing.priceCredits.toLocaleString("en-IN")} Cr / call</Badge>
                 )}
                 {agent.isDiscontinued ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-                    <span className="h-2 w-2 rounded-full bg-slate-400" /> Discontinued
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-porcelain/40">
+                    <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-porcelain/40" /> Discontinued
                   </span>
                 ) : agent.health?.status === "inactive" ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-rose-500">
+                  <span className="inline-flex items-center gap-1 text-xs text-rose-500 dark:text-rose-300">
                     <span className="h-2 w-2 rounded-full bg-rose-500" /> Inactive
                   </span>
                 ) : agent.health?.status === "active" ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-300">
                     <span className="h-2 w-2 rounded-full bg-emerald-500" /> Active
                   </span>
                 ) : null}
@@ -126,7 +126,7 @@ export default function SubscriptionsPage(): React.JSX.Element {
                   title="Starred — click to remove"
                   aria-label="Remove from My Agents"
                   className={cn(
-                    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-400 transition-colors hover:bg-amber-100 disabled:opacity-50",
+                    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-400 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-300 dark:hover:bg-amber-500/25",
                   )}
                 >
                   <StarIcon filled />

@@ -19,11 +19,11 @@ export default async function AdminLayout({ children }: AdminLayoutProps): Promi
   if (user.role !== "admin") redirect(user.role === "seller" ? "/seller" : "/dashboard");
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden dark:bg-ink-950">
       <Sidebar mode="admin" />
       <div className="flex flex-1 flex-col overflow-hidden">
         <DashboardHeader />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 lg:p-8 dark:bg-ink-950 dark:text-porcelain">{children}</main>
       </div>
     </div>
   );

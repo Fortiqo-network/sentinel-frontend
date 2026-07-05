@@ -8,6 +8,7 @@ import { useUIStore } from "@/store/ui";
 import { logout as logoutRequest } from "@/lib/api/auth";
 import { listNotifications, markNotificationsRead, type Notification } from "@/lib/api/notifications";
 import { Avatar } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -110,8 +111,8 @@ function NotificationPanel(): React.JSX.Element {
         className={cn(
           "relative flex h-9 w-9 items-center justify-center rounded-full border transition-colors",
           open
-            ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-            : "border-slate-200 bg-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700",
+            ? "border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-gold/40 dark:bg-gold/15 dark:text-gold"
+            : "border-slate-200 bg-slate-100 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-porcelain/10 dark:bg-ink-700 dark:text-porcelain/70 dark:hover:border-gold/40 dark:hover:bg-ink-600 dark:hover:text-gold",
         )}
         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
         aria-haspopup="true"
@@ -126,39 +127,39 @@ function NotificationPanel(): React.JSX.Element {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-            <span className="text-sm font-semibold text-slate-800">Notifications</span>
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-porcelain/10 dark:bg-ink-800">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-porcelain/10">
+            <span className="text-sm font-semibold text-slate-800 dark:text-porcelain">Notifications</span>
             {unreadCount > 0 && (
               <button
                 type="button"
                 onClick={markAllRead}
-                className="text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-500"
+                className="text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-gold dark:hover:text-gold/80"
               >
                 Mark all as read
               </button>
             )}
           </div>
           {notifications.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-slate-400">
+            <div className="px-4 py-10 text-center text-sm text-slate-400 dark:text-porcelain/40">
               {loaded ? "You're all caught up" : "Loading…"}
             </div>
           ) : (
-            <ul className="max-h-80 divide-y divide-slate-50 overflow-y-auto">
+            <ul className="max-h-80 divide-y divide-slate-50 overflow-y-auto dark:divide-porcelain/10">
               {notifications.map((n) => (
                 <li key={n.id}>
                   <button
                     type="button"
                     onClick={() => markRead(n.id)}
-                    className={cn("flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50", !n.read && "bg-indigo-50/50")}
+                    className={cn("flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-ink-700", !n.read && "bg-indigo-50/50 dark:bg-gold/10")}
                   >
                     <span className="mt-1.5 flex-shrink-0">
-                      <span className={cn("block h-2 w-2 rounded-full", n.read ? "bg-slate-200" : "bg-indigo-500")} />
+                      <span className={cn("block h-2 w-2 rounded-full", n.read ? "bg-slate-200 dark:bg-porcelain/20" : "bg-indigo-500 dark:bg-gold")} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className={cn("text-sm", n.read ? "font-medium text-slate-600" : "font-semibold text-slate-800")}>{n.title}</p>
-                      {n.description && <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{n.description}</p>}
-                      <p className="mt-1 text-xs text-slate-400">{relativeTime(n.createdAt)}</p>
+                      <p className={cn("text-sm", n.read ? "font-medium text-slate-600 dark:text-porcelain/60" : "font-semibold text-slate-800 dark:text-porcelain")}>{n.title}</p>
+                      {n.description && <p className="mt-0.5 line-clamp-2 text-xs text-slate-500 dark:text-porcelain/50">{n.description}</p>}
+                      <p className="mt-1 text-xs text-slate-400 dark:text-porcelain/40">{relativeTime(n.createdAt)}</p>
                     </div>
                   </button>
                 </li>
@@ -212,7 +213,7 @@ function ProfileDropdown({
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
           "flex items-center rounded-full transition-transform hover:scale-105",
-          open && "ring-2 ring-indigo-400 ring-offset-2",
+          open && "ring-2 ring-indigo-400 ring-offset-2 dark:ring-gold dark:ring-offset-ink-900",
         )}
         aria-label="Profile menu"
         aria-haspopup="true"
@@ -222,19 +223,19 @@ function ProfileDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
+        <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-porcelain/10 dark:bg-ink-800">
+          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-porcelain/10">
             <Avatar src={avatarUrl} name={displayName} size="md" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-800">{displayName}</p>
-              <p className="truncate text-xs text-slate-400">{email}</p>
+              <p className="truncate text-sm font-semibold text-slate-800 dark:text-porcelain">{displayName}</p>
+              <p className="truncate text-xs text-slate-400 dark:text-porcelain/40">{email}</p>
             </div>
           </div>
           <div className="py-1">
             <Link
               href={profileHref}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700 dark:text-porcelain/70 dark:hover:bg-gold/15 dark:hover:text-gold"
             >
               <IconUser />
               My Profile
@@ -242,7 +243,7 @@ function ProfileDropdown({
             <Link
               href={settingsHref}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700 dark:text-porcelain/70 dark:hover:bg-gold/15 dark:hover:text-gold"
             >
               <IconCog />
               Settings
@@ -254,7 +255,7 @@ function ProfileDropdown({
                 setOpen(false);
                 onLogout();
               }}
-              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/15"
             >
               <IconLogout />
               {loggingOut ? "Signing out…" : "Log out"}
@@ -305,14 +306,14 @@ export function DashboardHeader(): React.JSX.Element {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-md dark:border-porcelain/10 dark:bg-ink-900/80">
       <div className="flex h-14 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => setMobileSidebarOpen(true)}
             aria-label="Open menu"
-            className="flex items-center justify-center rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+            className="flex items-center justify-center rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-porcelain/60 dark:hover:bg-ink-700 dark:hover:text-porcelain lg:hidden"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -322,7 +323,7 @@ export function DashboardHeader(): React.JSX.Element {
             type="button"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden items-center justify-center rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 lg:flex"
+            className="hidden items-center justify-center rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-porcelain/60 dark:hover:bg-ink-700 dark:hover:text-porcelain lg:flex"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -331,6 +332,7 @@ export function DashboardHeader(): React.JSX.Element {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationPanel />
           <ProfileDropdown
             displayName={displayName}

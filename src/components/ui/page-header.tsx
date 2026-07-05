@@ -30,10 +30,10 @@ export function PageHeader({
     <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div>
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">{eyebrow}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-gold">{eyebrow}</p>
         )}
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
-        {description && <p className="mt-1 text-sm text-slate-600">{description}</p>}
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-porcelain">{title}</h1>
+        {description && <p className="mt-1 text-sm text-slate-600 dark:text-porcelain/60">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>

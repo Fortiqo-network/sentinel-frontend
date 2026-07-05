@@ -30,11 +30,11 @@ function HealthDot({ status }: { status: string }): React.JSX.Element {
   const map: Record<string, { color: string; label: string }> = {
     active: { color: "bg-emerald-500", label: "Active" },
     inactive: { color: "bg-rose-500", label: "Inactive" },
-    unknown: { color: "bg-slate-300", label: "Unknown" },
+    unknown: { color: "bg-slate-300 dark:bg-porcelain/30", label: "Unknown" },
   };
-  const cfg = map[status] ?? { color: "bg-slate-300", label: "Unknown" };
+  const cfg = map[status] ?? { color: "bg-slate-300 dark:bg-porcelain/30", label: "Unknown" };
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+    <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-porcelain/50">
       <span className={`h-2 w-2 rounded-full ${cfg.color}`} /> {cfg.label}
     </span>
   );
@@ -116,12 +116,12 @@ export default function AdminAgentsPage(): React.JSX.Element {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search name or slug…"
-          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 w-64 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none"
+          className="h-9 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:focus:border-gold"
         >
           {STATUS_FILTERS.map((s) => (
             <option key={s} value={s}>
@@ -132,12 +132,12 @@ export default function AdminAgentsPage(): React.JSX.Element {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
         <table className="w-full min-w-[820px] text-sm">
-          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
               <th className="px-4 py-3 font-medium">Agent</th>
               <th className="px-4 py-3 font-medium">Owner</th>
@@ -147,27 +147,27 @@ export default function AdminAgentsPage(): React.JSX.Element {
               <th className="px-4 py-3 text-right font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   Loading…
                 </td>
               </tr>
             ) : agents.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   No agents match.
                 </td>
               </tr>
             ) : (
               agents.map((a) => (
-                <tr key={a.id} className={a.enabled ? "" : "bg-slate-50/60"}>
+                <tr key={a.id} className={a.enabled ? "" : "bg-slate-50/60 dark:bg-ink-900/40"}>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-slate-900">{a.name}</div>
-                    <div className="text-xs text-slate-400">{a.slug}</div>
+                    <div className="font-medium text-slate-900 dark:text-porcelain">{a.name}</div>
+                    <div className="text-xs text-slate-400 dark:text-porcelain/40">{a.slug}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">{a.owner_email ?? "—"}</td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-porcelain/70">{a.owner_email ?? "—"}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusVariant(a.status)}>{a.status}</Badge>
                   </td>
@@ -176,9 +176,9 @@ export default function AdminAgentsPage(): React.JSX.Element {
                   </td>
                   <td className="px-4 py-3">
                     {a.enabled ? (
-                      <span className="text-xs font-medium text-emerald-600">Enabled</span>
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Enabled</span>
                     ) : (
-                      <span className="text-xs font-medium text-slate-400">Disabled</span>
+                      <span className="text-xs font-medium text-slate-400 dark:text-porcelain/40">Disabled</span>
                     )}
                   </td>
                   <td className="px-4 py-3">

@@ -14,11 +14,11 @@ import {
 } from "@/lib/api/seller";
 import { isSentinelApiError } from "@/lib/api/client";
 
-const NONE_BADGE = { label: "Not verified", cls: "bg-slate-100 text-slate-600" };
+const NONE_BADGE = { label: "Not verified", cls: "bg-slate-100 text-slate-600 dark:bg-ink-700 dark:text-porcelain/70" };
 const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
-  verified: { label: "Verified", cls: "bg-emerald-100 text-emerald-700" },
-  pending: { label: "Pending", cls: "bg-amber-100 text-amber-700" },
-  failed: { label: "Failed", cls: "bg-red-100 text-red-700" },
+  verified: { label: "Verified", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" },
+  pending: { label: "Pending", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" },
+  failed: { label: "Failed", cls: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300" },
   none: NONE_BADGE,
 };
 
@@ -114,29 +114,29 @@ export function OwnershipCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {verified ? (
-          <p className="text-sm text-emerald-700">Ownership is verified. Nothing more to do.</p>
+          <p className="text-sm text-emerald-700 dark:text-emerald-300">Ownership is verified. Nothing more to do.</p>
         ) : (
           <>
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-700">Agent endpoint URL</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-porcelain/70">Agent endpoint URL</label>
               <div className="flex flex-wrap gap-2">
                 <input
                   type="url"
                   value={endpoint}
                   onChange={(e) => setEndpoint(e.target.value)}
                   placeholder="https://your-agent.example.com"
-                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
                 />
                 <Button onClick={() => void saveEndpoint()} disabled={savingEndpoint} variant="outline" size="sm">
                   {savingEndpoint ? "Saving…" : "Save endpoint"}
                 </Button>
               </div>
-              <p className="text-xs text-slate-400">Required first — pick a proof method below.</p>
-              {endpointNote && <p className="text-xs text-slate-500">{endpointNote}</p>}
+              <p className="text-xs text-slate-400 dark:text-porcelain/40">Required first — pick a proof method below.</p>
+              {endpointNote && <p className="text-xs text-slate-500 dark:text-porcelain/50">{endpointNote}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-slate-700">Proof method</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-porcelain/70">Proof method</label>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -144,8 +144,8 @@ export function OwnershipCard({
                   className={
                     "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors " +
                     (method === "well_known"
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300")
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-gold/30 dark:bg-gold/15 dark:text-gold"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-porcelain/10 dark:bg-ink-800 dark:text-porcelain/70 dark:hover:border-porcelain/10")
                   }
                 >
                   Well-known file (HTTP)
@@ -156,46 +156,46 @@ export function OwnershipCard({
                   className={
                     "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors " +
                     (method === "dns_txt"
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300")
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-gold/30 dark:bg-gold/15 dark:text-gold"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-porcelain/10 dark:bg-ink-800 dark:text-porcelain/70 dark:hover:border-porcelain/10")
                   }
                 >
                   DNS TXT record
                 </button>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-porcelain/40">
                 {method === "dns_txt"
                   ? "Can't add a route to your app? Prove control by publishing a DNS TXT record on your domain instead."
                   : "Serve the token as plain text from your endpoint's /.well-known/sentinel-challenge."}
               </p>
             </div>
 
-            <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-600">
+            <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-600 dark:text-porcelain/70">
               <li>Generate a challenge token below.</li>
               {method === "dns_txt" ? (
                 <li>Publish it as a DNS <span className="font-medium">TXT</span> record at the name shown.</li>
               ) : (
-                <li>Serve it as plain text from your endpoint&apos;s <code className="rounded bg-slate-100 px-1">/.well-known/sentinel-challenge</code>.</li>
+                <li>Serve it as plain text from your endpoint&apos;s <code className="rounded bg-slate-100 px-1 dark:bg-ink-700">/.well-known/sentinel-challenge</code>.</li>
               )}
               <li>Click <span className="font-medium">Verify</span> (DNS can take a few minutes to propagate).</li>
             </ol>
 
             {challenge && (
-              <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+              <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm dark:border-porcelain/10 dark:bg-ink-900">
                 {challenge.method === "dns_txt" ? (
                   <div>
-                    <span className="text-slate-500">TXT record name:</span>{" "}
-                    <code className="break-all text-slate-800">{challenge.dns_txt_name}</code>
+                    <span className="text-slate-500 dark:text-porcelain/50">TXT record name:</span>{" "}
+                    <code className="break-all text-slate-800 dark:text-porcelain">{challenge.dns_txt_name}</code>
                   </div>
                 ) : (
                   <div>
-                    <span className="text-slate-500">Serve at:</span>{" "}
-                    <code className="break-all text-slate-800">{challenge.well_known_url}</code>
+                    <span className="text-slate-500 dark:text-porcelain/50">Serve at:</span>{" "}
+                    <code className="break-all text-slate-800 dark:text-porcelain">{challenge.well_known_url}</code>
                   </div>
                 )}
                 <div>
-                  <span className="text-slate-500">{challenge.method === "dns_txt" ? "TXT value:" : "Token:"}</span>{" "}
-                  <code className="break-all font-mono text-slate-800">{challenge.challenge_token}</code>
+                  <span className="text-slate-500 dark:text-porcelain/50">{challenge.method === "dns_txt" ? "TXT value:" : "Token:"}</span>{" "}
+                  <code className="break-all font-mono text-slate-800 dark:text-porcelain">{challenge.challenge_token}</code>
                 </div>
               </div>
             )}
@@ -209,12 +209,12 @@ export function OwnershipCard({
               </Button>
             </div>
             {!savedEndpoint && (
-              <p className="text-xs text-amber-600">Save the agent endpoint URL above to enable the challenge.</p>
+              <p className="text-xs text-amber-600 dark:text-amber-300">Save the agent endpoint URL above to enable the challenge.</p>
             )}
           </>
         )}
 
-        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/15 dark:text-red-300">{error}</p>}
       </CardContent>
     </Card>
   );

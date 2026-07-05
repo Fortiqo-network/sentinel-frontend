@@ -21,10 +21,10 @@ interface TextFieldProps {
 }
 
 function TextField({ id, label, value, onChange, placeholder, hint, multiline }: TextFieldProps): React.JSX.Element {
-  const cls = "sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400";
+  const cls = "sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30";
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium text-slate-700 dark:text-porcelain/70">{label}</label>
       {multiline ? (
         <textarea
           id={id}
@@ -43,7 +43,7 @@ function TextField({ id, label, value, onChange, placeholder, hint, multiline }:
           className={cls}
         />
       )}
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      {hint && <p className="text-xs text-slate-400 dark:text-porcelain/40">{hint}</p>}
     </div>
   );
 }
@@ -129,7 +129,7 @@ export function ProfileSettingsCard(): React.JSX.Element {
             <CardDescription>Your name, avatar, and public seller profile.</CardDescription>
           </div>
           {isSeller && (
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400 cursor-not-allowed select-none">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400 cursor-not-allowed select-none dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/40">
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3.5 w-3.5" aria-hidden="true">
                 <path d="M6 2H2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4M9 1h6m0 0v6m0-6L7 9" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -142,8 +142,8 @@ export function ProfileSettingsCard(): React.JSX.Element {
         <div className="flex items-center gap-4">
           <Avatar src={avatar} name={displayName || user?.email} size="xl" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-800">{displayName || "Your name"}</p>
-            <p className="truncate text-xs text-slate-400">{user?.email}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-porcelain">{displayName || "Your name"}</p>
+            <p className="truncate text-xs text-slate-400 dark:text-porcelain/40">{user?.email}</p>
           </div>
         </div>
 
@@ -156,14 +156,14 @@ export function ProfileSettingsCard(): React.JSX.Element {
         />
 
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700">Avatar</p>
+          <p className="text-sm font-medium text-slate-700 dark:text-porcelain/70">Avatar</p>
           <AvatarPicker value={avatar} onSelect={(v) => { setAvatar(v); markDirty(); }} name={displayName || user?.email} />
-          <p className="text-xs text-slate-400">Choose a preset. Uploading a custom image is coming soon.</p>
+          <p className="text-xs text-slate-400 dark:text-porcelain/40">Choose a preset. Uploading a custom image is coming soon.</p>
         </div>
 
         {user?.role === "seller" && (
-        <div className="border-t border-slate-100 pt-4">
-          <p className="mb-4 text-sm font-semibold text-slate-700">Public Seller Profile</p>
+        <div className="border-t border-slate-100 pt-4 dark:border-porcelain/10">
+          <p className="mb-4 text-sm font-semibold text-slate-700 dark:text-porcelain/70">Public Seller Profile</p>
           <div className="space-y-4">
             <TextField
               id="bio"
@@ -212,8 +212,8 @@ export function ProfileSettingsCard(): React.JSX.Element {
           <span
             className={cn(
               "text-sm",
-              state === "saved" && "text-emerald-600",
-              state === "error" && "text-rose-600",
+              state === "saved" && "text-emerald-600 dark:text-emerald-300",
+              state === "error" && "text-rose-600 dark:text-rose-300",
               (state === "idle" || state === "saving") && "text-transparent",
             )}
           >

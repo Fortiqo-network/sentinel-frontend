@@ -85,37 +85,37 @@ export function AccessControlCard({ agentId }: { agentId: string }): React.JSX.E
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@email.com"
-              className="sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+              className="sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
             />
             <input
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Reason (optional)"
-              className="sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+              className="sentinel-focus block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30"
             />
           </div>
           <div className="flex items-center gap-3">
             <Button type="submit" variant="destructive" size="sm" disabled={submitting || !email.trim()}>
               {submitting ? "Blocking…" : "Block user"}
             </Button>
-            {error && <span className="text-sm text-rose-600">{error}</span>}
+            {error && <span className="text-sm text-rose-600 dark:text-rose-300">{error}</span>}
           </div>
         </form>
 
-        <div className="border-t border-slate-100 pt-4">
+        <div className="border-t border-slate-100 pt-4 dark:border-porcelain/10">
           {loading ? (
-            <p className="text-sm text-slate-400">Loading blocked users…</p>
+            <p className="text-sm text-slate-400 dark:text-porcelain/40">Loading blocked users…</p>
           ) : blocks.length === 0 ? (
             <EmptyState title="No blocked users" description="Everyone can use this agent right now." />
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-slate-100 dark:divide-porcelain/10">
               {blocks.map((b) => (
                 <li key={b.userId} className="flex items-center justify-between gap-3 py-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <Avatar name={b.displayName || b.email} size="sm" />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-800">{b.displayName || b.email}</p>
-                      <p className="truncate text-xs text-slate-400">
+                      <p className="truncate text-sm font-medium text-slate-800 dark:text-porcelain">{b.displayName || b.email}</p>
+                      <p className="truncate text-xs text-slate-400 dark:text-porcelain/40">
                         {b.email}
                         {b.reason ? ` · ${b.reason}` : ""}
                       </p>

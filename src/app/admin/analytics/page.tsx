@@ -54,19 +54,19 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
       <PageHeader eyebrow="Admin" title="Analytics" description="Platform-wide identity, catalogue, and liveness metrics." />
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">{error}</div>
       )}
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
+            <div key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-porcelain/10 dark:bg-ink-700" />
           ))}
         </div>
       ) : data ? (
         <>
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Revenue &amp; usage</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Revenue &amp; usage</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard
                 label="Platform revenue"
@@ -99,7 +99,7 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Identity</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Identity</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Total users" value={data.users_total} accent />
               <StatCard label="Sellers" value={data.sellers} />
@@ -108,7 +108,7 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Catalogue</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Catalogue</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Total agents" value={data.agents_total} />
               <StatCard label="Live agents" value={data.agents_live} accent />
@@ -117,7 +117,7 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Endpoint liveness</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Endpoint liveness</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <StatCard label="Healthy endpoints" value={data.health_active} />
               <StatCard label="Inactive endpoints" value={data.health_inactive} />
@@ -125,17 +125,17 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Agents by lifecycle status</h2>
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Agents by lifecycle status</h2>
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
               {statusEntries.length === 0 ? (
-                <p className="px-6 py-5 text-sm text-slate-500">No agents yet.</p>
+                <p className="px-6 py-5 text-sm text-slate-500 dark:text-porcelain/50">No agents yet.</p>
               ) : (
                 <table className="w-full text-sm">
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
                     {statusEntries.map(([status, count]) => (
                       <tr key={status}>
-                        <td className="px-6 py-3 font-medium text-slate-700">{titleCase(status)}</td>
-                        <td className="px-6 py-3 text-right tabular-nums text-slate-900">{count}</td>
+                        <td className="px-6 py-3 font-medium text-slate-700 dark:text-porcelain/70">{titleCase(status)}</td>
+                        <td className="px-6 py-3 text-right tabular-nums text-slate-900 dark:text-porcelain">{count}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -145,15 +145,15 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">
               Top agents by {rankedBy === "revenue" ? "revenue" : "engagement"}
             </h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
               {topAgents.length === 0 ? (
-                <p className="px-6 py-5 text-sm text-slate-500">No agents yet.</p>
+                <p className="px-6 py-5 text-sm text-slate-500 dark:text-porcelain/50">No agents yet.</p>
               ) : (
                 <table className="w-full min-w-[720px] text-sm">
-                  <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
                     <tr>
                       <th className="px-4 py-3 font-medium">#</th>
                       <th className="px-4 py-3 font-medium">Agent</th>
@@ -164,34 +164,34 @@ export default function AdminAnalyticsPage(): React.JSX.Element {
                       <th className="px-4 py-3 text-right font-medium">Subs</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
                     {topAgents.map((a, i) => (
                       <tr key={a.id}>
-                        <td className="px-4 py-3 tabular-nums text-slate-400">{i + 1}</td>
+                        <td className="px-4 py-3 tabular-nums text-slate-400 dark:text-porcelain/40">{i + 1}</td>
                         <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900">{a.name}</div>
-                          <div className="text-xs text-slate-400">{a.slug}</div>
+                          <div className="font-medium text-slate-900 dark:text-porcelain">{a.name}</div>
+                          <div className="text-xs text-slate-400 dark:text-porcelain/40">{a.slug}</div>
                         </td>
-                        <td className="px-4 py-3 text-slate-600">{a.owner_email ?? "—"}</td>
+                        <td className="px-4 py-3 text-slate-600 dark:text-porcelain/70">{a.owner_email ?? "—"}</td>
                         {rankedBy === "revenue" && (
-                          <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900">
+                          <td className="px-4 py-3 text-right tabular-nums font-medium text-slate-900 dark:text-porcelain">
                             {a.gross_credits.toLocaleString("en-US")} Cr
                           </td>
                         )}
                         {rankedBy === "revenue" && (
-                          <td className="px-4 py-3 text-right tabular-nums text-slate-600">{a.charges_count}</td>
+                          <td className="px-4 py-3 text-right tabular-nums text-slate-600 dark:text-porcelain/70">{a.charges_count}</td>
                         )}
-                        <td className="px-4 py-3 text-right tabular-nums text-slate-900">
+                        <td className="px-4 py-3 text-right tabular-nums text-slate-900 dark:text-porcelain">
                           {a.trust_score != null ? Math.round(a.trust_score * 100) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums text-slate-900">{a.subscribers}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-slate-900 dark:text-porcelain">{a.subscribers}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               )}
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 dark:text-porcelain/40">
               {rankedBy === "revenue"
                 ? "Ranked by gross revenue from the billing ledger."
                 : "No charges recorded yet — ranked by saved-subscribers until revenue accrues."}

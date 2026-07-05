@@ -127,14 +127,14 @@ export default function UsagePage(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Usage</h1>
-        <p className="mt-1 text-slate-600">Invocation history and spend across all your agents.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-porcelain">Usage</h1>
+        <p className="mt-1 text-slate-600 dark:text-porcelain/70">Invocation history and spend across all your agents.</p>
       </div>
 
       {status === "error" ? (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-rose-600">
+            <p className="text-sm text-rose-600 dark:text-rose-300">
               Could not load usage data. Please refresh to try again.
             </p>
           </CardContent>
@@ -147,13 +147,13 @@ export default function UsagePage(): React.JSX.Element {
                 <CardContent className="pt-6">
                   <div
                     className={cn(
-                      "text-2xl font-bold text-slate-900",
-                      status === "loading" && "text-slate-400",
+                      "text-2xl font-bold text-slate-900 dark:text-porcelain",
+                      status === "loading" && "text-slate-400 dark:text-porcelain/40",
                     )}
                   >
                     {value}
                   </div>
-                  <div className="mt-1 text-sm text-slate-500">{label}</div>
+                  <div className="mt-1 text-sm text-slate-500 dark:text-porcelain/50">{label}</div>
                 </CardContent>
               </Card>
             ))}
@@ -165,7 +165,7 @@ export default function UsagePage(): React.JSX.Element {
             </CardHeader>
             <CardContent>
               {status === "loading" ? (
-                <div className="flex h-[300px] items-center justify-center rounded-lg bg-slate-50 text-sm text-slate-400">
+                <div className="flex h-[300px] items-center justify-center rounded-lg bg-slate-50 text-sm text-slate-400 dark:bg-ink-900 dark:text-porcelain/40">
                   Loading usage…
                 </div>
               ) : (
@@ -180,23 +180,23 @@ export default function UsagePage(): React.JSX.Element {
             </CardHeader>
             <CardContent>
               {status === "loading" ? (
-                <p className="text-sm text-slate-400">Loading…</p>
+                <p className="text-sm text-slate-400 dark:text-porcelain/40">Loading…</p>
               ) : !hasUsage || summary === null ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-porcelain/50">
                   No agent usage yet — charges from agent calls will appear here.
                 </p>
               ) : (
-                <ul className="divide-y divide-slate-100">
+                <ul className="divide-y divide-slate-100 dark:divide-porcelain/10">
                   {summary.breakdown.map((row) => (
                     <li key={row.key} className="flex items-center justify-between py-3">
                       <div>
-                        <div className="text-sm font-medium text-slate-900">{row.label}</div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-sm font-medium text-slate-900 dark:text-porcelain">{row.label}</div>
+                        <div className="text-xs text-slate-500 dark:text-porcelain/50">
                           {row.invocations.toLocaleString("en-IN")}{" "}
                           {row.invocations === 1 ? "invocation" : "invocations"}
                         </div>
                       </div>
-                      <div className="text-sm font-semibold text-slate-900">
+                      <div className="text-sm font-semibold text-slate-900 dark:text-porcelain">
                         {row.credits.toLocaleString("en-IN")} credits
                       </div>
                     </li>

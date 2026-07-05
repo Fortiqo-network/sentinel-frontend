@@ -29,14 +29,14 @@ function SummaryCard({ label, value, sub, accent }: SummaryCardProps): React.JSX
     <div
       className={cn(
         "rounded-xl border p-5 shadow-sm",
-        accent ? "border-indigo-200 bg-indigo-50" : "border-slate-200 bg-white",
+        accent ? "border-indigo-200 bg-indigo-50 dark:border-gold/30 dark:bg-gold/15" : "border-slate-200 bg-white dark:border-porcelain/10 dark:bg-ink-800",
       )}
     >
-      <div className={cn("text-2xl font-bold", accent ? "text-indigo-700" : "text-slate-900")}>
+      <div className={cn("text-2xl font-bold", accent ? "text-indigo-700 dark:text-gold" : "text-slate-900 dark:text-porcelain")}>
         {value}
       </div>
-      <div className="mt-1 text-sm font-medium text-slate-500">{label}</div>
-      {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
+      <div className="mt-1 text-sm font-medium text-slate-500 dark:text-porcelain/50">{label}</div>
+      {sub && <div className="mt-0.5 text-xs text-slate-400 dark:text-porcelain/40">{sub}</div>}
     </div>
   );
 }
@@ -107,18 +107,18 @@ export default function EarningsPage(): React.JSX.Element {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Earnings</h1>
-          <p className="mt-1 text-slate-600">Payout balance and performance bond for your agents.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-porcelain">Earnings</h1>
+          <p className="mt-1 text-slate-600 dark:text-porcelain/70">Payout balance and performance bond for your agents.</p>
         </div>
         <div className="flex flex-col items-stretch gap-1 sm:items-end">
           <button
             type="button"
             disabled
-            className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 shadow-sm whitespace-nowrap"
+            className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 shadow-sm whitespace-nowrap dark:bg-ink-700 dark:text-porcelain/50"
           >
             Request Payout
           </button>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 dark:text-porcelain/40">
             Payouts require completing KYC / bank details (coming soon).
           </p>
         </div>
@@ -129,14 +129,14 @@ export default function EarningsPage(): React.JSX.Element {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100"
+              className="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100 dark:border-porcelain/10 dark:bg-ink-700"
             />
           ))}
         </div>
       ) : (
         <>
           {earningsError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">
               {earningsError}
             </div>
           )}
@@ -166,11 +166,11 @@ export default function EarningsPage(): React.JSX.Element {
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-porcelain/10 dark:bg-ink-800">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-porcelain/10">
               <div>
-                <h2 className="text-base font-semibold text-slate-900">Performance Bond</h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Performance Bond</h2>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-porcelain/50">
                   Security bond locked against your agents while live.
                 </p>
               </div>
@@ -183,51 +183,51 @@ export default function EarningsPage(): React.JSX.Element {
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
                     placeholder="Credits"
-                    className="h-9 w-28 rounded-lg border border-slate-300 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                    className="h-9 w-28 rounded-lg border border-slate-300 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:bg-ink-800 dark:border-porcelain/15 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold dark:focus:ring-gold"
                   />
                   <button
                     type="button"
                     onClick={() => void handleDeposit()}
                     disabled={depositing}
-                    className="inline-flex items-center rounded-lg bg-indigo-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 disabled:opacity-50 whitespace-nowrap"
+                    className="inline-flex items-center rounded-lg bg-indigo-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 disabled:opacity-50 whitespace-nowrap dark:bg-gold dark:text-ink-950 dark:hover:bg-gold/90"
                   >
                     {depositing ? "Depositing…" : "Deposit Bond"}
                   </button>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 dark:text-porcelain/40">
                   Locks credits from your available balance
                   {earnings ? ` (${earnings.availableCredits.toLocaleString("en-US")} Cr available)` : ""}.
                 </p>
-                {depositNote && <p className="text-xs text-slate-500">{depositNote}</p>}
+                {depositNote && <p className="text-xs text-slate-500 dark:text-porcelain/50">{depositNote}</p>}
               </div>
             </div>
 
             <div className="px-6 py-5">
               {bondError ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300">
                   {bondError}
                 </div>
               ) : bond === null ? (
-                <p className="text-sm text-slate-500">No performance bond posted.</p>
+                <p className="text-sm text-slate-500 dark:text-porcelain/50">No performance bond posted.</p>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div>
-                    <div className="text-sm font-medium text-slate-500">Status</div>
+                    <div className="text-sm font-medium text-slate-500 dark:text-porcelain/50">Status</div>
                     <div className="mt-1">
-                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
                         {titleCase(bond.status)}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-slate-500">Current</div>
-                    <div className="mt-1 text-lg font-semibold text-slate-900">
+                    <div className="text-sm font-medium text-slate-500 dark:text-porcelain/50">Current</div>
+                    <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-porcelain">
                       {formatCredits(bond.currentCredits)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-slate-500">Original</div>
-                    <div className="mt-1 text-lg font-semibold text-slate-900">
+                    <div className="text-sm font-medium text-slate-500 dark:text-porcelain/50">Original</div>
+                    <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-porcelain">
                       {formatCredits(bond.originalCredits)}
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export default function EarningsPage(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200">
             Bonds are funded from your available (settled) balance. Cash payouts require completing
             KYC / bank details — that flow is coming soon.
           </div>

@@ -63,14 +63,14 @@ function StatCard({ label, value, sub, accent }: StatCardProps): React.JSX.Eleme
     <div
       className={cn(
         "rounded-xl border p-5 shadow-sm",
-        accent ? "border-indigo-200 bg-indigo-50" : "border-slate-200 bg-white",
+        accent ? "border-indigo-200 bg-indigo-50 dark:border-gold/30 dark:bg-gold/15" : "border-slate-200 bg-white dark:border-porcelain/10 dark:bg-ink-800",
       )}
     >
-      <div className={cn("text-2xl font-bold", accent ? "text-indigo-700" : "text-slate-900")}>
+      <div className={cn("text-2xl font-bold", accent ? "text-indigo-700 dark:text-gold" : "text-slate-900 dark:text-porcelain")}>
         {value}
       </div>
-      <div className="mt-1 text-sm font-medium text-slate-500">{label}</div>
-      {sub && <div className="mt-0.5 text-xs text-slate-400">{sub}</div>}
+      <div className="mt-1 text-sm font-medium text-slate-500 dark:text-porcelain/50">{label}</div>
+      {sub && <div className="mt-0.5 text-xs text-slate-400 dark:text-porcelain/40">{sub}</div>}
     </div>
   );
 }
@@ -86,9 +86,9 @@ function BalanceTooltip({ active, payload, label }: BalanceTooltipProps): React.
   const item = payload[0];
   if (!item) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-sm font-semibold text-slate-900">{formatCredits(item.value)}</p>
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg dark:border-porcelain/10 dark:bg-ink-800">
+      <p className="text-xs text-slate-500 dark:text-porcelain/50">{label}</p>
+      <p className="text-sm font-semibold text-slate-900 dark:text-porcelain">{formatCredits(item.value)}</p>
     </div>
   );
 }
@@ -163,13 +163,13 @@ export default function DashboardPage(): React.JSX.Element {
         <StatCard label="Total added" value={loading ? "…" : formatCredits(totalAddedCredits)} sub="All-time top-ups" />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-base font-semibold text-slate-900">Balance Over Time</h2>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+        <h2 className="mb-4 text-base font-semibold text-slate-900 dark:text-porcelain">Balance Over Time</h2>
         <div className="h-56">
           {series.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <p className="text-sm font-medium text-slate-500">No wallet activity yet</p>
-              <p className="mt-1 text-xs text-slate-400">Add credits to get started.</p>
+              <p className="text-sm font-medium text-slate-500 dark:text-porcelain/50">No wallet activity yet</p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-porcelain/40">Add credits to get started.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -192,44 +192,44 @@ export default function DashboardPage(): React.JSX.Element {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Recent Activity</h2>
-            <Link href="/dashboard/billing" className="text-sm text-indigo-600 hover:text-indigo-500">
+        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-porcelain/10 dark:bg-ink-800">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-porcelain/10">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Recent Activity</h2>
+            <Link href="/dashboard/billing" className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-gold">
               View all
             </Link>
           </div>
           {entries.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-slate-400">
+            <div className="px-6 py-12 text-center text-sm text-slate-400 dark:text-porcelain/40">
               {loading ? "Loading…" : "No transactions yet."}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50">
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Credits</th>
+                  <tr className="border-b border-slate-100 bg-slate-50 dark:border-porcelain/10 dark:bg-ink-900">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Type</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-porcelain/50">Credits</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-porcelain/10">
                   {entries.slice(0, 8).map((e) => (
-                    <tr key={e.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-3 font-medium text-slate-900">{e.description}</td>
-                      <td className="px-6 py-3 text-xs text-slate-500 font-mono">{formatDateTime(e.createdAt)}</td>
+                    <tr key={e.id} className="hover:bg-slate-50 transition-colors dark:hover:bg-ink-700">
+                      <td className="px-6 py-3 font-medium text-slate-900 dark:text-porcelain">{e.description}</td>
+                      <td className="px-6 py-3 text-xs text-slate-500 font-mono dark:text-porcelain/50">{formatDateTime(e.createdAt)}</td>
                       <td className="px-6 py-3">
                         <span
                           className={cn(
                             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                            e.type === "credit" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600",
+                            e.type === "credit" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-slate-100 text-slate-600 dark:bg-ink-700 dark:text-porcelain/70",
                           )}
                         >
                           {e.type === "credit" ? "Credit" : "Debit"}
                         </span>
                       </td>
-                      <td className={cn("px-6 py-3 text-right font-medium", e.type === "credit" ? "text-emerald-600" : "text-slate-700")}>
+                      <td className={cn("px-6 py-3 text-right font-medium", e.type === "credit" ? "text-emerald-600 dark:text-emerald-300" : "text-slate-700 dark:text-porcelain/70")}>
                         {e.type === "credit" ? "+" : "−"}
                         {e.credits.toLocaleString("en-IN")}
                       </td>
@@ -241,30 +241,30 @@ export default function DashboardPage(): React.JSX.Element {
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-6 py-4">
-            <h2 className="text-base font-semibold text-slate-900">Top Verified Agents</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Highest trust scores</p>
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
+          <div className="border-b border-slate-100 px-6 py-4 dark:border-porcelain/10">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Top Verified Agents</h2>
+            <p className="text-xs text-slate-400 mt-0.5 dark:text-porcelain/40">Highest trust scores</p>
           </div>
           {agents.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-slate-400">
+            <div className="px-6 py-12 text-center text-sm text-slate-400 dark:text-porcelain/40">
               {loading ? "Loading…" : "No agents yet."}
             </div>
           ) : (
-            <ul className="divide-y divide-slate-50">
+            <ul className="divide-y divide-slate-50 dark:divide-porcelain/10">
               {agents.map((agent, idx) => (
                 <li key={agent.id} className="px-6 py-4">
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-medium text-slate-400 w-4">{idx + 1}</span>
-                      <Link href={`/agents/${agent.slug}`} className="text-sm font-medium text-slate-800 truncate hover:text-indigo-600">
+                      <span className="text-xs font-medium text-slate-400 w-4 dark:text-porcelain/40">{idx + 1}</span>
+                      <Link href={`/agents/${agent.slug}`} className="text-sm font-medium text-slate-800 truncate hover:text-indigo-600 dark:text-porcelain dark:hover:text-gold">
                         {agent.name}
                       </Link>
                     </div>
-                    <span className="text-xs text-slate-500">{agent.trustScore}/100</span>
+                    <span className="text-xs text-slate-500 dark:text-porcelain/50">{agent.trustScore}/100</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full rounded-full bg-indigo-400" style={{ width: `${agent.trustScore}%` }} />
+                  <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden dark:bg-ink-700">
+                    <div className="h-full rounded-full bg-indigo-400 dark:bg-gold" style={{ width: `${agent.trustScore}%` }} />
                   </div>
                 </li>
               ))}

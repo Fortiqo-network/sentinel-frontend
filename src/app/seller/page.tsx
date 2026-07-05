@@ -108,7 +108,7 @@ export default function SellerPage(): React.JSX.Element {
       {/* Agents grid */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Your agents</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-porcelain">Your agents</h2>
           {agents.length > 0 && (
             <Button asChild variant="outline" size="sm">
               <Link href="/seller/agents">Manage all</Link>
@@ -119,7 +119,7 @@ export default function SellerPage(): React.JSX.Element {
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-40 animate-pulse rounded-xl bg-slate-100" />
+              <div key={i} className="h-40 animate-pulse rounded-xl bg-slate-100 dark:bg-ink-700" />
             ))}
           </div>
         ) : agents.length === 0 ? (
@@ -134,13 +134,13 @@ export default function SellerPage(): React.JSX.Element {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {agents.map((agent) => (
               <Link key={agent.id} href={`/seller/agents/${agent.id}`} className="group">
-                <Card className="flex h-full flex-col p-5 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:border-slate-300">
+                <Card className="flex h-full flex-col p-5 transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:border-slate-300 dark:group-hover:border-porcelain/10">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <Avatar src={agent.slug} name={agent.name} size="md" />
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-slate-900 group-hover:text-indigo-600">{agent.name}</p>
-                        <p className="truncate font-mono text-xs text-slate-400">/{agent.slug}</p>
+                        <p className="truncate font-semibold text-slate-900 group-hover:text-indigo-600 dark:text-porcelain dark:group-hover:text-gold">{agent.name}</p>
+                        <p className="truncate font-mono text-xs text-slate-400 dark:text-porcelain/40">/{agent.slug}</p>
                       </div>
                     </div>
                     {agent.trustScore !== null && <TrustScore score={agent.trustScore} size="sm" />}
