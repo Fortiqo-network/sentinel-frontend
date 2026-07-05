@@ -30,8 +30,16 @@ export async function POST(request: NextRequest): Promise<Response> {
  * BFF logout (GET): used by plain "Sign Out" anchor links. Clears the session
  * cookie and redirects home, so a link click logs the user out and lands them
  * on the marketing page.
+ *
+ * A cross-site request (e.g. an attacker page's `<img src=".../logout">`) is
+ * refused so it cannot force-clear the victim's session (session DoS): the
+ * browser-set, unforgeable `Sec-Fetch-Site` header must not be `cross-site`. A
+ * same-origin sign-out link is unaffected.
  */
 export async function GET(request: NextRequest): Promise<Response> {
+  if (request.headers.get("sec-fetch-site") === "cross-site") {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
   await upstreamLogout(sessionToken(request));
   const res = NextResponse.redirect(new URL("/", request.url));
   res.cookies.delete(SESSION_COOKIE);
