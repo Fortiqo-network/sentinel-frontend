@@ -368,6 +368,83 @@ export async function resolveAbuseReport(
   return AbuseReportRowSchema.parse(response.data);
 }
 
+// ── Moderation: seller / post / comment reports ─────────────────────────────────
+
+export const SellerReportRowSchema = z.object({
+  id: z.string(),
+  subject_type: z.enum(["seller", "post", "comment"]),
+  subject_id: z.string(),
+  reporter_id: z.string(),
+  reason: z.string(),
+  detail: z.string().nullable(),
+  status: z.enum(["open", "reviewing", "resolved", "dismissed"]),
+  resolution_note: z.string().nullable(),
+  created_at: z.string(),
+});
+export type SellerReportRow = z.infer<typeof SellerReportRowSchema>;
+
+const SellerReportListSchema = z.object({
+  reports: z.array(SellerReportRowSchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  page_size: z.number().int(),
+});
+
+/** List seller/post/comment reports for the moderation queue (defaults to open). */
+export async function listSellerReports(params?: {
+  status?: string;
+  subjectType?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<{ reports: SellerReportRow[]; total: number }> {
+  const response = await apiClient.get<unknown>("/v1/admin/seller-reports", {
+    params: {
+      status: params?.status || undefined,
+      subject_type: params?.subjectType || undefined,
+      page: params?.page ?? 1,
+      page_size: params?.pageSize ?? 100,
+    },
+  });
+  const parsed = SellerReportListSchema.parse(response.data);
+  return { reports: parsed.reports, total: parsed.total };
+}
+
+/** Resolve or dismiss a seller report. */
+export async function resolveSellerReport(
+  reportId: string,
+  action: "resolve" | "dismiss",
+  note?: string,
+): Promise<SellerReportRow> {
+  const response = await apiClient.post<unknown>(`/v1/admin/seller-reports/${reportId}/resolve`, {
+    action,
+    note,
+  });
+  return SellerReportRowSchema.parse(response.data);
+}
+
+const ModerationResultSchema = z.object({ id: z.string(), status: z.string() });
+export type ModerationAction = "hide" | "remove" | "restore";
+
+/** Hide, remove, or restore a seller post. */
+export async function moderatePost(
+  postId: string,
+  action: ModerationAction,
+): Promise<{ id: string; status: string }> {
+  const response = await apiClient.post<unknown>(`/v1/admin/posts/${postId}/moderate`, { action });
+  return ModerationResultSchema.parse(response.data);
+}
+
+/** Hide, remove, or restore a comment. */
+export async function moderateComment(
+  commentId: string,
+  action: ModerationAction,
+): Promise<{ id: string; status: string }> {
+  const response = await apiClient.post<unknown>(`/v1/admin/comments/${commentId}/moderate`, {
+    action,
+  });
+  return ModerationResultSchema.parse(response.data);
+}
+
 /** Kill-switch: suspend a live agent (delisted + blocked from invocation). */
 export async function suspendAgent(agentId: string, reason?: string): Promise<AgentState> {
   const response = await apiClient.post<unknown>(`/v1/admin/agents/${agentId}/suspend`, { reason });

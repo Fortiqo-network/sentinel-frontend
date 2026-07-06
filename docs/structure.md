@@ -113,6 +113,8 @@ or API key (`X-API-Key`). Public routes need neither.
 | GET/POST | `/v1/buyer/subscriptions` | yes | List · subscribe ("star") an agent → buyer portal |
 | DELETE | `/v1/buyer/subscriptions/{agentId}` | yes | Unsubscribe |
 | GET | `/v1/notifications` · POST `/v1/notifications/read` | yes | List · mark-read user notifications |
+| GET | `/v1/sellers/{handle}` · `/{handle}/posts` | no | **Public seller profile** (bio/org/GitHub + popularity-ranked live agents) + social feed |
+| POST | `/v1/seller/posts` · `/v1/posts/{id}/{like,comments,report}` · `/v1/sellers/{ref}/report` | yes | Seller social: post (seller-only), like, threaded comment, report → moderation |
 | GET | `/v1/x402/agents` | no | x402 discovery catalog |
 | POST/GET | `/mcp/a/{agent_id}` | mixed | MCP Streamable HTTP invoke / discovery |
 | GET | `/.well-known/agents/{agent_id}/agent-card.json` | no | A2A agent card (proxied from registry) |
@@ -129,6 +131,9 @@ or API key (`X-API-Key`). Public routes need neither.
 **core-api** (`:8000`): `/v1/users/*` (register/login/me, PATCH me incl. `avatar_url`), `/v1/marketplace` + `/{id}` + `/slug/{slug}`,
 `/v1/agents` CRUD + `/{id}/submit-for-verification` + `/{id}/access-blocks` (GET/POST, DELETE `/{userId}`), `/v1/keys` CRUD,
 `/v1/subscriptions` (GET/POST, DELETE `/{agentId}`), `/v1/notifications` (GET, POST `/read`),
+`/v1/sellers/{handle|id}` (public profile + popularity catalogue) + `/{handle}/posts`, `/v1/seller/posts` (create, seller-only),
+`/v1/posts/{id}/{like,comments,report}`, `/v1/comments/{id}/report`, `/v1/sellers/{ref}/report`,
+`/v1/admin/seller-reports` (+ `/{id}/resolve`) + `/v1/admin/{posts,comments}/{id}/moderate` (hide/remove/restore),
 `/internal/agents/{id}/access-check/{userId}` (gateway block check), `/internal/events/verification.completed`, `/internal/api-keys/validate`.
 
 **billing** (`:8002`): `/v1/credits/{balance,topup,ledger,invoices}`, `/v1/meter` (signed charge → dev/platform split),

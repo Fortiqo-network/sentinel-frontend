@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TrustScore } from "@/components/ui/trust-score";
 import { Avatar } from "@/components/ui/avatar";
+import { SellerComposer } from "@/components/seller/SellerComposer";
 import {
   listMyAgents,
   getEarnings,
@@ -104,6 +105,9 @@ export default function SellerPage(): React.JSX.Element {
           accent="amber"
         />
       </div>
+
+      {/* Feed composer */}
+      <SellerComposer />
 
       {/* Agents grid */}
       <div>

@@ -2,11 +2,12 @@ import * as React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getSellerProfile } from "@/lib/api/sellers-public";
+import { getSellerPosts, getSellerProfile } from "@/lib/api/sellers-public";
 import { isSentinelApiError } from "@/lib/api/client";
 import { Avatar } from "@/components/ui/avatar";
+import { SellerFeed } from "@/components/seller/SellerFeed";
 import { cn } from "@/lib/utils/cn";
-import type { PublicAgentSummary } from "@/lib/api/sellers-public";
+import type { PublicAgentSummary, SellerFeed as SellerFeedData } from "@/lib/api/sellers-public";
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -80,6 +81,14 @@ function AgentCard({ agent }: { agent: PublicAgentSummary }): React.JSX.Element 
         </p>
       )}
 
+      {agent.ratingCount > 0 && agent.ratingAvg != null && (
+        <p className="inline-flex items-center gap-1 text-xs text-amber-400">
+          <span aria-hidden="true">★</span>
+          <span className="tabular-nums">{agent.ratingAvg.toFixed(1)}</span>
+          <span className="text-porcelain/40">({agent.ratingCount})</span>
+        </p>
+      )}
+
       {agent.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {agent.tags.slice(0, 4).map((tag) => (
@@ -141,6 +150,13 @@ export default async function SellerProfilePage({ params }: Props): Promise<Reac
     notFound();
   }
 
+  let feed: SellerFeedData = { items: [], total: 0 };
+  try {
+    feed = await getSellerPosts(handle);
+  } catch {
+    feed = { items: [], total: 0 };
+  }
+
   const name = dev.displayName ?? "Anonymous Seller";
 
   return (
@@ -182,8 +198,13 @@ export default async function SellerProfilePage({ params }: Props): Promise<Reac
               {name}
             </h1>
 
-            {dev.company && (
-              <p className="mt-1 text-base text-porcelain/60">{dev.company}</p>
+            {(dev.company || dev.organization) && (
+              <p className="mt-1 text-base text-porcelain/60">
+                {dev.company ?? dev.organization}
+                {dev.githubHandle && (
+                  <span className="ml-2 font-mono text-sm text-porcelain/40">@{dev.githubHandle}</span>
+                )}
+              </p>
             )}
 
             {dev.bio && (
@@ -271,6 +292,22 @@ export default async function SellerProfilePage({ params }: Props): Promise<Reac
               ))}
             </div>
           )}
+        </section>
+
+        {/* Divider */}
+        <div className="my-12 border-t border-porcelain/10" />
+
+        {/* Social feed section */}
+        <section>
+          <div className="mb-6 flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-porcelain">Posts</h2>
+            {feed.total > 0 && (
+              <span className="rounded-full bg-ink-700 px-2.5 py-0.5 text-sm font-medium text-porcelain/50">
+                {feed.total}
+              </span>
+            )}
+          </div>
+          <SellerFeed posts={feed.items} total={feed.total} />
         </section>
       </div>
     </div>

@@ -1,28 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { PageHeader } from "@/components/ui/page-header";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  listAbuseReports,
-  resolveAbuseReport,
-  suspendAgent,
-  unsuspendAgent,
-  type AbuseReportRow,
+  listSellerReports,
+  moderateComment,
+  moderatePost,
+  resolveSellerReport,
+  type ModerationAction,
+  type SellerReportRow,
 } from "@/lib/api/admin";
-import { SellerReportsQueue } from "@/components/admin/SellerReportsQueue";
-import { cn } from "@/lib/utils/cn";
 import { isSentinelApiError } from "@/lib/api/client";
 
-type ModerationTab = "agents" | "community";
-
-const STATUS_FILTERS = ["open", "all", "resolved", "dismissed"];
+const STATUS_FILTERS = ["open", "all", "reviewing", "resolved", "dismissed"];
 
 function statusVariant(s: string): "success" | "warning" | "destructive" | "info" | "default" {
   if (s === "resolved") return "success";
   if (s === "dismissed") return "default";
-  return "warning"; // open
+  if (s === "reviewing") return "info";
+  return "warning";
 }
 
 function shortId(id: string): string {
@@ -35,24 +33,27 @@ function fmtDate(iso: string): string {
 }
 
 /**
- * Admin moderation console — the abuse-report queue. Each report can be resolved
- * or dismissed, and the reported agent can be suspended (kill-switch) or
- * restored. Backed by the admin abuse-report + suspend/unsuspend endpoints.
+ * Admin moderation queue for seller/post/comment reports. Each report can be
+ * resolved or dismissed; post and comment subjects can additionally be hidden,
+ * removed, or restored. Backed by the admin seller-report + content-moderation
+ * endpoints.
+ *
+ * @example
+ * <SellerReportsQueue />
  */
-export default function AdminModerationPage(): React.JSX.Element {
-  const [reports, setReports] = React.useState<AbuseReportRow[]>([]);
+export function SellerReportsQueue(): React.JSX.Element {
+  const [reports, setReports] = React.useState<SellerReportRow[]>([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [note, setNote] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState("open");
   const [busyId, setBusyId] = React.useState<string | null>(null);
-  const [tab, setTab] = React.useState<ModerationTab>("agents");
 
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const result = await listAbuseReports({ status: status === "all" ? "all" : status, pageSize: 100 });
+      const result = await listSellerReports({ status: status === "all" ? "all" : status });
       setReports(result.reports);
       setTotal(result.total);
       setError(null);
@@ -67,11 +68,11 @@ export default function AdminModerationPage(): React.JSX.Element {
     void load();
   }, [load]);
 
-  async function decide(report: AbuseReportRow, action: "resolve" | "dismiss"): Promise<void> {
+  async function decide(report: SellerReportRow, action: "resolve" | "dismiss"): Promise<void> {
     setBusyId(report.id);
     setNote(null);
     try {
-      const updated = await resolveAbuseReport(report.id, action);
+      const updated = await resolveSellerReport(report.id, action);
       setReports((prev) =>
         status === "open"
           ? prev.filter((r) => r.id !== report.id)
@@ -85,15 +86,15 @@ export default function AdminModerationPage(): React.JSX.Element {
     }
   }
 
-  async function agentAction(report: AbuseReportRow, kind: "suspend" | "unsuspend"): Promise<void> {
+  async function moderate(report: SellerReportRow, action: ModerationAction): Promise<void> {
     setBusyId(report.id);
     setNote(null);
     try {
-      const state =
-        kind === "suspend"
-          ? await suspendAgent(report.agent_id, `Abuse report: ${report.reason}`)
-          : await unsuspendAgent(report.agent_id);
-      setNote(`Agent ${shortId(report.agent_id)} is now ${state.status}.`);
+      const result =
+        report.subject_type === "comment"
+          ? await moderateComment(report.subject_id, action)
+          : await moderatePost(report.subject_id, action);
+      setNote(`${report.subject_type} ${shortId(report.subject_id)} is now ${result.status}.`);
     } catch (err) {
       setError(isSentinelApiError(err) ? err.message : "Action failed.");
     } finally {
@@ -102,38 +103,10 @@ export default function AdminModerationPage(): React.JSX.Element {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        eyebrow="Admin"
-        title="Moderation"
-        description="Review agent, seller, and content reports and take action."
-      />
-
-      <div className="flex gap-1 border-b border-slate-200 dark:border-porcelain/10">
-        {(["agents", "community"] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={cn(
-              "-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-              tab === t
-                ? "border-indigo-500 text-slate-900 dark:border-gold dark:text-porcelain"
-                : "border-transparent text-slate-500 hover:text-slate-800 dark:text-porcelain/50 dark:hover:text-porcelain",
-            )}
-          >
-            {t === "agents" ? "Agent reports" : "Seller & content"}
-          </button>
-        ))}
-      </div>
-
-      {tab === "community" && <SellerReportsQueue />}
-
-      {tab === "agents" && (
-        <>
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-slate-500 dark:text-porcelain/50">
-          {total} {status === "open" ? "open " : ""}report{total === 1 ? "" : "s"}
+          {total} {status === "open" ? "open " : ""}report{total === 1 ? "" : "s"} in the queue.
         </p>
         <select
           value={status}
@@ -159,9 +132,9 @@ export default function AdminModerationPage(): React.JSX.Element {
         <table className="w-full min-w-[880px] text-sm">
           <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
-              <th className="px-4 py-3 font-medium">Agent</th>
+              <th className="px-4 py-3 font-medium">Subject</th>
               <th className="px-4 py-3 font-medium">Reason</th>
-              <th className="px-4 py-3 font-medium">Details</th>
+              <th className="px-4 py-3 font-medium">Detail</th>
               <th className="px-4 py-3 font-medium">Reported</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 text-right font-medium">Actions</th>
@@ -183,26 +156,49 @@ export default function AdminModerationPage(): React.JSX.Element {
             ) : (
               reports.map((r) => (
                 <tr key={r.id}>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-600 dark:text-porcelain/70">{shortId(r.agent_id)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="default">{r.subject_type}</Badge>
+                      {r.subject_type === "seller" ? (
+                        <Link
+                          href={`/sellers/${r.subject_id}`}
+                          className="font-mono text-xs text-indigo-600 hover:underline dark:text-gold"
+                        >
+                          {shortId(r.subject_id)}
+                        </Link>
+                      ) : (
+                        <span className="font-mono text-xs text-slate-600 dark:text-porcelain/70">
+                          {shortId(r.subject_id)}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <Badge variant="info">{r.reason}</Badge>
                   </td>
-                  <td className="max-w-[260px] px-4 py-3 text-slate-600 dark:text-porcelain/70">
-                    <span className="line-clamp-2">{r.details ?? "—"}</span>
+                  <td className="max-w-[240px] px-4 py-3 text-slate-600 dark:text-porcelain/70">
+                    <span className="line-clamp-2">{r.detail ?? "—"}</span>
                   </td>
                   <td className="px-4 py-3 text-slate-500 dark:text-porcelain/50">{fmtDate(r.created_at)}</td>
                   <td className="px-4 py-3">
                     <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="destructive" disabled={busyId === r.id} onClick={() => agentAction(r, "suspend")}>
-                        Suspend agent
-                      </Button>
-                      <Button size="sm" variant="ghost" disabled={busyId === r.id} onClick={() => agentAction(r, "unsuspend")}>
-                        Unsuspend
-                      </Button>
-                      {r.status === "open" && (
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      {r.subject_type !== "seller" && (
+                        <>
+                          <Button size="sm" variant="destructive" disabled={busyId === r.id} onClick={() => moderate(r, "remove")}>
+                            Remove
+                          </Button>
+                          <Button size="sm" variant="outline" disabled={busyId === r.id} onClick={() => moderate(r, "hide")}>
+                            Hide
+                          </Button>
+                          <Button size="sm" variant="ghost" disabled={busyId === r.id} onClick={() => moderate(r, "restore")}>
+                            Restore
+                          </Button>
+                        </>
+                      )}
+                      {(r.status === "open" || r.status === "reviewing") && (
                         <>
                           <Button size="sm" variant="outline" disabled={busyId === r.id} onClick={() => decide(r, "resolve")}>
                             Resolve
@@ -220,8 +216,6 @@ export default function AdminModerationPage(): React.JSX.Element {
           </tbody>
         </table>
       </div>
-        </>
-      )}
     </div>
   );
 }
