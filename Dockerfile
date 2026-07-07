@@ -22,12 +22,10 @@ ARG NEXT_PUBLIC_SENTRY_DSN
 ARG NEXT_PUBLIC_POSTHOG_KEY
 ARG NEXT_PUBLIC_FEATURE_FLAGS_URL
 ARG NEXT_PUBLIC_MCP_BASE
-# A Google OAuth *client ID* is public by design (it is embedded in the browser
-# bundle; security comes from the Authorized-JavaScript-Origins allowlist in the
-# Google Cloud console, not from secrecy). Defaulting it here means the "Continue
-# with Google" button ships enabled even when the build pipeline passes no
-# --build-arg; a --build-arg still overrides this for any other environment.
-ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=1021757860601-u7jca7e7epgtjo1543nor9uabofoi24c.apps.googleusercontent.com
+# Supplied at build time from the deploy environment (GitHub Variable / host build
+# env) as `--build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=...` — never hardcoded here.
+# When empty, the "Continue with Google" button ships as a disabled placeholder.
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID \
     NEXT_PUBLIC_GATEWAY_URL=$NEXT_PUBLIC_GATEWAY_URL \
