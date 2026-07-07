@@ -3,20 +3,22 @@ import type { NextConfig } from "next";
 /**
  * Baseline Content-Security-Policy, shipped in Report-Only mode (M1).
  *
- * It permits first-party resources, the Sentinel API origin, and the payment
- * providers' checkout scripts/frames. `'unsafe-inline'` is currently required by
+ * It permits first-party resources, the Sentinel API origin, the payment
+ * providers' checkout scripts/frames, and Google Identity Services (the
+ * "Sign in with Google" button/popup — script, iframe, and XHR under
+ * accounts.google.com/gsi/). `'unsafe-inline'` is currently required by
  * Next.js' inline bootstrap/styles; the hardening follow-up is nonce-based
  * script-src. Enforce (rename the header to `Content-Security-Policy`) only after
  * violation reports confirm nothing legitimate is blocked.
  */
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com",
-  "style-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com https://accounts.google.com/gsi/client",
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://sentinel-api.fortiqo.xyz https://api.razorpay.com https://api.stripe.com",
-  "frame-src https://checkout.razorpay.com https://js.stripe.com https://hooks.stripe.com",
+  "connect-src 'self' https://sentinel-api.fortiqo.xyz https://api.razorpay.com https://api.stripe.com https://accounts.google.com/gsi/",
+  "frame-src https://checkout.razorpay.com https://js.stripe.com https://hooks.stripe.com https://accounts.google.com/gsi/",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

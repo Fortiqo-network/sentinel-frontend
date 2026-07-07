@@ -31,8 +31,13 @@ export const RegisterRequestSchema = z.object({
   role: z.enum(["buyer", "seller"]),
 });
 
+export const GoogleLoginRequestSchema = z.object({
+  credential: z.string().min(1, "Missing Google credential"),
+});
+
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
+export type GoogleLoginRequest = z.infer<typeof GoogleLoginRequestSchema>;
 
 // ── API functions ─────────────────────────────────────────────────────────────
 
@@ -52,6 +57,16 @@ export async function login(credentials: LoginRequest): Promise<User> {
  */
 export async function register(data: RegisterRequest): Promise<User> {
   const response = await apiClient.post<unknown>("/v1/auth/register", data);
+  return UserSchema.parse(response.data);
+}
+
+/**
+ * Authenticates via a Google ID token (from Google Identity Services).
+ * The BFF verifies it upstream and establishes a session, same as login;
+ * a first-time Google user has an account created automatically.
+ */
+export async function loginWithGoogle(credential: string): Promise<User> {
+  const response = await apiClient.post<unknown>("/v1/auth/google", { credential });
   return UserSchema.parse(response.data);
 }
 
