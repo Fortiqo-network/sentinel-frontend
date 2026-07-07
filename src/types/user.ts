@@ -21,6 +21,8 @@ export interface User {
   websiteUrl?: string | null;
   createdAt: string;
   emailVerified: boolean;
+  /** True until the user has chosen a role and finished onboarding. */
+  needsOnboarding?: boolean;
 }
 
 /** Client-safe session state stored in Zustand (no tokens). */

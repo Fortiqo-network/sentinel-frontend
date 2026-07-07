@@ -17,6 +17,7 @@ export const UserSchema = z.object({
   websiteUrl: z.string().nullable().optional(),
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
+  needsOnboarding: z.boolean().optional().default(false),
 });
 
 export const LoginRequestSchema = z.object({
@@ -67,6 +68,24 @@ export async function register(data: RegisterRequest): Promise<User> {
  */
 export async function loginWithGoogle(credential: string): Promise<User> {
   const response = await apiClient.post<unknown>("/v1/auth/google", { credential });
+  return UserSchema.parse(response.data);
+}
+
+/** Onboarding answers submitted after a first OAuth/EVM sign-up. */
+export interface OnboardingPayload {
+  role: "buyer" | "seller";
+  primaryUse?: string;
+  referralSource?: string;
+  organization?: string;
+  interests?: string[];
+}
+
+/**
+ * Completes post-signup onboarding (role choice + basic questions) and returns
+ * the updated user (with `needsOnboarding` now false).
+ */
+export async function completeOnboarding(payload: OnboardingPayload): Promise<User> {
+  const response = await apiClient.post<unknown>("/v1/auth/onboarding", payload);
   return UserSchema.parse(response.data);
 }
 

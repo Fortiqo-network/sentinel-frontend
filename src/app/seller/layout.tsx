@@ -16,6 +16,7 @@ export default async function SellerLayout({ children }: SellerLayoutProps): Pro
   const user = await getServerUser();
 
   if (!user) redirect("/login");
+  if (user.needsOnboarding) redirect("/onboarding");
   if (user.role === "buyer") redirect("/dashboard");
   if (user.role === "admin") redirect("/admin");
 

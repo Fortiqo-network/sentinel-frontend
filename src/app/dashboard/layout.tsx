@@ -16,6 +16,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   const user = await getServerUser();
 
   if (!user) redirect("/login");
+  if (user.needsOnboarding) redirect("/onboarding");
   if (user.role === "seller") redirect("/seller");
   if (user.role === "admin") redirect("/admin");
 

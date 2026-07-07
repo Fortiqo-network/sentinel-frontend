@@ -16,6 +16,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps): Promi
   const user = await getServerUser();
 
   if (!user) redirect("/login");
+  if (user.needsOnboarding) redirect("/onboarding");
   if (user.role !== "admin") redirect(user.role === "seller" ? "/seller" : "/dashboard");
 
   return (

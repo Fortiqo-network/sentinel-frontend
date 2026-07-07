@@ -55,8 +55,8 @@ export async function GET(request: NextRequest): Promise<Response> {
   const token = extractSessionToken(upstream);
   let destination = "/dashboard";
   try {
-    const user = (await upstream.json()) as { role?: string | null };
-    destination = portalHome(user.role);
+    const user = (await upstream.json()) as { role?: string | null; needsOnboarding?: boolean };
+    destination = user.needsOnboarding ? "/onboarding" : portalHome(user.role);
   } catch {
     destination = "/dashboard";
   }

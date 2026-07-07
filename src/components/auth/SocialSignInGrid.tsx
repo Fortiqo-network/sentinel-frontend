@@ -130,7 +130,7 @@ export function SocialSignInGrid({
       try {
         const user = await loginWithGoogle(response.credential);
         setUser(user);
-        router.push(portalHome(user.role));
+        router.push(user.needsOnboarding ? "/onboarding" : portalHome(user.role));
         router.refresh();
       } catch (err) {
         setIsSubmitting(false);
