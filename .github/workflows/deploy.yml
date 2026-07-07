@@ -27,6 +27,15 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - name: Verify required build variables
+        # NEXT_PUBLIC_* are baked at build; a missing gateway URL would ship an
+        # image that cannot reach the backend. Fail fast instead of deploying a
+        # broken bundle — set the repo Variables (see infra/GITHUB_SECRETS.md).
+        run: |
+          if [ -z "${{ vars.NEXT_PUBLIC_GATEWAY_URL }}" ]; then
+            echo "::error::NEXT_PUBLIC_GATEWAY_URL Variable is not set. Set the frontend repo Variables before this workflow can build/deploy. See sentinel-infra/GITHUB_SECRETS.md."
+            exit 1
+          fi
       - uses: docker/setup-buildx-action@v3
         with:
           driver: docker
