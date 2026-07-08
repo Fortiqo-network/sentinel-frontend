@@ -52,25 +52,6 @@ export async function getInvoices(): Promise<Invoice[]> {
   return z.array(InvoiceSchema).parse(response.data);
 }
 
-export const TopUpResultSchema = z.object({
-  paymentId: z.string(),
-  credits: z.number().int(),
-  balanceCredits: z.number().int(),
-  status: z.string(),
-});
-
-export type TopUpResult = z.infer<typeof TopUpResultSchema>;
-
-/**
- * Adds credits to the authenticated buyer's wallet.
- * Records a placeholder payment server-side and returns the resulting balance.
- * Replaces the Stripe intent flow until a real payment provider is wired in.
- */
-export async function topUp(credits: number): Promise<TopUpResult> {
-  const response = await apiClient.post<unknown>("/v1/billing/topup", { credits });
-  return TopUpResultSchema.parse(response.data);
-}
-
 export const CheckoutSchema = z.object({
   provider: z.enum(["razorpay", "stripe", "mock"]),
   orderId: z.string().nullable().optional(),
