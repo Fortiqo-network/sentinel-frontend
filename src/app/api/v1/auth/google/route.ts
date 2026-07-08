@@ -1,4 +1,5 @@
 import { type NextRequest } from "next/server";
+import { issueCsrfCookie } from "@/lib/bff/csrf";
 import {
   GATEWAY_URL,
   SESSION_COOKIE,
@@ -24,7 +25,10 @@ export async function POST(request: NextRequest): Promise<Response> {
   const res = await mirrorResponse(upstream);
   if (upstream.ok) {
     const token = extractSessionToken(upstream);
-    if (token) res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+    if (token) {
+      res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+      issueCsrfCookie(res);
+    }
   }
   return res;
 }

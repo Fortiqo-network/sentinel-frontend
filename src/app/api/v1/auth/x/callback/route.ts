@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { issueCsrfCookie } from "@/lib/bff/csrf";
 import {
   GATEWAY_URL,
   SESSION_COOKIE,
@@ -62,7 +63,10 @@ export async function GET(request: NextRequest): Promise<Response> {
   }
 
   const res = NextResponse.redirect(new URL(destination, request.url));
-  if (token) res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+  if (token) {
+    res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+    issueCsrfCookie(res);
+  }
   res.cookies.delete(X_STATE_COOKIE);
   res.cookies.delete(X_VERIFIER_COOKIE);
   return res;

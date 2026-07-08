@@ -135,8 +135,32 @@ export const apiClient: AxiosInstance = axios.create({
   timeout: 30_000,
 });
 
+/**
+ * Reads a cookie value in the browser. Returns undefined server-side (no
+ * `document`) or when the cookie is absent.
+ */
+function readCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${name}=([^;]*)`),
+  );
+  const value = match?.[1];
+  return value === undefined ? undefined : decodeURIComponent(value);
+}
+
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   config.headers.set("X-Trace-Id", generateTraceId());
+  // Double-submit CSRF token: echo the readable `sentinel_csrf` cookie in a
+  // header on state-changing requests so the BFF can prove same-origin intent.
+  // Sent unconditionally (harmless while enforcement is dark) so that flipping
+  // CSRF_ENFORCED server-side never locks out an already-loaded client.
+  const method = (config.method ?? "get").toUpperCase();
+  if (UNSAFE_METHODS.has(method)) {
+    const csrf = readCookie("sentinel_csrf");
+    if (csrf) config.headers.set("X-CSRF-Token", csrf);
+  }
   return config;
 });
 
