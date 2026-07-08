@@ -72,7 +72,7 @@ export async function topUp(credits: number): Promise<TopUpResult> {
 }
 
 export const CheckoutSchema = z.object({
-  provider: z.enum(["razorpay", "stripe"]),
+  provider: z.enum(["razorpay", "stripe", "mock"]),
   orderId: z.string().nullable().optional(),
   keyId: z.string().nullable().optional(),
   checkoutUrl: z.string().url().nullable().optional(),
@@ -80,6 +80,43 @@ export const CheckoutSchema = z.object({
 });
 
 export type Checkout = z.infer<typeof CheckoutSchema>;
+
+export const MockCaptureSchema = z.object({
+  orderId: z.string(),
+  status: z.string(),
+  credited: z.boolean(),
+  balanceCredits: z.number().int(),
+});
+
+export type MockCapture = z.infer<typeof MockCaptureSchema>;
+
+/**
+ * Create a MOCK top-up order (pre-launch simulator — no real gateway). Returns
+ * the same shape as a real checkout (`orderId`), which the mock payment UI then
+ * "pays" via {@link captureMockPayment}. Swapped for a real provider later.
+ */
+export async function createMockOrder(credits: number): Promise<Checkout> {
+  const response = await apiClient.post<unknown>("/v1/billing/checkout", {
+    credits,
+    provider: "mock",
+  });
+  return CheckoutSchema.parse(response.data);
+}
+
+/**
+ * Complete a mock payment — the pre-launch stand-in for a provider callback.
+ * Credits the wallet exactly-once server-side; safe to retry.
+ */
+export async function captureMockPayment(
+  orderId: string,
+  outcome: "success" | "failure" = "success",
+): Promise<MockCapture> {
+  const response = await apiClient.post<unknown>("/v1/billing/mock/capture", {
+    orderId,
+    outcome,
+  });
+  return MockCaptureSchema.parse(response.data);
+}
 
 /**
  * Opens a provider-hosted checkout to buy credits. Returns the provider handle:

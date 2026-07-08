@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { getCreditBalance, getInvoices, createCheckout, redeemPromo } from "@/lib/api/billing";
+import {
+  getCreditBalance,
+  getInvoices,
+  createCheckout,
+  createMockOrder,
+  captureMockPayment,
+  redeemPromo,
+} from "@/lib/api/billing";
 import { isSentinelApiError } from "@/lib/api/client";
 import { openRazorpayCheckout } from "@/lib/payments/razorpay";
 import type { Invoice } from "@/types/billing";
@@ -12,11 +19,24 @@ type TopUpPreset = 5 | 10 | 20;
 
 const TOP_UP_PRESETS: TopUpPreset[] = [5, 10, 20];
 
-type Provider = "stripe" | "razorpay";
+type Provider = "stripe" | "razorpay" | "mock";
+
+// The mock provider is a pre-launch simulator (backed by billing's mock_payments_enabled).
+// Hidden unless NEXT_PUBLIC_MOCK_PAYMENTS === "true"; remove it once a real provider is live.
+const MOCK_ENABLED = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
 
 const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
   { id: "stripe", label: "Card (Stripe)", hint: "Visa, Mastercard, and more — hosted by Stripe" },
   { id: "razorpay", label: "UPI / Card (Razorpay)", hint: "UPI, cards, netbanking — hosted by Razorpay" },
+  ...(MOCK_ENABLED
+    ? [
+        {
+          id: "mock" as const,
+          label: "Test payment (mock)",
+          hint: "Simulated payment — no real charge; for pre-launch testing",
+        },
+      ]
+    : []),
 ];
 
 function formatCredits(credits: number): string {
@@ -50,6 +70,8 @@ export default function BillingPage(): React.JSX.Element {
   const [promoCode, setPromoCode] = React.useState("");
   const [redeeming, setRedeeming] = React.useState(false);
   const [promoFeedback, setPromoFeedback] = React.useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [mockOrder, setMockOrder] = React.useState<{ orderId: string; credits: number } | null>(null);
+  const [mockPaying, setMockPaying] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
     const [bal, inv] = await Promise.allSettled([getCreditBalance(), getInvoices()]);
@@ -112,11 +134,39 @@ export default function BillingPage(): React.JSX.Element {
     }
   }
 
+  async function handleMockPay(outcome: "success" | "failure"): Promise<void> {
+    if (!mockOrder) return;
+    setMockPaying(true);
+    try {
+      const result = await captureMockPayment(mockOrder.orderId, outcome);
+      if (result.credited) {
+        setBalanceCredits(result.balanceCredits);
+        setFeedback({ kind: "ok", text: `Added ${formatCredits(mockOrder.credits)} to your wallet.` });
+      } else {
+        setFeedback({ kind: "error", text: "Mock payment was not completed — no credits added." });
+      }
+      setMockOrder(null);
+      await refresh();
+    } catch (err) {
+      const text = isSentinelApiError(err) ? err.displayMessage : "Mock payment failed.";
+      setFeedback({ kind: "error", text });
+    } finally {
+      setMockPaying(false);
+    }
+  }
+
   async function handleCheckout(): Promise<void> {
     if (!isValid || effectiveCredits === null) return;
     setSubmitting(true);
     setFeedback(null);
     try {
+      if (provider === "mock") {
+        // Pre-launch simulator: create an order, then present the mock pay UI.
+        const order = await createMockOrder(effectiveCredits);
+        if (!order.orderId) throw new Error("Mock order missing.");
+        setMockOrder({ orderId: order.orderId, credits: order.amountCredits });
+        return;
+      }
       const base = `${window.location.origin}/dashboard/billing`;
       const checkout = await createCheckout(
         effectiveCredits,
@@ -367,6 +417,53 @@ export default function BillingPage(): React.JSX.Element {
           </div>
         )}
       </div>
+
+      {mockOrder && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Complete mock payment"
+        >
+          <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-porcelain/10 dark:bg-ink-800">
+            <span className="mb-2 inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+              Test payment
+            </span>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-porcelain">Complete your payment</h3>
+            <p className="mt-1 text-sm text-slate-600 dark:text-porcelain/70">
+              This is a simulated payment — no real charge. You&apos;re adding{" "}
+              <span className="font-semibold text-slate-900 dark:text-porcelain">{formatCredits(mockOrder.credits)}</span>.
+            </p>
+            <p className="mt-1 break-all text-xs text-slate-400 dark:text-porcelain/40">Order {mockOrder.orderId}</p>
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                disabled={mockPaying}
+                onClick={() => void handleMockPay("success")}
+                className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gold dark:text-ink-950 dark:hover:bg-gold/90"
+              >
+                {mockPaying ? "Processing…" : "Pay now"}
+              </button>
+              <button
+                type="button"
+                disabled={mockPaying}
+                onClick={() => void handleMockPay("failure")}
+                className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-porcelain/15 dark:text-porcelain/70 dark:hover:bg-ink-700"
+              >
+                Simulate failure
+              </button>
+            </div>
+            <button
+              type="button"
+              disabled={mockPaying}
+              onClick={() => setMockOrder(null)}
+              className="mt-3 w-full text-center text-xs text-slate-400 hover:text-slate-600 disabled:opacity-50 dark:text-porcelain/40 dark:hover:text-porcelain/70"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
