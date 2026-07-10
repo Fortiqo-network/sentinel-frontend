@@ -12,7 +12,14 @@ export interface User {
   id: string;
   email: string;
   displayName?: string;
+  /**
+   * The portal role — the highest-capability role the account holds, resolved
+   * by the gateway. Drives which portal the user lands in. Roles are additive,
+   * so a seller's `role` is `"seller"` even though they retain buyer access.
+   */
   role: UserRole;
+  /** Every role the account holds (additive). Use for capability checks. */
+  roles?: UserRole[];
   avatarUrl?: string | null;
   bio?: string | null;
   company?: string | null;

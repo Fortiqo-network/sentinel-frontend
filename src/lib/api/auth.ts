@@ -9,6 +9,7 @@ export const UserSchema = z.object({
   email: z.string().email(),
   displayName: z.string().optional(),
   role: z.enum(["buyer", "seller", "admin"]),
+  roles: z.array(z.enum(["buyer", "seller", "admin"])).optional(),
   avatarUrl: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
@@ -86,6 +87,20 @@ export interface OnboardingPayload {
  */
 export async function completeOnboarding(payload: OnboardingPayload): Promise<User> {
   const response = await apiClient.post<unknown>("/v1/auth/onboarding", payload);
+  return UserSchema.parse(response.data);
+}
+
+/**
+ * Enables selling on the current account (adds the `seller` role, additively).
+ *
+ * This is a one-way upgrade: the account keeps its buyer role and wallet and
+ * gains the ability to list and earn. There is deliberately no inverse — a
+ * seller cannot be downgraded back to buyer-only. Returns the updated user
+ * (whose `role` is now `"seller"`, so the caller should route to the seller
+ * portal and refresh the session).
+ */
+export async function becomeSeller(): Promise<User> {
+  const response = await apiClient.post<unknown>("/v1/auth/become-seller");
   return UserSchema.parse(response.data);
 }
 
