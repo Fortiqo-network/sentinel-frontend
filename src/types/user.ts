@@ -32,6 +32,14 @@ export interface User {
   emailVerified: boolean;
   /** True until the user has chosen a role and finished onboarding. */
   needsOnboarding?: boolean;
+  /** True when the account must rotate its password before proceeding (admin-created). */
+  mustChangePassword?: boolean;
+  /** When the user accepted the Terms & Conditions; null/undefined = never. */
+  termsAcceptedAt?: string | null;
+  /** Present on login/register responses only: first sign-in of this account. */
+  firstLogin?: boolean;
+  /** Present on login/register responses only: current terms version accepted. */
+  termsUpToDate?: boolean;
 }
 
 /** Client-safe session state stored in Zustand (no tokens). */

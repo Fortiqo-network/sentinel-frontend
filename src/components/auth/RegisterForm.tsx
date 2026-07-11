@@ -9,7 +9,7 @@ import { register } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
-import { portalHome } from "@/lib/utils/portal";
+import { postAuthDestination } from "@/lib/utils/portal";
 
 type Role = "buyer" | "seller";
 
@@ -131,7 +131,7 @@ export function RegisterForm(): React.JSX.Element {
         role,
       });
       setUser(user);
-      router.push(portalHome(user.role));
+      router.push(postAuthDestination(user));
       router.refresh();
     } catch (err) {
       if (isSentinelApiError(err)) {

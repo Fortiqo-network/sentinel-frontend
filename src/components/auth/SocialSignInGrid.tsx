@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loginWithGoogle } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth";
-import { portalHome } from "@/lib/utils/portal";
+import { postAuthDestination } from "@/lib/utils/portal";
 
 const GSI_SRC = "https://accounts.google.com/gsi/client";
 
@@ -130,7 +130,7 @@ export function SocialSignInGrid({
       try {
         const user = await loginWithGoogle(response.credential);
         setUser(user);
-        router.push(user.needsOnboarding ? "/onboarding" : portalHome(user.role));
+        router.push(postAuthDestination(user));
         router.refresh();
       } catch (err) {
         setIsSubmitting(false);

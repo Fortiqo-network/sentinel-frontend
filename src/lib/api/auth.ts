@@ -20,6 +20,10 @@ export const UserSchema = z.object({
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
   needsOnboarding: z.boolean().optional().default(false),
+  mustChangePassword: z.boolean().optional().default(false),
+  termsAcceptedAt: z.string().nullable().optional(),
+  firstLogin: z.boolean().optional(),
+  termsUpToDate: z.boolean().optional(),
 });
 
 export const LoginRequestSchema = z.object({
@@ -73,13 +77,17 @@ export async function loginWithGoogle(credential: string): Promise<User> {
   return UserSchema.parse(response.data);
 }
 
-/** Onboarding answers submitted after a first OAuth/EVM sign-up. */
+/** Onboarding answers submitted on the first sign-in. */
 export interface OnboardingPayload {
   role: "buyer" | "seller";
   primaryUse?: string;
   referralSource?: string;
   organization?: string;
   interests?: string[];
+  /** Why the user is signing up / what they hope to achieve. */
+  signinReason?: string;
+  /** Must be true — Terms & Conditions acceptance is required to enter. */
+  acceptTerms: boolean;
 }
 
 /**
@@ -88,6 +96,23 @@ export interface OnboardingPayload {
  */
 export async function completeOnboarding(payload: OnboardingPayload): Promise<User> {
   const response = await apiClient.post<unknown>("/v1/auth/onboarding", payload);
+  return UserSchema.parse(response.data);
+}
+
+/** Self-service password change (or first password for OAuth-only accounts). */
+export interface ChangePasswordPayload {
+  /** Current password; omit for OAuth-only accounts setting their first. */
+  currentPassword?: string;
+  newPassword: string;
+}
+
+/**
+ * Changes (or sets) the account password and returns the updated user with
+ * `mustChangePassword` cleared. A wrong current password rejects with a 400
+ * whose message should be shown verbatim.
+ */
+export async function changePassword(payload: ChangePasswordPayload): Promise<User> {
+  const response = await apiClient.post<unknown>("/v1/auth/change-password", payload);
   return UserSchema.parse(response.data);
 }
 

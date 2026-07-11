@@ -4,19 +4,38 @@ import { portalHome } from "@/lib/utils/portal";
 import { OnboardingForm } from "@/components/onboarding/OnboardingForm";
 
 /**
- * Post-signup onboarding gate. New OAuth/EVM sign-ups land here to choose a role
- * (buyer or seller) and answer a few basics before the portal unlocks. Users who
- * are not signed in go to login; users who have already onboarded are sent to
- * their portal so this page is never a dead end.
+ * The first-login gate. Every new account lands here after its first sign-in:
+ * an optional password change (forced for admin-created accounts), the
+ * buyer/seller role choice, the onboarding questions, and the required Terms &
+ * Conditions acceptance. Users who are not signed in go to login; users with
+ * nothing left to complete are sent to their portal so this page is never a
+ * dead end. Admins only see the password step.
  */
-export default async function OnboardingPage(): Promise<React.JSX.Element> {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pw?: string }>;
+}): Promise<React.JSX.Element> {
   const user = await getServerUser();
   if (!user) redirect("/login");
-  if (!user.needsOnboarding) redirect(portalHome(user.role));
+
+  const isAdmin = user.role === "admin";
+  const mustChangePassword = user.mustChangePassword === true;
+  const needsProfile = !isAdmin && (user.needsOnboarding === true || !user.termsAcceptedAt);
+  if (!mustChangePassword && !needsProfile) redirect(portalHome(user.role));
+
+  // ?pw=1 is set by the login/register forms on the account's FIRST sign-in —
+  // the optional "change your password now" step is offered to everyone then.
+  const { pw } = await searchParams;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-ink-950 p-6 text-porcelain">
-      <OnboardingForm displayName={user.displayName ?? null} />
+      <OnboardingForm
+        displayName={user.displayName ?? null}
+        mustChangePassword={mustChangePassword}
+        isAdmin={isAdmin}
+        offerPasswordChange={mustChangePassword || pw === "1"}
+      />
     </div>
   );
 }
