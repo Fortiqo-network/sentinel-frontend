@@ -26,6 +26,69 @@ const ROLE_COPY: Record<Role, { title: string; blurb: string }> = {
 const INPUT_CLASS =
   "w-full rounded-lg border border-porcelain/15 bg-ink-800/50 px-3 py-2 text-sm text-porcelain placeholder:text-porcelain/30 focus:border-gold/50 focus:outline-none";
 
+/** Realtime password guidelines — each rule ticks as the user satisfies it. */
+const PASSWORD_RULES: ReadonlyArray<{ id: string; label: string; test: (pw: string) => boolean }> = [
+  { id: "length", label: "At least 12 characters", test: (pw) => pw.length >= 12 },
+  { id: "lower", label: "A lowercase letter (a–z)", test: (pw) => /[a-z]/.test(pw) },
+  { id: "upper", label: "An uppercase letter (A–Z)", test: (pw) => /[A-Z]/.test(pw) },
+  { id: "number", label: "A number (0–9)", test: (pw) => /\d/.test(pw) },
+  { id: "special", label: "A special character (!@#$…)", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+];
+
+const STRENGTH_LEVELS = [
+  { label: "Too weak", color: "#EF4444", width: "20%" },
+  { label: "Weak", color: "#EF4444", width: "40%" },
+  { label: "Fair", color: "#F59E0B", width: "60%" },
+  { label: "Good", color: "#F59E0B", width: "80%" },
+  { label: "Strong", color: "#22C55E", width: "100%" },
+] as const;
+
+/** Live checklist + strength meter shown under the new-password field. */
+function PasswordGuidelines({ password }: { password: string }): React.JSX.Element {
+  const passed = PASSWORD_RULES.filter((r) => r.test(password)).length;
+  const level = STRENGTH_LEVELS[Math.max(0, passed - 1)] ?? STRENGTH_LEVELS[0];
+  return (
+    <div className="space-y-2 rounded-lg border border-porcelain/10 bg-ink-800/30 p-3">
+      {password.length > 0 && (
+        <div className="space-y-1">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{ width: level.width, backgroundColor: level.color }}
+            />
+          </div>
+          <p className="text-[11px]" style={{ color: level.color }}>
+            Password strength: {level.label}
+          </p>
+        </div>
+      )}
+      <ul className="space-y-1">
+        {PASSWORD_RULES.map((rule) => {
+          const ok = rule.test(password);
+          return (
+            <li
+              key={rule.id}
+              className={`flex items-center gap-2 text-[11px] transition-colors ${
+                ok ? "text-emerald-400" : "text-porcelain/45"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[9px] ${
+                  ok ? "border-emerald-400 bg-emerald-400/15" : "border-porcelain/25"
+                }`}
+              >
+                {ok ? "✓" : ""}
+              </span>
+              {rule.label}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 interface OnboardingFormProps {
   displayName: string | null;
   /** Forced rotation (admin-created accounts) — the password step cannot be skipped. */
@@ -56,6 +119,7 @@ export function OnboardingForm({
   );
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [showPasswords, setShowPasswords] = React.useState(false);
 
   const [role, setRole] = React.useState<Role | null>(null);
   const [primaryUse, setPrimaryUse] = React.useState("");
@@ -161,24 +225,46 @@ export function OnboardingForm({
         </div>
 
         <label className="block space-y-1.5">
-          <span className="text-xs text-porcelain/60">New password (min 12 characters)</span>
+          <span className="text-xs text-porcelain/60">New password</span>
           <input
-            type="password"
+            type={showPasswords ? "text" : "password"}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             autoComplete="new-password"
             className={INPUT_CLASS}
           />
         </label>
+
+        <PasswordGuidelines password={newPassword} />
+
         <label className="block space-y-1.5">
           <span className="text-xs text-porcelain/60">Confirm new password</span>
           <input
-            type="password"
+            type={showPasswords ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             autoComplete="new-password"
             className={INPUT_CLASS}
           />
+          {confirmPassword.length > 0 && (
+            <p
+              className={`text-[11px] ${
+                newPassword === confirmPassword ? "text-emerald-400" : "text-red-400"
+              }`}
+            >
+              {newPassword === confirmPassword ? "✓ Passwords match" : "Passwords do not match"}
+            </p>
+          )}
+        </label>
+
+        <label className="flex cursor-pointer items-center gap-2 text-xs text-porcelain/60">
+          <input
+            type="checkbox"
+            checked={showPasswords}
+            onChange={(e) => setShowPasswords(e.target.checked)}
+            className="h-3.5 w-3.5 accent-[#E7A03C]"
+          />
+          View password
         </label>
 
         {error !== undefined && (
