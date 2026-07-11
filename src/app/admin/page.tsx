@@ -30,6 +30,22 @@ export default function AdminOverviewPage(): React.JSX.Element {
   const [allowHttp, setAllowHttp] = React.useState<boolean | null>(null);
   const [savingHttp, setSavingHttp] = React.useState(false);
   const [diag, setDiag] = React.useState<AdminDiagnostics | null>(null);
+  const [checkingDiag, setCheckingDiag] = React.useState(false);
+  const [diagCheckedAt, setDiagCheckedAt] = React.useState<Date | null>(null);
+
+  const recheckDiagnostics = React.useCallback(async () => {
+    setCheckingDiag(true);
+    try {
+      // The diagnostics endpoint probes verify/billing LIVE on every call, so a
+      // re-fetch is a real health check, not a cache read.
+      setDiag(await getDiagnostics());
+      setDiagCheckedAt(new Date());
+    } catch (err) {
+      setNotice(isSentinelApiError(err) ? err.message : "Could not run the live check.");
+    } finally {
+      setCheckingDiag(false);
+    }
+  }, []);
 
   const load = React.useCallback(async () => {
     try {
@@ -127,11 +143,30 @@ export default function AdminOverviewPage(): React.JSX.Element {
 
           {diag && (
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-porcelain/10 dark:bg-ink-800">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Verification pipeline</h2>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-porcelain/50">
-                For agents to reach <span className="font-medium">verified/live</span>, verify must be
-                reachable and the event-signature config must match.
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-porcelain">Verification pipeline</h2>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-porcelain/50">
+                    For agents to reach <span className="font-medium">verified/live</span>, verify must be
+                    reachable and the event-signature config must match.
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void recheckDiagnostics()}
+                    disabled={checkingDiag}
+                  >
+                    {checkingDiag ? "Checking…" : "Check now"}
+                  </Button>
+                  {diagCheckedAt && (
+                    <span className="text-[10px] text-slate-400 dark:text-porcelain/40">
+                      checked {diagCheckedAt.toLocaleTimeString()}
+                    </span>
+                  )}
+                </div>
+              </div>
               <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
                 <DiagRow label="Verify service reachable" ok={diag.verify_reachable} />
                 <DiagRow label="Billing service reachable" ok={diag.billing_reachable} />
