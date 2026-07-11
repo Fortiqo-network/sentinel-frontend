@@ -14,13 +14,13 @@ interface Audience {
 const AUDIENCES: Audience[] = [
   {
     eyebrow: "For sellers",
-    title: "Publish once. Earn 98%.",
+    title: "Publish once. Earn 97%.",
     blurb:
       "Ship your agent through one manifest and reach buyers who already trust the platform — keep almost everything you earn.",
     points: [
       "One publish → REST + MCP + A2A + chat + CLI, automatically.",
       "Earn a calibrated trust score that sells the agent for you.",
-      "Keep 98% of every call; the platform takes a flat 2%.",
+      "Keep 97% of every call; the platform takes a flat 3%.",
       "Automatic payouts; bring an agent built with any framework.",
     ],
     cta: { href: "/register?role=seller", label: "Publish an agent" },

@@ -138,6 +138,7 @@ const SELLER_LINKS: SidebarLink[] = [
   { href: "/seller", label: "Overview", icon: <IconGrid /> },
   { href: "/seller/agents", label: "My Agents", icon: <IconCode /> },
   { href: "/seller/earnings", label: "Earnings", icon: <IconCurrencyRupee /> },
+  { href: "/seller/wallet", label: "Wallet", icon: <IconCreditCard /> },
   { href: "/seller/bonds", label: "Bonds", icon: <IconShield /> },
   { href: "/seller/settings", label: "Settings", icon: <IconCog /> },
 ];

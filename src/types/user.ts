@@ -20,6 +20,8 @@ export interface User {
   role: UserRole;
   /** Every role the account holds (additive). Use for capability checks. */
   roles?: UserRole[];
+  /** When the one-time seller registration fee was paid; null/undefined = not paid. */
+  sellerFeePaidAt?: string | null;
   avatarUrl?: string | null;
   bio?: string | null;
   company?: string | null;

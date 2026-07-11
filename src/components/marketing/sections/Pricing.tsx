@@ -10,12 +10,12 @@ interface Pillar {
 
 const PILLARS: Pillar[] = [
   {
-    stat: "2%",
+    stat: "3%",
     label: "Platform fee",
-    detail: "A flat 2% on successfully-delivered calls — sellers keep 98%. No surprises.",
+    detail: "A flat 3% on successfully-delivered calls — sellers keep 97%. No surprises.",
   },
   {
-    stat: "98%",
+    stat: "97%",
     label: "To the seller",
     detail: "You keep almost everything. The take rate is a growth lever, not a tax.",
   },
@@ -27,7 +27,7 @@ const PILLARS: Pillar[] = [
 ];
 
 /**
- * Transparent economics: a flat 2% fee, 98% to sellers, and pay-on-outcome —
+ * Transparent economics: a flat 3% fee, 97% to sellers, and pay-on-outcome —
  * the trust-and-money story in one glance, with a worked example.
  */
 export function Pricing(): React.JSX.Element {
@@ -74,7 +74,7 @@ export function Pricing(): React.JSX.Element {
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-porcelain/55">
               List your first agent <span className="font-semibold text-porcelain">free for 7 days</span>, then a
               one-time <span className="font-semibold text-porcelain">$10 listing fee</span> keeps it live. After
-              that, the flat 2% is the only cut on what you earn.
+              that, the flat 3% is the only cut on what you earn.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <MagneticButton href="/register?role=seller" variant="primary">

@@ -14,9 +14,9 @@ import { AccessControlCard } from "@/components/portal/AccessControlCard";
 import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
 import { TrustBadgeEmbed } from "@/components/seller/TrustBadgeEmbed";
+import { payRegistration } from "@/lib/api/auth";
 import {
   getMyAgent,
-  payListing,
   retireAgent,
   restoreAgent,
   reverifyAgent,
@@ -47,11 +47,11 @@ const STATUS_VARIANT: Record<SellerAgentStatus, "default" | "success" | "warning
 const PAGE_SIZE = 8;
 
 function trialLabel(agent: SellerAgent): { label: string; tone: "ok" | "trial" | "expired"; showPay: boolean } {
-  if (agent.listingPaid) return { label: "Listing fee paid", tone: "ok", showPay: false };
+  if (agent.listingPaid) return { label: "Listing covered", tone: "ok", showPay: false };
   if (!agent.trialEndsAt) return { label: "Listed", tone: "ok", showPay: false };
   const days = Math.ceil((new Date(agent.trialEndsAt).getTime() - Date.now()) / 86_400_000);
   if (days > 0) return { label: `Free trial — ${days} day${days === 1 ? "" : "s"} left`, tone: "trial", showPay: true };
-  return { label: "Trial ended — pay to stay listed", tone: "expired", showPay: true };
+  return { label: "Trial ended — pay registration to stay listed", tone: "expired", showPay: true };
 }
 
 function formatCredits(n: number): string {
@@ -124,7 +124,15 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
   async function handlePay(): Promise<void> {
     setPaying(true);
     try {
-      setAgent(await payListing(agentId));
+      // One-time seller registration fee: paying it marks every agent the
+      // seller owns listing-paid server-side, so refetch this one after.
+      await payRegistration();
+      setAgent(await getMyAgent(agentId));
+    } catch (err) {
+      if (isSentinelApiError(err) && err.statusCode === 402) {
+        router.push("/seller/wallet"); // insufficient credits — add funds first
+        return;
+      }
     } finally {
       setPaying(false);
     }
@@ -268,8 +276,8 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
             <div>
               <p className="font-semibold text-amber-800 dark:text-amber-200">This agent is archived</p>
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                It&apos;s hidden from the marketplace. Re-enable it via listing — live instantly if the
-                listing fee is paid, otherwise it gets a fresh 7-day free trial.
+                It&apos;s hidden from the marketplace. Re-enable it via listing — live instantly if your
+                registration fee is paid, otherwise it gets a fresh 7-day free trial.
               </p>
             </div>
             <Button onClick={handleRestore} disabled={restoring}>
@@ -294,13 +302,13 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
       <Card>
         <CardHeader>
           <CardTitle>Listing</CardTitle>
-          <CardDescription>First 7 days free; a one-time $10 listing fee keeps the agent listed after the trial.</CardDescription>
+          <CardDescription>Covered by the one-time $10 seller registration fee — pay once, list unlimited agents.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center justify-between gap-4">
           <Badge variant={trial.tone === "ok" ? "success" : trial.tone === "trial" ? "info" : "warning"}>{trial.label}</Badge>
           {trial.showPay && (
             <Button onClick={handlePay} disabled={paying}>
-              {paying ? "Processing…" : "Pay $10 listing fee"}
+              {paying ? "Processing…" : "Pay $10 registration fee"}
             </Button>
           )}
         </CardContent>

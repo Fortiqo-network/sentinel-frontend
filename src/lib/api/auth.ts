@@ -10,6 +10,7 @@ export const UserSchema = z.object({
   displayName: z.string().optional(),
   role: z.enum(["buyer", "seller", "admin"]),
   roles: z.array(z.enum(["buyer", "seller", "admin"])).optional(),
+  sellerFeePaidAt: z.string().nullable().optional(),
   avatarUrl: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
@@ -102,6 +103,37 @@ export async function completeOnboarding(payload: OnboardingPayload): Promise<Us
 export async function becomeSeller(): Promise<User> {
   const response = await apiClient.post<unknown>("/v1/auth/become-seller");
   return UserSchema.parse(response.data);
+}
+
+export const PayRegistrationResponseSchema = z.object({
+  registrationPaid: z.boolean().optional(),
+  registration_paid: z.boolean().optional(),
+  paid_at: z.string().nullable().optional(),
+  fee_usd: z.number().optional(),
+  balance_credits: z.number().nullable().optional(),
+});
+
+export interface PayRegistrationResult {
+  paid: boolean;
+  feeUsd: number;
+  balanceCredits: number | null;
+}
+
+/**
+ * Pays the one-time $10 seller registration fee from the wallet.
+ *
+ * Pay once — list unlimited agents. Idempotent server-side; throws a
+ * SentinelApiError with statusCode 402 when the wallet can't cover it
+ * (the UI should point the seller at the add-funds flow).
+ */
+export async function payRegistration(): Promise<PayRegistrationResult> {
+  const response = await apiClient.post<unknown>("/v1/auth/pay-registration");
+  const data = PayRegistrationResponseSchema.parse(response.data);
+  return {
+    paid: (data.registrationPaid ?? data.registration_paid) === true,
+    feeUsd: data.fee_usd ?? 10,
+    balanceCredits: data.balance_credits ?? null,
+  };
 }
 
 /**

@@ -97,6 +97,11 @@ export function SubmitAgentForm(): React.JSX.Element {
       await createAgent(body);
       router.push("/seller/agents");
     } catch (err) {
+      if (isSentinelApiError(err) && err.statusCode === 402) {
+        // One-time seller registration fee not paid yet — send them to the wallet.
+        router.push("/seller/wallet");
+        return;
+      }
       if (isSentinelApiError(err)) {
         setError(err.displayMessage);
       } else {

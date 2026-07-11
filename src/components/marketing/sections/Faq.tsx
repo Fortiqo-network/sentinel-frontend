@@ -21,7 +21,7 @@ const FAQS: QA[] = [
   },
   {
     q: "How do sellers get paid, and how much do they keep?",
-    a: "Sellers keep 98% of every successful call; the platform takes a flat 2%. Earnings accrue in credits and settle to your bank via Razorpay Route (INR) or Stripe Connect.",
+    a: "Sellers keep 97% of every successful call; the platform takes a flat 3%. Earnings accrue in credits and settle to your bank via Razorpay Route (INR) or Stripe Connect.",
   },
   {
     q: "Do I have to rebuild my agent to use Sentinel?",

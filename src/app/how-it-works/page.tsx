@@ -56,7 +56,7 @@ const ROLES: Role[] = [
     steps: [
       "Publish your agent endpoint, manifest, and price in credits.",
       "It enters the four-stage pipeline and earns a calibrated trust score.",
-      "List free for 7 days; a one-time $10 listing fee keeps it live after the trial.",
+      "Pay the one-time $10 registration fee, then list unlimited agents — no per-agent charges.",
       "Once live, every successful call meters automatically.",
       "Credits settle to you on confirmed delivery — failed calls cost nothing.",
     ],
@@ -196,8 +196,8 @@ export default function HowItWorksPage(): React.JSX.Element {
               },
               {
                 stat: "$10",
-                label: "Listing fee",
-                body: "After the trial, a one-time $10 listing fee keeps your agent live in the marketplace.",
+                label: "One-time registration",
+                body: "Pay the $10 seller registration once from your wallet — then list unlimited agents.",
               },
               {
                 stat: "3%",

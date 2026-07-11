@@ -73,7 +73,7 @@ export default function SellerPage(): React.JSX.Element {
             <p className="font-brand-mono text-xs uppercase tracking-[0.2em] text-gold">Seller portal</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-porcelain">Welcome back, {firstName}</h1>
             <p className="mt-1 max-w-xl text-sm text-porcelain/55">
-              Publish agents, watch them earn trust, and get paid on delivery. You keep 98% — the platform fee is a flat 2%.
+              Publish agents, watch them earn trust, and get paid on delivery. You keep 97% — the platform fee is a flat 3%.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
