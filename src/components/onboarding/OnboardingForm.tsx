@@ -179,6 +179,10 @@ export function OnboardingForm({
         setError("Please choose how you'll use Sentinel.");
         return;
       }
+      if (role === "seller" && organization.trim().length === 0) {
+        setError("Organization is required for sellers.");
+        return;
+      }
       if (!acceptTerms) {
         setError("You must accept the Terms & Conditions to continue.");
         return;
@@ -364,13 +368,16 @@ export function OnboardingForm({
       </label>
 
       <label className="block space-y-1.5">
-        <span className="text-xs text-porcelain/60">Company / organisation (optional)</span>
+        <span className="text-xs text-porcelain/60">
+          Company / organisation {role === "seller" ? "(required for sellers)" : "(optional)"}
+        </span>
         <input
           type="text"
           value={organization}
           onChange={(e) => setOrganization(e.target.value)}
           maxLength={128}
           placeholder="Acme AI"
+          required={role === "seller"}
           className={INPUT_CLASS}
         />
       </label>
