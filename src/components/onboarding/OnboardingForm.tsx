@@ -54,7 +54,6 @@ export function OnboardingForm({
   const [step, setStep] = React.useState<"password" | "profile">(
     mustChangePassword || offerPasswordChange ? "password" : "profile",
   );
-  const [currentPassword, setCurrentPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
 
@@ -87,10 +86,9 @@ export function OnboardingForm({
       }
       setSubmitting(true);
       try {
-        const user = await changePassword({
-          currentPassword: currentPassword || undefined,
-          newPassword,
-        });
+        // First-login rotation: the once-in-life change never asks for the
+        // current password — the server enforces the same rule.
+        const user = await changePassword({ newPassword });
         setUser(user);
         setSubmitting(false);
         if (isAdmin) {
@@ -107,7 +105,7 @@ export function OnboardingForm({
         );
       }
     },
-    [currentPassword, newPassword, confirmPassword, isAdmin, finishForAdmin, setUser],
+    [newPassword, confirmPassword, isAdmin, finishForAdmin, setUser],
   );
 
   const onProfileSubmit = React.useCallback(
@@ -162,16 +160,6 @@ export function OnboardingForm({
           </p>
         </div>
 
-        <label className="block space-y-1.5">
-          <span className="text-xs text-porcelain/60">Current password</span>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            autoComplete="current-password"
-            className={INPUT_CLASS}
-          />
-        </label>
         <label className="block space-y-1.5">
           <span className="text-xs text-porcelain/60">New password (min 12 characters)</span>
           <input
