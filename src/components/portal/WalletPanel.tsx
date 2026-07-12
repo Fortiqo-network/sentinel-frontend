@@ -21,13 +21,15 @@ const TOP_UP_PRESETS: TopUpPreset[] = [5, 10, 20];
 
 type Provider = "stripe" | "razorpay" | "mock";
 
-// The mock provider is a pre-launch simulator (backed by billing's mock_payments_enabled).
-// Hidden unless NEXT_PUBLIC_MOCK_PAYMENTS === "true"; remove it once a real provider is live.
-const MOCK_ENABLED = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
+// The mock provider is the pre-launch payment path (backed by billing's
+// mock_payments_enabled, which is ON until a real provider is wired). Shown by
+// default — set NEXT_PUBLIC_MOCK_PAYMENTS="false" to hide it at launch.
+const MOCK_ENABLED = process.env.NEXT_PUBLIC_MOCK_PAYMENTS !== "false";
+// Real providers stay visible but disabled until their keys are configured —
+// selecting them pre-launch produced a guaranteed "Could not start checkout".
+const REAL_PROVIDERS_ENABLED = process.env.NEXT_PUBLIC_REAL_PAYMENTS === "true";
 
-const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
-  { id: "stripe", label: "Card (Stripe)", hint: "Visa, Mastercard, and more — hosted by Stripe" },
-  { id: "razorpay", label: "UPI / Card (Razorpay)", hint: "UPI, cards, netbanking — hosted by Razorpay" },
+const PROVIDERS: { id: Provider; label: string; hint: string; disabled?: boolean }[] = [
   ...(MOCK_ENABLED
     ? [
         {
@@ -37,7 +39,25 @@ const PROVIDERS: { id: Provider; label: string; hint: string }[] = [
         },
       ]
     : []),
+  {
+    id: "stripe",
+    label: "Card (Stripe)",
+    hint: REAL_PROVIDERS_ENABLED
+      ? "Visa, Mastercard, and more — hosted by Stripe"
+      : "Coming soon",
+    disabled: !REAL_PROVIDERS_ENABLED,
+  },
+  {
+    id: "razorpay",
+    label: "UPI / Card (Razorpay)",
+    hint: REAL_PROVIDERS_ENABLED
+      ? "UPI, cards, netbanking — hosted by Razorpay"
+      : "Coming soon",
+    disabled: !REAL_PROVIDERS_ENABLED,
+  },
 ];
+
+const DEFAULT_PROVIDER: Provider = MOCK_ENABLED ? "mock" : "stripe";
 
 function formatCredits(credits: number): string {
   return `${credits.toLocaleString("en-IN")} Cr`;
@@ -76,7 +96,7 @@ export function WalletPanel({ title, description, returnPath, extra }: WalletPan
   const [selectedPreset, setSelectedPreset] = React.useState<TopUpPreset | null>(null);
   const [customAmount, setCustomAmount] = React.useState("");
   const [isCustom, setIsCustom] = React.useState(false);
-  const [provider, setProvider] = React.useState<Provider>("stripe");
+  const [provider, setProvider] = React.useState<Provider>(DEFAULT_PROVIDER);
   const [submitting, setSubmitting] = React.useState(false);
   const [feedback, setFeedback] = React.useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [promoCode, setPromoCode] = React.useState("");
@@ -308,12 +328,15 @@ export function WalletPanel({ title, description, returnPath, extra }: WalletPan
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setProvider(p.id)}
+                onClick={() => !p.disabled && setProvider(p.id)}
+                disabled={p.disabled}
                 className={cn(
                   "rounded-lg border px-4 py-2.5 text-left transition-colors",
-                  provider === p.id
-                    ? "border-indigo-500 bg-indigo-50 dark:border-gold dark:bg-gold/15"
-                    : "border-slate-200 bg-white hover:border-indigo-300 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-gold/30",
+                  p.disabled
+                    ? "cursor-not-allowed border-slate-200 bg-slate-50 opacity-50 dark:border-porcelain/10 dark:bg-ink-800/50"
+                    : provider === p.id
+                      ? "border-indigo-500 bg-indigo-50 dark:border-gold dark:bg-gold/15"
+                      : "border-slate-200 bg-white hover:border-indigo-300 dark:border-porcelain/10 dark:bg-ink-800 dark:hover:border-gold/30",
                 )}
               >
                 <span className="block text-sm font-semibold text-slate-800 dark:text-porcelain">{p.label}</span>
