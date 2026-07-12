@@ -521,3 +521,49 @@ export async function setFeatureFlag(key: string, value: unknown): Promise<Featu
   const response = await apiClient.put<unknown>(`/v1/admin/flags/${key}`, { value });
   return FeatureFlagSchema.parse(response.data);
 }
+
+// ── Promo / referral codes ────────────────────────────────────────────────────
+
+export const PromoCodeSchema = z.object({
+  code: z.string(),
+  usd: z.number().int(),
+  credits: z.number().int(),
+  active: z.boolean(),
+  expires_at: z.string().nullable(),
+  max_redemptions: z.number().int().nullable(),
+  times_redeemed: z.number().int(),
+  note: z.string().nullable(),
+  created_at: z.string(),
+});
+export type PromoCode = z.infer<typeof PromoCodeSchema>;
+
+export interface CreatePromoInput {
+  code: string;
+  usd: number;
+  max_redemptions?: number | null;
+  expires_at?: string | null;
+  note?: string | null;
+}
+
+/** Lists all promo (referral) codes, newest first. */
+export async function getPromoCodes(): Promise<PromoCode[]> {
+  const response = await apiClient.get<unknown>("/v1/admin/promo");
+  return z.array(PromoCodeSchema).parse(response.data);
+}
+
+/** Creates a promo (referral) code. */
+export async function createPromoCode(input: CreatePromoInput): Promise<PromoCode> {
+  const response = await apiClient.post<unknown>("/v1/admin/promo", input);
+  return PromoCodeSchema.parse(response.data);
+}
+
+/** Enables or disables a promo code. */
+export async function setPromoActive(code: string, active: boolean): Promise<PromoCode> {
+  const response = await apiClient.patch<unknown>(`/v1/admin/promo/${code}`, { active });
+  return PromoCodeSchema.parse(response.data);
+}
+
+/** Deletes a promo code (past redemptions are retained). */
+export async function deletePromoCode(code: string): Promise<void> {
+  await apiClient.delete(`/v1/admin/promo/${code}`);
+}
