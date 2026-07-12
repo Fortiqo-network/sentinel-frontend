@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { TrustBadge } from "@/components/marketplace/TrustBadge";
+import { AgentAvatar } from "@/components/marketplace/AgentAvatar";
+import { CodeSnippet } from "@/components/ui/CodeSnippet";
 import { formatDate } from "@/lib/utils/format";
 import { getAgent, getAgentBySlug, getAgentReport } from "@/lib/api/agents";
 import { UseAgentButton } from "@/components/marketplace/UseAgentButton";
@@ -127,7 +129,8 @@ export default async function AgentDetailPage({
   const dev = agent.seller ?? "";
   const metadataUrl = agent.metadataUrl ?? (dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/metadata` : undefined);
   const restUrl = dev ? `${GATEWAY}/v1/agents/${dev}/${agent.slug}/use` : undefined;
-  const sseUrl = `${GATEWAY}/v1/agents/${agent.id}/chat`;
+  const isMcp = agent.protocol === "mcp";
+  const sseUrl = agent.supportsSse ? `${GATEWAY}/v1/agents/${agent.id}/chat` : undefined;
   const mcpUrl = `${GATEWAY}/mcp/a/${agent.id}`;
   const a2aUrl = `${GATEWAY}/.well-known/agents/${agent.id}/agent-card.json`;
   const externalLinks: Array<{ label: string; href: string }> = [
@@ -156,12 +159,7 @@ export default async function AgentDetailPage({
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           {/* Icon + name + badges */}
           <div className="flex flex-1 min-w-0 items-start gap-4">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-ink-700 text-3xl"
-              aria-hidden="true"
-            >
-              {agent.icon ?? "🤖"}
-            </div>
+            <AgentAvatar name={agent.name} iconUrl={agent.icon} className="h-16 w-16" />
             <div className="min-w-0">
               <h1 className="text-2xl font-bold text-porcelain">{agent.name}</h1>
               <p className="font-mono text-sm text-graphite">/{agent.slug}</p>
@@ -271,13 +269,14 @@ export default async function AgentDetailPage({
               )}
             </div>
             <p className="mt-1 text-xs text-porcelain/40">
-              Billed from your Sentinel credit wallet (INR). No commitment.
+              Billed from your Sentinel credit wallet (1 USD = 100 credits). No commitment.
             </p>
             <div className="mt-5">
               <UseAgentButton
                 seller={agent.seller ?? ""}
                 slug={agent.slug}
                 priceLabel={priceCredits != null ? `${priceCredits} Cr / call` : "Free"}
+                isMcp={isMcp}
               />
             </div>
             <Link
@@ -370,38 +369,39 @@ export default async function AgentDetailPage({
           </div>
         </div>
 
-        {/* Endpoints */}
-        <div className="mt-5 space-y-3 font-brand-mono text-[11px] leading-relaxed text-porcelain/60">
-          {metadataUrl && (
-            <div>
-              <div className="mb-1 text-porcelain/35">Metadata</div>
-              <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
-                GET {metadataUrl}
-              </code>
-            </div>
-          )}
+        {/* Call it from your own code */}
+        <div className="mt-5 space-y-4">
+          <p className="text-xs text-porcelain/50">
+            Authenticate with your Sentinel API key (create one in{" "}
+            <Link href="/dashboard/api-keys" className="text-gold hover:underline">
+              Dashboard → API keys
+            </Link>
+            ). Calls are billed to your wallet only on success.
+          </p>
           {restUrl && (
-            <div>
-              <div className="mb-1 text-porcelain/35">REST (pay-and-use)</div>
-              <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
-                POST {restUrl}
-              </code>
-            </div>
+            <CodeSnippet
+              label={isMcp ? "curl — call an MCP tool" : "curl — pay-and-use"}
+              wrap
+              code={
+                isMcp
+                  ? `curl -X POST ${restUrl} \\\n  -H "X-API-Key: $SENTINEL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"tool": "<tool_name>", "arguments": { }}'`
+                  : `curl -X POST ${restUrl} \\\n  -H "X-API-Key: $SENTINEL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"input": { }}'`
+              }
+            />
           )}
-          <div>
-            <div className="mb-1 text-porcelain/35">SSE stream (live response)</div>
-            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">
-              POST {sseUrl} · Accept: text/event-stream
-            </code>
-          </div>
-          <div>
-            <div className="mb-1 text-porcelain/35">MCP (Streamable HTTP)</div>
-            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">{mcpUrl}</code>
-          </div>
-          <div>
-            <div className="mb-1 text-porcelain/35">A2A card</div>
-            <code className="block overflow-x-auto rounded-lg bg-ink-950/70 px-3 py-2">{a2aUrl}</code>
-          </div>
+          {isMcp && (
+            <p className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-300/90">
+              This is an <strong>MCP agent</strong> — pass a <code>tool</code> name and its{" "}
+              <code>arguments</code>. Discover the exact tool names from the MCP endpoint&apos;s{" "}
+              <code>tools/list</code> (they are namespaced, e.g. <code>agentname_action</code>).
+            </p>
+          )}
+          {sseUrl && (
+            <CodeSnippet label="SSE stream (live response)" code={`POST ${sseUrl}\nAccept: text/event-stream`} />
+          )}
+          <CodeSnippet label="MCP (Streamable HTTP)" code={mcpUrl} />
+          <CodeSnippet label="A2A agent card" code={a2aUrl} />
+          {metadataUrl && <CodeSnippet label="Metadata" code={`GET ${metadataUrl}`} />}
         </div>
       </section>
     </div>

@@ -22,6 +22,8 @@ export const AgentSchema = z.object({
   vertical: z.string().optional(),
   pricing: PricingSchema.optional(),
   icon: z.string().optional(),
+  protocol: z.string().optional(),
+  supportsSse: z.boolean().optional(),
   ownerId: z.string().uuid().optional(),
   seller: z.string().optional(),
   publishedAt: z.string().datetime().optional(),
@@ -167,8 +169,19 @@ export type UseAgentResult = z.infer<typeof UseAgentResultSchema>;
  * in credits for one successful call. Throws a SentinelApiError with statusCode
  * 402 when credits are insufficient.
  */
-export async function runAgent(seller: string, slug: string): Promise<UseAgentResult> {
-  const response = await apiClient.post<unknown>(`/v1/agents/${seller}/${slug}/use`, {});
+/** Optional call payload: MCP agents need a tool + arguments; HTTP agents an input. */
+export interface RunAgentPayload {
+  tool?: string;
+  arguments?: Record<string, unknown>;
+  input?: unknown;
+}
+
+export async function runAgent(
+  seller: string,
+  slug: string,
+  payload: RunAgentPayload = {},
+): Promise<UseAgentResult> {
+  const response = await apiClient.post<unknown>(`/v1/agents/${seller}/${slug}/use`, payload);
   return UseAgentResultSchema.parse(response.data);
 }
 

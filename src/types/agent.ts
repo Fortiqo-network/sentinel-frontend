@@ -47,6 +47,10 @@ export interface Agent {
   pricing?: Pricing;
   /** Emoji or URL for the agent avatar. */
   icon?: string;
+  /** Invocation protocol: "mcp" or "http" (from the seller's access config). */
+  protocol?: string;
+  /** Whether the agent streams responses over SSE. */
+  supportsSse?: boolean;
   ownerId?: string;
   /** Owning seller's URL handle (namespaces the agent). */
   seller?: string;
