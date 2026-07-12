@@ -142,6 +142,40 @@ export async function reverifyAgent(id: string): Promise<SellerAgent> {
   return SellerAgentSchema.parse(response.data);
 }
 
+export const VerificationProgressSchema = z.object({
+  jobId: z.string().nullable().optional(),
+  job_id: z.string().nullable().optional(),
+  status: z.string(),
+  stage_progress: z.record(z.string(), z.string()).default({}),
+  stageProgress: z.record(z.string(), z.string()).optional(),
+  error_message: z.string().nullable().optional(),
+  agent_status: z.string().optional(),
+  agentStatus: z.string().optional(),
+  trust_score: z.number().nullable().optional(),
+  trustScore: z.number().nullable().optional(),
+});
+
+export interface VerificationProgress {
+  status: string;
+  stages: Record<string, string>;
+  errorMessage: string | null;
+  agentStatus: string | null;
+  trustScore: number | null;
+}
+
+/** Polls the latest verification job's live per-stage progress for an owned agent. */
+export async function getVerificationProgress(id: string): Promise<VerificationProgress> {
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${id}/verification-progress`);
+  const p = VerificationProgressSchema.parse(response.data);
+  return {
+    status: p.status,
+    stages: p.stage_progress ?? p.stageProgress ?? {},
+    errorMessage: p.error_message ?? null,
+    agentStatus: p.agent_status ?? p.agentStatus ?? null,
+    trustScore: p.trust_score ?? p.trustScore ?? null,
+  };
+}
+
 /** Settles the $10 listing fee so the agent stays listed after its free trial. */
 export async function payListing(id: string): Promise<SellerAgent> {
   const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/pay-listing`, {});

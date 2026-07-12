@@ -14,6 +14,7 @@ import { AccessControlCard } from "@/components/portal/AccessControlCard";
 import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
 import { TrustBadgeEmbed } from "@/components/seller/TrustBadgeEmbed";
+import { ReverifyModal } from "@/components/seller/ReverifyModal";
 import { payRegistration } from "@/lib/api/auth";
 import {
   getMyAgent,
@@ -78,6 +79,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
   const [restoring, setRestoring] = React.useState(false);
   const [reverifying, setReverifying] = React.useState(false);
   const [reverifyNote, setReverifyNote] = React.useState<string | null>(null);
+  const [progressOpen, setProgressOpen] = React.useState(false);
 
   const [audience, setAudience] = React.useState<AudienceUser[]>([]);
   const [audienceTotal, setAudienceTotal] = React.useState(0);
@@ -152,7 +154,7 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
     setReverifyNote(null);
     try {
       setAgent(await reverifyAgent(agentId));
-      setReverifyNote("Re-verification started — this can take a few minutes.");
+      setProgressOpen(true);
     } catch (err) {
       setReverifyNote(isSentinelApiError(err) ? err.displayMessage : "Could not re-verify the agent.");
     } finally {
@@ -443,6 +445,16 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
               : " Its record and history are retained."}
           </p>
         }
+      />
+
+      <ReverifyModal
+        agentId={agentId}
+        open={progressOpen}
+        onClose={() => setProgressOpen(false)}
+        onDone={() => {
+          // Job finished — refresh the agent so status + trust score update.
+          void getMyAgent(agentId).then(setAgent).catch(() => undefined);
+        }}
       />
     </div>
   );
