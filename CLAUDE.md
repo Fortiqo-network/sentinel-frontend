@@ -275,3 +275,11 @@ documentation, todo, or markdown update — it is committed and pushed but does 
 service. Use a functional type (`feat:`, `fix:`, `refactor:`, `ci:`, …) only when a redeploy is
 actually intended. (Frontend/docs sites deploy via their host's build, not GitHub Actions —
 configure the equivalent ignore-build-step there.)
+
+## Workflow discipline — todo-first
+
+**Every task goes on the todo list before any work starts, then gets marked done after.**
+Whether it is a feature, a fix, a refactor, or a one-line chore: (1) add it to the working todo
+list first, (2) do the work, (3) mark the item complete. Nothing is worked on that is not on the
+list. As you discover follow-up work mid-task, add it as new todo items immediately so the list
+always reflects reality and progress stays visible. This applies to every task, however small.
