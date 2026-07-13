@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils/cn";
 import { isSentinelApiError } from "@/lib/api/client";
 import {
@@ -172,29 +173,24 @@ function AgentActions({
  * actions (submit a draft for verification, delete a draft or rejected agent).
  */
 export default function MyAgentsPage(): React.JSX.Element {
-  const [agents, setAgents] = React.useState<SellerAgent[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [filterGroup, setFilterGroup] = React.useState<FilterGroup>("all");
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [actionErrors, setActionErrors] = React.useState<Record<string, string>>({});
 
-  const refresh = React.useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const data = await listMyAgents();
-      setAgents(data);
-    } catch (err) {
-      setLoadError(errorMessage(err, "Could not load your agents. Please try again."));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Cached list — revisiting the page is instant, and mutations below refresh it
+  // by invalidating this key rather than refetching by hand.
+  const agentsQuery = useQuery({ queryKey: ["my-agents"], queryFn: () => listMyAgents() });
+  const agents = agentsQuery.data ?? [];
+  const loading = agentsQuery.isPending;
+  const loadError = agentsQuery.isError
+    ? errorMessage(agentsQuery.error, "Could not load your agents. Please try again.")
+    : null;
 
-  React.useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const refresh = React.useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["my-agents"] }),
+    [queryClient],
+  );
 
   const clearActionError = React.useCallback((id: string): void => {
     setActionErrors((prev) => {

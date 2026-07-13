@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { Agent } from "@/types/agent";
 import { AgentCard } from "@/components/marketplace/AgentCard";
 import { listAgents, getFeaturedAgents } from "@/lib/api/agents";
@@ -335,45 +336,7 @@ const DEFAULT_FILTERS: Filters = {
 export default function AgentsPage(): React.JSX.Element {
   const [filters, setFilters] = React.useState<Filters>(DEFAULT_FILTERS);
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
-  const [agents, setAgents] = React.useState<Agent[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
-  const [featured, setFeatured] = React.useState<Agent[]>([]);
-  const [categoryOptions, setCategoryOptions] =
-    React.useState<Array<{ value: Category; label: string }>>(CATEGORY_OPTIONS);
-
-  // Load DB-managed categories; keep the hardcoded fallback if the API is empty
-  // (e.g. not yet deployed) so the filter never goes blank.
-  React.useEffect(() => {
-    let active = true;
-    getCategories()
-      .then((cats) => {
-        if (active && cats.length > 0) {
-          setCategoryOptions([
-            { value: "all", label: "All Categories" },
-            ...cats.map((c) => ({ value: c.slug, label: c.name })),
-          ]);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  // Load the editorially-curated featured agents once (browse-only highlight).
-  React.useEffect(() => {
-    let active = true;
-    getFeaturedAgents(6)
-      .then((a) => {
-        if (active) setFeatured(a);
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // Debounce the search box so each keystroke doesn't hit the backend.
   React.useEffect(() => {
@@ -381,32 +344,48 @@ export default function AgentsPage(): React.JSX.Element {
     return () => clearTimeout(id);
   }, [filters.query]);
 
-  React.useEffect(() => {
-    let active = true;
-    setLoading(true);
-    listAgents({
-      q: debouncedQuery || undefined,
-      sort: "trust_desc",
-      pageSize: 100,
-      page: 1,
-      includeDiscontinued: filters.includeDiscontinued,
-    })
-      .then((res) => {
-        if (active) {
-          setAgents(res.agents);
-          setError(null);
-        }
-      })
-      .catch(() => {
-        if (active) setError("Could not load agents. Please try again shortly.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [filters.includeDiscontinued, debouncedQuery]);
+  // DB-managed categories — cached and shared across visits; keep the hardcoded
+  // fallback if the API is empty (e.g. not yet deployed) so the filter never blanks.
+  const categoriesQuery = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    staleTime: 5 * 60_000,
+  });
+  const categoryOptions = React.useMemo<Array<{ value: Category; label: string }>>(() => {
+    const cats = categoriesQuery.data ?? [];
+    if (cats.length === 0) return CATEGORY_OPTIONS;
+    return [
+      { value: "all", label: "All Categories" },
+      ...cats.map((c) => ({ value: c.slug, label: c.name })),
+    ];
+  }, [categoriesQuery.data]);
+
+  // Editorially-curated featured agents (browse-only highlight) — cached.
+  const featuredQuery = useQuery({
+    queryKey: ["featured-agents", 6],
+    queryFn: () => getFeaturedAgents(6),
+    staleTime: 5 * 60_000,
+  });
+  const featured = featuredQuery.data ?? [];
+
+  // The agent list, keyed by the active query + discontinued flag so each search
+  // caches separately and revisiting one is instant. keepPreviousData holds the
+  // last results on screen while a new search loads, so there's no spinner flash.
+  const agentsQuery = useQuery({
+    queryKey: ["marketplace-agents", debouncedQuery, filters.includeDiscontinued],
+    queryFn: () =>
+      listAgents({
+        q: debouncedQuery || undefined,
+        sort: "trust_desc",
+        pageSize: 100,
+        page: 1,
+        includeDiscontinued: filters.includeDiscontinued,
+      }),
+    placeholderData: keepPreviousData,
+  });
+  const agents = agentsQuery.data?.agents ?? [];
+  const loading = agentsQuery.isPending;
+  const error = agentsQuery.isError ? "Could not load agents. Please try again shortly." : null;
 
   const filteredAgents = React.useMemo(() => applyFilters(agents, filters), [agents, filters]);
 

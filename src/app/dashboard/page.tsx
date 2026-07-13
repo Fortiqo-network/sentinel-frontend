@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
   Line,
@@ -98,28 +99,21 @@ function BalanceTooltip({ active, payload, label }: BalanceTooltipProps): React.
  * come from the billing service, and the featured agents from the marketplace.
  */
 export default function DashboardPage(): React.JSX.Element {
-  const [balanceCredits, setBalanceCredits] = React.useState(0);
-  const [entries, setEntries] = React.useState<LedgerEntry[]>([]);
-  const [agents, setAgents] = React.useState<Agent[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  // Three independent cached reads: the wallet, its ledger, and the top agents.
+  // Each caches on its own key so the figures are instant on the next visit and
+  // are shared with the billing page, which reads the same keys.
+  const balanceQuery = useQuery({ queryKey: ["credit-balance"], queryFn: getCreditBalance });
+  const ledgerQuery = useQuery({ queryKey: ["ledger", 1, 100], queryFn: () => getLedger(1, 100) });
+  const topAgentsQuery = useQuery({
+    queryKey: ["top-agents", 5],
+    queryFn: () => listAgents({ sort: "trust_desc", pageSize: 5, page: 1 }),
+    staleTime: 5 * 60_000,
+  });
 
-  React.useEffect(() => {
-    let active = true;
-    void Promise.allSettled([
-      getCreditBalance(),
-      getLedger(1, 100),
-      listAgents({ sort: "trust_desc", pageSize: 5, page: 1 }),
-    ]).then(([bal, led, ag]) => {
-      if (!active) return;
-      if (bal.status === "fulfilled") setBalanceCredits(bal.value.balanceCredits);
-      if (led.status === "fulfilled") setEntries(led.value.entries);
-      if (ag.status === "fulfilled") setAgents(ag.value.agents);
-      setLoading(false);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const balanceCredits = balanceQuery.data?.balanceCredits ?? 0;
+  const entries: LedgerEntry[] = ledgerQuery.data?.entries ?? [];
+  const agents: Agent[] = topAgentsQuery.data?.agents ?? [];
+  const loading = balanceQuery.isPending || ledgerQuery.isPending || topAgentsQuery.isPending;
 
   const totalAddedCredits = entries
     .filter((e) => e.type === "credit")
