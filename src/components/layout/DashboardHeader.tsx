@@ -64,6 +64,7 @@ function relativeTime(iso: string): string {
 // ---------------------------------------------------------------------------
 
 function NotificationPanel(): React.JSX.Element {
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [loaded, setLoaded] = React.useState(false);
@@ -101,6 +102,14 @@ function NotificationPanel(): React.JSX.Element {
   function markRead(id: string): void {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     void markNotificationsRead({ ids: [id] });
+  }
+
+  function handleItemClick(n: Notification): void {
+    markRead(n.id);
+    if (n.link) {
+      setOpen(false);
+      router.push(n.link);
+    }
   }
 
   return (
@@ -150,7 +159,7 @@ function NotificationPanel(): React.JSX.Element {
                 <li key={n.id}>
                   <button
                     type="button"
-                    onClick={() => markRead(n.id)}
+                    onClick={() => handleItemClick(n)}
                     className={cn("flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-ink-700", !n.read && "bg-indigo-50/50 dark:bg-gold/10")}
                   >
                     <span className="mt-1.5 flex-shrink-0">

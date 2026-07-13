@@ -9,6 +9,8 @@ export const NotificationSchema = z.object({
   description: z.string().nullable(),
   createdAt: z.string(),
   read: z.boolean(),
+  type: z.string().nullable().optional(),
+  link: z.string().nullable().optional(),
 });
 
 export type Notification = z.infer<typeof NotificationSchema>;
