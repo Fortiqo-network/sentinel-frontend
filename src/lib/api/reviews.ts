@@ -8,6 +8,7 @@ export const ReviewItemSchema = z.object({
   reviewer_name: z.string().nullable(),
   seller_response: z.string().nullable().optional(),
   seller_responded_at: z.string().nullable().optional(),
+  helpful_count: z.number().int().optional(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -57,6 +58,15 @@ export async function respondToReview(
 export async function deleteReviewResponse(agentId: string, reviewId: string): Promise<ReviewItem> {
   const res = await apiClient.delete<unknown>(`/v1/agents/${agentId}/reviews/${reviewId}/response`);
   return ReviewItemSchema.parse(res.data);
+}
+
+/** Toggle the caller's "helpful" vote on a review; returns the new count + state. */
+export async function voteHelpful(
+  agentId: string,
+  reviewId: string,
+): Promise<{ helpful_count: number; voted: boolean }> {
+  const res = await apiClient.post<unknown>(`/v1/agents/${agentId}/reviews/${reviewId}/helpful`, {});
+  return z.object({ helpful_count: z.number().int(), voted: z.boolean() }).parse(res.data);
 }
 
 /** Report a review for moderation (any signed-in user). */

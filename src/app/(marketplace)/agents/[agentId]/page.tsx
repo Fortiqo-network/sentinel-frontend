@@ -12,6 +12,7 @@ import { SubscribeButton } from "@/components/marketplace/SubscribeButton";
 import { ReportAgentButton } from "@/components/marketplace/ReportAgentButton";
 import { TrustReportPanel } from "@/components/marketplace/TrustReportPanel";
 import { AgentReviews } from "@/components/marketplace/AgentReviews";
+import { RelatedAgents } from "@/components/marketplace/RelatedAgents";
 import type { Agent } from "@/types/agent";
 
 type CertLevel = "certified_managed" | "certified" | "provisional" | "uncertified";
@@ -297,6 +298,11 @@ export default async function AgentDetailPage({
       <section className="mt-6 glass ring-hairline rounded-2xl p-6">
         <AgentReviews agentId={agent.id} ownerId={agent.ownerId} />
       </section>
+
+      {/* Related agents (discovery footer) */}
+      <div className="mt-8">
+        <RelatedAgents agentId={agent.id} />
+      </div>
 
       {/* Seller & integration */}
       <section className="mt-6 glass ring-hairline rounded-2xl p-6">

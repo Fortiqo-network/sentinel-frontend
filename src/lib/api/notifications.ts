@@ -19,6 +19,13 @@ const NotificationListSchema = z.object({
   notifications: z.array(NotificationSchema),
 });
 
+export const NotificationPrefsSchema = z.object({
+  new_agent: z.boolean(),
+  score_drift: z.boolean(),
+  review_response: z.boolean(),
+});
+export type NotificationPrefs = z.infer<typeof NotificationPrefsSchema>;
+
 // ── API functions ─────────────────────────────────────────────────────────────
 
 /**
@@ -32,6 +39,20 @@ export async function listNotifications(): Promise<Notification[]> {
   } catch {
     return [];
   }
+}
+
+/** Returns the caller's notification preferences (which controllable types are on). */
+export async function getNotificationPreferences(): Promise<NotificationPrefs> {
+  const response = await apiClient.get<unknown>("/v1/notifications/preferences");
+  return NotificationPrefsSchema.parse(response.data);
+}
+
+/** Enables/disables controllable notification types (partial update). */
+export async function updateNotificationPreferences(
+  patch: Partial<NotificationPrefs>,
+): Promise<NotificationPrefs> {
+  const response = await apiClient.patch<unknown>("/v1/notifications/preferences", patch);
+  return NotificationPrefsSchema.parse(response.data);
 }
 
 /** Marks the given notification ids (or all) as read. Returns the count updated. */

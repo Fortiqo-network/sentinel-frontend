@@ -8,6 +8,7 @@ import {
   respondToReview,
   deleteReviewResponse,
   reportReview,
+  voteHelpful,
   type ReviewList,
 } from "@/lib/api/reviews";
 import { isSentinelApiError } from "@/lib/api/client";
@@ -47,6 +48,22 @@ export function AgentReviews({ agentId, ownerId }: Props): React.JSX.Element {
   const [reportReason, setReportReason] = React.useState("spam");
   const [reportBusy, setReportBusy] = React.useState(false);
   const [reportedIds, setReportedIds] = React.useState<Set<string>>(new Set());
+  const [helpful, setHelpful] = React.useState<Record<string, { count: number; voted: boolean }>>({});
+
+  async function toggleHelpful(reviewId: string): Promise<void> {
+    try {
+      const res = await voteHelpful(agentId, reviewId);
+      setHelpful((prev) => ({ ...prev, [reviewId]: { count: res.helpful_count, voted: res.voted } }));
+    } catch (err) {
+      setMessage(
+        isSentinelApiError(err) && err.statusCode === 403
+          ? "You can't vote on your own review."
+          : isSentinelApiError(err) && err.statusCode === 401
+            ? "Please sign in to vote."
+            : "Could not record your vote.",
+      );
+    }
+  }
 
   const user = useAuthStore((s) => s.user);
   const isOwner = Boolean(ownerId) && user?.id === ownerId;
@@ -216,6 +233,22 @@ export function AgentReviews({ agentId, ownerId }: Props): React.JSX.Element {
               <span className="text-xs text-porcelain/40">
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
+              {(() => {
+                const state = helpful[r.id] ?? { count: r.helpful_count ?? 0, voted: false };
+                return (
+                  <button
+                    type="button"
+                    onClick={() => void toggleHelpful(r.id)}
+                    className={
+                      "text-xs underline-offset-2 hover:underline " +
+                      (state.voted ? "font-medium text-gold" : "text-porcelain/40 hover:text-porcelain/70")
+                    }
+                    aria-pressed={state.voted}
+                  >
+                    👍 Helpful{state.count > 0 ? ` (${state.count})` : ""}
+                  </button>
+                );
+              })()}
             </div>
 
             {r.seller_response && (

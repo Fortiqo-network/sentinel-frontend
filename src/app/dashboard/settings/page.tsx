@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProfileSettingsCard } from "@/components/portal/ProfileSettingsCard";
 import { ConnectedAccountsCard } from "@/components/portal/ConnectedAccountsCard";
 import { BecomeSellerCard } from "@/components/portal/BecomeSellerCard";
+import { NotificationPreferencesCard } from "@/components/portal/NotificationPreferencesCard";
 
 export const metadata: Metadata = {
   title: "Settings · Sentinel",
@@ -18,6 +19,7 @@ export default function BuyerSettingsPage(): React.JSX.Element {
     <div className="mx-auto max-w-3xl space-y-8">
       <PageHeader eyebrow="Account" title="Settings" description="Manage your profile and how you sign in." />
       <ProfileSettingsCard />
+      <NotificationPreferencesCard />
       <BecomeSellerCard />
       <ConnectedAccountsCard activeMethod="email" />
     </div>

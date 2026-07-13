@@ -103,6 +103,27 @@ export async function getAgentBySlug(slug: string): Promise<Agent | null> {
   }
 }
 
+export const RelatedAgentsSchema = z.object({
+  more_from_developer: z.array(AgentSchema),
+  similar: z.array(AgentSchema),
+});
+
+export interface RelatedAgents {
+  moreFromDeveloper: Agent[];
+  similar: Agent[];
+}
+
+/** Related agents for a detail page: more from the seller + similar by vertical. */
+export async function getRelatedAgents(agentId: string): Promise<RelatedAgents> {
+  try {
+    const response = await apiClient.get<unknown>(`/v1/listings/${agentId}/related`);
+    const parsed = RelatedAgentsSchema.parse(response.data);
+    return { moreFromDeveloper: parsed.more_from_developer, similar: parsed.similar };
+  } catch {
+    return { moreFromDeveloper: [], similar: [] };
+  }
+}
+
 // ── Trust report ──────────────────────────────────────────────────────────────
 
 export const ReportDimensionSchema = z.object({
