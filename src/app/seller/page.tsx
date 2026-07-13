@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth";
 import { StatCard } from "@/components/ui/stat-card";
 import { Card } from "@/components/ui/card";
@@ -36,23 +37,13 @@ const STATUS_VARIANT: Record<SellerAgentStatus, "default" | "success" | "warning
  */
 export default function SellerPage(): React.JSX.Element {
   const { user } = useAuthStore();
-  const [agents, setAgents] = React.useState<SellerAgent[]>([]);
-  const [payableCredits, setPayableCredits] = React.useState(0);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const [a, e] = await Promise.allSettled([listMyAgents(), getEarnings()]);
-      if (cancelled) return;
-      if (a.status === "fulfilled") setAgents(a.value);
-      if (e.status === "fulfilled") setPayableCredits(e.value.payableCredits);
-      setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Shares the ["my-agents"] key with the agent-management page, so moving
+  // between the two portals is instant and always consistent.
+  const agentsQuery = useQuery({ queryKey: ["my-agents"], queryFn: () => listMyAgents() });
+  const earningsQuery = useQuery({ queryKey: ["seller-earnings"], queryFn: () => getEarnings() });
+  const agents: SellerAgent[] = agentsQuery.data ?? [];
+  const payableCredits = earningsQuery.data?.payableCredits ?? 0;
+  const loading = agentsQuery.isPending || earningsQuery.isPending;
 
   const total = agents.length;
   const liveCount = agents.filter((x) => x.status === "verified" || x.status === "live").length;
