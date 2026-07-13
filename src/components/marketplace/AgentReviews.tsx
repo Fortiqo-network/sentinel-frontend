@@ -1,11 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { getReviews, submitReview, deleteMyReview, type ReviewList } from "@/lib/api/reviews";
+import {
+  getReviews,
+  submitReview,
+  deleteMyReview,
+  respondToReview,
+  deleteReviewResponse,
+  reportReview,
+  type ReviewList,
+} from "@/lib/api/reviews";
 import { isSentinelApiError } from "@/lib/api/client";
+import { useAuthStore } from "@/store/auth";
 
 interface Props {
   agentId: string;
+  ownerId?: string;
 }
 
 function Stars({ value }: { value: number }): React.JSX.Element {
@@ -24,12 +34,76 @@ function Stars({ value }: { value: number }): React.JSX.Element {
  * @example
  * <AgentReviews agentId={agent.id} />
  */
-export function AgentReviews({ agentId }: Props): React.JSX.Element {
+export function AgentReviews({ agentId, ownerId }: Props): React.JSX.Element {
   const [data, setData] = React.useState<ReviewList | null>(null);
   const [rating, setRating] = React.useState(5);
   const [body, setBody] = React.useState("");
   const [status, setStatus] = React.useState<"idle" | "submitting" | "error">("idle");
   const [message, setMessage] = React.useState("");
+  const [respondingId, setRespondingId] = React.useState<string | null>(null);
+  const [responseText, setResponseText] = React.useState("");
+  const [respondBusy, setRespondBusy] = React.useState(false);
+  const [reportingId, setReportingId] = React.useState<string | null>(null);
+  const [reportReason, setReportReason] = React.useState("spam");
+  const [reportBusy, setReportBusy] = React.useState(false);
+  const [reportedIds, setReportedIds] = React.useState<Set<string>>(new Set());
+
+  const user = useAuthStore((s) => s.user);
+  const isOwner = Boolean(ownerId) && user?.id === ownerId;
+  const isAuthed = Boolean(user);
+
+  async function submitReport(reviewId: string): Promise<void> {
+    setReportBusy(true);
+    try {
+      await reportReview(agentId, reviewId, reportReason);
+      setReportedIds((prev) => new Set(prev).add(reviewId));
+      setReportingId(null);
+    } catch {
+      setMessage("Could not report this review.");
+    } finally {
+      setReportBusy(false);
+    }
+  }
+
+  function replaceItem(updatedId: string, next: { seller_response: string | null }): void {
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            items: prev.items.map((it) =>
+              it.id === updatedId ? { ...it, seller_response: next.seller_response } : it,
+            ),
+          }
+        : prev,
+    );
+  }
+
+  async function saveResponse(reviewId: string): Promise<void> {
+    if (responseText.trim().length === 0) return;
+    setRespondBusy(true);
+    try {
+      const updated = await respondToReview(agentId, reviewId, responseText.trim());
+      replaceItem(reviewId, { seller_response: updated.seller_response ?? null });
+      setRespondingId(null);
+      setResponseText("");
+    } catch {
+      setMessage("Could not post your response.");
+    } finally {
+      setRespondBusy(false);
+    }
+  }
+
+  async function removeResponse(reviewId: string): Promise<void> {
+    setRespondBusy(true);
+    try {
+      await deleteReviewResponse(agentId, reviewId);
+      replaceItem(reviewId, { seller_response: null });
+    } catch {
+      setMessage("Could not remove your response.");
+    } finally {
+      setRespondBusy(false);
+    }
+  }
 
   const load = React.useCallback(async () => {
     try {
@@ -143,6 +217,113 @@ export function AgentReviews({ agentId }: Props): React.JSX.Element {
                 {new Date(r.created_at).toLocaleDateString()}
               </span>
             </div>
+
+            {r.seller_response && (
+              <div className="mt-3 rounded-lg border-l-2 border-gold/50 bg-ink-900/40 px-3 py-2">
+                <p className="text-xs font-semibold text-gold">Developer&apos;s response</p>
+                <p className="mt-1 text-sm text-porcelain/70">{r.seller_response}</p>
+              </div>
+            )}
+
+            {isOwner && (
+              <div className="mt-3">
+                {respondingId === r.id ? (
+                  <div className="space-y-2">
+                    <textarea
+                      value={responseText}
+                      onChange={(e) => setResponseText(e.target.value)}
+                      placeholder="Write a public reply…"
+                      rows={2}
+                      maxLength={4000}
+                      className="sentinel-focus block w-full rounded-lg border border-porcelain/15 bg-ink-800/60 px-3 py-2 text-sm text-porcelain placeholder:text-porcelain/30"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={respondBusy}
+                        onClick={() => void saveResponse(r.id)}
+                        className="rounded-lg bg-gold px-3 py-1 text-xs font-semibold text-ink-950 transition-colors hover:bg-gold/90 disabled:opacity-60"
+                      >
+                        {respondBusy ? "Saving…" : "Post reply"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRespondingId(null)}
+                        className="rounded-lg px-3 py-1 text-xs text-porcelain/50 hover:text-porcelain/80"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRespondingId(r.id);
+                        setResponseText(r.seller_response ?? "");
+                      }}
+                      className="text-xs text-gold/80 underline-offset-2 hover:text-gold hover:underline"
+                    >
+                      {r.seller_response ? "Edit response" : "Respond"}
+                    </button>
+                    {r.seller_response && (
+                      <button
+                        type="button"
+                        disabled={respondBusy}
+                        onClick={() => void removeResponse(r.id)}
+                        className="text-xs text-porcelain/40 underline-offset-2 hover:text-porcelain/70 hover:underline disabled:opacity-60"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isAuthed && !isOwner && (
+              <div className="mt-2">
+                {reportedIds.has(r.id) ? (
+                  <span className="text-xs text-porcelain/40">Reported — thanks.</span>
+                ) : reportingId === r.id ? (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={reportReason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="sentinel-focus rounded-lg border border-porcelain/15 bg-ink-800/60 px-2 py-1 text-xs text-porcelain"
+                    >
+                      <option value="spam">Spam</option>
+                      <option value="abuse">Abuse</option>
+                      <option value="off_topic">Off-topic</option>
+                    </select>
+                    <button
+                      type="button"
+                      disabled={reportBusy}
+                      onClick={() => void submitReport(r.id)}
+                      className="rounded-lg bg-ink-700 px-2 py-1 text-xs text-porcelain transition-colors hover:bg-ink-600 disabled:opacity-60"
+                    >
+                      {reportBusy ? "Sending…" : "Send report"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setReportingId(null)}
+                      className="text-xs text-porcelain/40 hover:text-porcelain/70"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setReportingId(r.id)}
+                    className="text-xs text-porcelain/30 underline-offset-2 hover:text-porcelain/60 hover:underline"
+                  >
+                    Report
+                  </button>
+                )}
+              </div>
+            )}
           </li>
         ))}
       </ul>

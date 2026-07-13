@@ -16,6 +16,7 @@ import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
 import { TrustBadgeEmbed } from "@/components/seller/TrustBadgeEmbed";
 import { ReverifyModal } from "@/components/seller/ReverifyModal";
 import { ScoreHistoryCard } from "@/components/seller/ScoreHistoryCard";
+import { AppealCard } from "@/components/seller/AppealCard";
 import { payRegistration } from "@/lib/api/auth";
 import {
   getMyAgent,
@@ -412,6 +413,8 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
       )}
 
       <ScoreHistoryCard agentId={agent.id} />
+
+      <AppealCard agentId={agent.id} agentStatus={agent.status} />
 
       {/* Block by email + blocked list */}
       <AccessControlCard agentId={agent.id} />

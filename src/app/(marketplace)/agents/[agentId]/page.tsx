@@ -295,7 +295,7 @@ export default async function AgentDetailPage({
 
       {/* Reviews & ratings */}
       <section className="mt-6 glass ring-hairline rounded-2xl p-6">
-        <AgentReviews agentId={agent.id} />
+        <AgentReviews agentId={agent.id} ownerId={agent.ownerId} />
       </section>
 
       {/* Seller & integration */}

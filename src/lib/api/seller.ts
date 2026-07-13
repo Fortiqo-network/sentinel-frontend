@@ -206,6 +206,50 @@ export async function getScoreHistory(id: string): Promise<ScoreHistoryPoint[]> 
   }));
 }
 
+export const AppealSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  reason: z.string(),
+  admin_note: z.string().nullable().optional(),
+  adminNote: z.string().nullable().optional(),
+  created_at: z.string().optional(),
+  createdAt: z.string().optional(),
+  resolved_at: z.string().nullable().optional(),
+  resolvedAt: z.string().nullable().optional(),
+});
+
+export interface Appeal {
+  id: string;
+  status: string;
+  reason: string;
+  adminNote: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+function toAppeal(a: z.infer<typeof AppealSchema>): Appeal {
+  return {
+    id: a.id,
+    status: a.status,
+    reason: a.reason,
+    adminNote: a.admin_note ?? a.adminNote ?? null,
+    createdAt: a.created_at ?? a.createdAt ?? "",
+    resolvedAt: a.resolved_at ?? a.resolvedAt ?? null,
+  };
+}
+
+/** File an appeal against a rejected/suspended agent's verification outcome. */
+export async function fileAppeal(id: string, reason: string): Promise<Appeal> {
+  const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/appeals`, { reason });
+  return toAppeal(AppealSchema.parse(response.data));
+}
+
+/** List the caller's appeals for an owned agent, newest first. */
+export async function listAppeals(id: string): Promise<Appeal[]> {
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${id}/appeals`);
+  return z.array(AppealSchema).parse(response.data).map(toAppeal);
+}
+
 /** Settles the $10 listing fee so the agent stays listed after its free trial. */
 export async function payListing(id: string): Promise<SellerAgent> {
   const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/pay-listing`, {});

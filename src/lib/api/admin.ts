@@ -372,6 +372,82 @@ export async function resolveAbuseReport(
   return AbuseReportRowSchema.parse(response.data);
 }
 
+// ── Verification appeals (B2) ────────────────────────────────────────────────────
+
+export const AdminAppealRowSchema = z.object({
+  id: z.string(),
+  agent_id: z.string(),
+  seller_id: z.string(),
+  reason: z.string(),
+  status: z.enum(["open", "reviewing", "approved", "rejected"]),
+  admin_note: z.string().nullable(),
+  created_at: z.string(),
+  resolved_at: z.string().nullable(),
+});
+export type AdminAppealRow = z.infer<typeof AdminAppealRowSchema>;
+
+const AdminAppealQueueSchema = z.object({ appeals: z.array(AdminAppealRowSchema) });
+
+/** List the verification-appeal queue for the admin console. */
+export async function listAppeals(status?: string): Promise<AdminAppealRow[]> {
+  const response = await apiClient.get<unknown>("/v1/admin/appeals", {
+    params: { status: status || undefined },
+  });
+  return AdminAppealQueueSchema.parse(response.data).appeals;
+}
+
+/** Approve (re-runs verification) or reject a verification appeal. */
+export async function resolveAppeal(
+  appealId: string,
+  approve: boolean,
+  note?: string,
+): Promise<AdminAppealRow> {
+  const response = await apiClient.post<unknown>(`/v1/admin/appeals/${appealId}/resolve`, {
+    approve,
+    note,
+  });
+  return AdminAppealRowSchema.parse(response.data);
+}
+
+// ── Review moderation ────────────────────────────────────────────────────────────
+
+export const ReviewReportRowSchema = z.object({
+  id: z.string(),
+  review_id: z.string(),
+  agent_id: z.string(),
+  reporter_id: z.string(),
+  reason: z.string(),
+  details: z.string().nullable(),
+  status: z.enum(["open", "resolved", "dismissed"]),
+  review_body: z.string().nullable(),
+  review_hidden: z.boolean(),
+  created_at: z.string(),
+});
+export type ReviewReportRow = z.infer<typeof ReviewReportRowSchema>;
+
+const ReviewReportListSchema = z.object({ reports: z.array(ReviewReportRowSchema) });
+
+/** List the review-report moderation queue. */
+export async function listReviewReports(status?: string): Promise<ReviewReportRow[]> {
+  const response = await apiClient.get<unknown>("/v1/admin/review-reports", {
+    params: { status: status || undefined },
+  });
+  return ReviewReportListSchema.parse(response.data).reports;
+}
+
+/** Hide/unhide the reported review, or dismiss the report. */
+export async function resolveReviewReport(
+  reportId: string,
+  action: "hide" | "unhide" | "dismiss",
+  note?: string,
+): Promise<ReviewReportRow> {
+  const response = await apiClient.post<unknown>(`/v1/admin/review-reports/${reportId}/resolve`, {
+    action,
+    note,
+  });
+  return ReviewReportRowSchema.parse(response.data);
+}
+
 // ── Moderation: seller / post / comment reports ─────────────────────────────────
 
 export const SellerReportRowSchema = z.object({

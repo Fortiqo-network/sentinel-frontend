@@ -12,10 +12,12 @@ import {
   type AbuseReportRow,
 } from "@/lib/api/admin";
 import { SellerReportsQueue } from "@/components/admin/SellerReportsQueue";
+import { AppealsQueue } from "@/components/admin/AppealsQueue";
+import { ReviewReportsQueue } from "@/components/admin/ReviewReportsQueue";
 import { cn } from "@/lib/utils/cn";
 import { isSentinelApiError } from "@/lib/api/client";
 
-type ModerationTab = "agents" | "community";
+type ModerationTab = "agents" | "community" | "appeals" | "reviews";
 
 const STATUS_FILTERS = ["open", "all", "resolved", "dismissed"];
 
@@ -110,7 +112,7 @@ export default function AdminModerationPage(): React.JSX.Element {
       />
 
       <div className="flex gap-1 border-b border-slate-200 dark:border-porcelain/10">
-        {(["agents", "community"] as const).map((t) => (
+        {(["agents", "community", "reviews", "appeals"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -122,12 +124,20 @@ export default function AdminModerationPage(): React.JSX.Element {
                 : "border-transparent text-slate-500 hover:text-slate-800 dark:text-porcelain/50 dark:hover:text-porcelain",
             )}
           >
-            {t === "agents" ? "Agent reports" : "Seller & content"}
+            {t === "agents"
+              ? "Agent reports"
+              : t === "community"
+                ? "Seller & content"
+                : t === "reviews"
+                  ? "Review reports"
+                  : "Appeals"}
           </button>
         ))}
       </div>
 
       {tab === "community" && <SellerReportsQueue />}
+      {tab === "reviews" && <ReviewReportsQueue />}
+      {tab === "appeals" && <AppealsQueue />}
 
       {tab === "agents" && (
         <>
