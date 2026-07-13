@@ -114,6 +114,7 @@ export default function AdminSellersPage(): React.JSX.Element {
           <thead className="border-b border-slate-100 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-porcelain/10 dark:bg-ink-900 dark:text-porcelain/50">
             <tr>
               <th className="px-4 py-3 font-medium">Seller</th>
+              <th className="px-4 py-3 font-medium">Onboarded</th>
               <th className="px-4 py-3 font-medium">Agents</th>
               <th className="px-4 py-3 text-right font-medium">Payable</th>
               <th className="px-4 py-3 text-right font-medium">Available</th>
@@ -123,13 +124,13 @@ export default function AdminSellersPage(): React.JSX.Element {
           <tbody className="divide-y divide-slate-100 dark:divide-porcelain/10">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   Loading…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
+                <td colSpan={6} className="px-4 py-8 text-center text-slate-400 dark:text-porcelain/40">
                   No sellers match.
                 </td>
               </tr>
@@ -139,6 +140,24 @@ export default function AdminSellersPage(): React.JSX.Element {
                   <td className="px-4 py-3">
                     <div className="font-medium text-slate-900 dark:text-porcelain">{d.display_name || d.email}</div>
                     <div className="text-xs text-slate-400 dark:text-porcelain/40">{d.email}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={
+                        "rounded-full px-2 py-0.5 text-xs font-medium " +
+                        (d.onboarded
+                          ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300"
+                          : "bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300")
+                      }
+                      title={d.fee_paid_at ? `Fee paid ${new Date(d.fee_paid_at).toLocaleDateString()}` : "Registration fee unpaid"}
+                    >
+                      {d.onboarded ? "Paid ✓" : "Unpaid"}
+                    </span>
+                    {!d.email_verified && (
+                      <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-500 dark:bg-ink-700 dark:text-porcelain/50" title="Email not verified">
+                        email?
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-600 dark:text-porcelain/70">{d.agents}</td>
                   <td className="px-4 py-3 text-right tabular-nums text-amber-600 dark:text-amber-400">{credits(d.payable_units)}</td>

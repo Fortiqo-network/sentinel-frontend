@@ -56,6 +56,10 @@ export const AdminSellerRowSchema = z.object({
   agents: z.number().int().min(0),
   payable_units: z.number().int(),
   available_units: z.number().int(),
+  onboarded: z.boolean().default(false),
+  fee_paid_at: z.string().nullable().optional(),
+  email_verified: z.boolean().default(false),
+  kyc_status: z.string().default("pending"),
   created_at: z.string(),
 });
 
