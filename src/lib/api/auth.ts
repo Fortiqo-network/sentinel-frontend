@@ -19,6 +19,8 @@ export const UserSchema = z.object({
   websiteUrl: z.string().nullable().optional(),
   createdAt: z.string().datetime(),
   emailVerified: z.boolean(),
+  mfaEnabled: z.boolean().optional().default(false),
+  mfaMethod: z.enum(["totp", "email"]).nullable().optional(),
   needsOnboarding: z.boolean().optional().default(false),
   mustChangePassword: z.boolean().optional().default(false),
   termsAcceptedAt: z.string().nullable().optional(),
@@ -48,14 +50,89 @@ export type GoogleLoginRequest = z.infer<typeof GoogleLoginRequestSchema>;
 
 // ── API functions ─────────────────────────────────────────────────────────────
 
+/** A 2FA challenge returned by login when the account has a second factor. */
+export const TwoFactorChallengeSchema = z.object({
+  mfaRequired: z.literal(true),
+  pendingToken: z.string(),
+  mfaMethod: z.enum(["totp", "email"]).nullable().optional(),
+});
+
+export type TwoFactorChallenge = z.infer<typeof TwoFactorChallengeSchema>;
+export type LoginResult = User | TwoFactorChallenge;
+
+/** Type guard: did login return a 2FA challenge instead of a session? */
+export function isTwoFactorChallenge(result: LoginResult): result is TwoFactorChallenge {
+  return (result as TwoFactorChallenge).mfaRequired === true;
+}
+
 /**
  * Authenticates a user via the BFF login endpoint.
- * The BFF performs the OIDC token exchange and sets httpOnly cookies.
- * Returns the authenticated user's profile.
+ * The BFF performs the token exchange and sets httpOnly cookies.
+ * Returns the authenticated user, or a 2FA challenge to complete via
+ * {@link verifyTwoFactor} when the account has a second factor enabled.
  */
-export async function login(credentials: LoginRequest): Promise<User> {
+export async function login(credentials: LoginRequest): Promise<LoginResult> {
   const response = await apiClient.post<unknown>("/v1/auth/login", credentials);
+  const challenge = TwoFactorChallengeSchema.safeParse(response.data);
+  if (challenge.success) return challenge.data;
   return UserSchema.parse(response.data);
+}
+
+/**
+ * Completes a 2FA login challenge by exchanging the pending token and a code
+ * (TOTP or emailed) for a session. On success the BFF sets the session cookie.
+ */
+export async function verifyTwoFactor(pendingToken: string, code: string): Promise<User> {
+  const response = await apiClient.post<unknown>("/v1/auth/login/2fa", {
+    pendingToken,
+    code,
+  });
+  return UserSchema.parse(response.data);
+}
+
+// ── Two-factor enrolment (authenticated self-service) ─────────────────────────
+
+export const MfaStatusSchema = z.object({
+  mfa_enabled: z.boolean(),
+  mfa_method: z.enum(["totp", "email"]).nullable(),
+});
+export type MfaStatus = z.infer<typeof MfaStatusSchema>;
+
+export const TotpSetupSchema = z.object({
+  secret: z.string(),
+  otpauth_uri: z.string(),
+  qr_data_uri: z.string(),
+});
+export type TotpSetup = z.infer<typeof TotpSetupSchema>;
+
+/** Current 2FA status for the signed-in user. */
+export async function getMfaStatus(): Promise<MfaStatus> {
+  const response = await apiClient.get<unknown>("/v1/auth/mfa");
+  return MfaStatusSchema.parse(response.data);
+}
+
+/** Begin TOTP enrolment — returns the secret, otpauth URI, and a QR data URI. */
+export async function setupTotp(): Promise<TotpSetup> {
+  const response = await apiClient.post<unknown>("/v1/auth/mfa/totp/setup");
+  return TotpSetupSchema.parse(response.data);
+}
+
+/** Confirm the authenticator by echoing a code, activating TOTP 2FA. */
+export async function enableTotp(code: string): Promise<MfaStatus> {
+  const response = await apiClient.post<unknown>("/v1/auth/mfa/totp/enable", { code });
+  return MfaStatusSchema.parse(response.data);
+}
+
+/** Turn on the emailed-code second factor (requires a verified email). */
+export async function enableEmailMfa(): Promise<MfaStatus> {
+  const response = await apiClient.post<unknown>("/v1/auth/mfa/email/enable");
+  return MfaStatusSchema.parse(response.data);
+}
+
+/** Disable 2FA. Requires the account password for password accounts. */
+export async function disableMfa(password?: string): Promise<MfaStatus> {
+  const response = await apiClient.post<unknown>("/v1/auth/mfa/disable", { password });
+  return MfaStatusSchema.parse(response.data);
 }
 
 /**

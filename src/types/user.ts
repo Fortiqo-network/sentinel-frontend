@@ -30,6 +30,10 @@ export interface User {
   websiteUrl?: string | null;
   createdAt: string;
   emailVerified: boolean;
+  /** Whether a second factor (2FA) is active on the account. */
+  mfaEnabled?: boolean;
+  /** Active 2FA factor when enabled: 'totp' (authenticator) or 'email' (OTP). */
+  mfaMethod?: "totp" | "email" | null;
   /** True until the user has chosen a role and finished onboarding. */
   needsOnboarding?: boolean;
   /** True when the account must rotate its password before proceeding (admin-created). */
