@@ -15,6 +15,7 @@ import { OwnershipCard } from "@/components/portal/OwnershipCard";
 import { ConfirmDeleteModal } from "@/components/portal/ConfirmDeleteModal";
 import { TrustBadgeEmbed } from "@/components/seller/TrustBadgeEmbed";
 import { ReverifyModal } from "@/components/seller/ReverifyModal";
+import { ScoreHistoryCard } from "@/components/seller/ScoreHistoryCard";
 import { payRegistration } from "@/lib/api/auth";
 import {
   getMyAgent,
@@ -409,6 +410,8 @@ export default function SellerAgentDetailPage(): React.JSX.Element {
       ) : (
         <OwnershipCard agentId={agent.id} endpointUrl={agent.endpointUrl} />
       )}
+
+      <ScoreHistoryCard agentId={agent.id} />
 
       {/* Block by email + blocked list */}
       <AccessControlCard agentId={agent.id} />

@@ -176,6 +176,36 @@ export async function getVerificationProgress(id: string): Promise<VerificationP
   };
 }
 
+export const ScoreHistoryEntrySchema = z.object({
+  trust_score: z.number().nullable().optional(),
+  trustScore: z.number().nullable().optional(),
+  cert_status: z.string().nullable().optional(),
+  certStatus: z.string().nullable().optional(),
+  recorded_at: z.string().optional(),
+  recordedAt: z.string().optional(),
+});
+
+export const ScoreHistoryResponseSchema = z.object({
+  history: z.array(ScoreHistoryEntrySchema).default([]),
+});
+
+export interface ScoreHistoryPoint {
+  trustScore: number | null;
+  certStatus: string | null;
+  recordedAt: string;
+}
+
+/** Fetches an owned agent's trust-score history, newest first. */
+export async function getScoreHistory(id: string): Promise<ScoreHistoryPoint[]> {
+  const response = await apiClient.get<unknown>(`/v1/seller/agents/${id}/score-history`);
+  const parsed = ScoreHistoryResponseSchema.parse(response.data);
+  return parsed.history.map((e) => ({
+    trustScore: e.trust_score ?? e.trustScore ?? null,
+    certStatus: e.cert_status ?? e.certStatus ?? null,
+    recordedAt: e.recorded_at ?? e.recordedAt ?? "",
+  }));
+}
+
 /** Settles the $10 listing fee so the agent stays listed after its free trial. */
 export async function payListing(id: string): Promise<SellerAgent> {
   const response = await apiClient.post<unknown>(`/v1/seller/agents/${id}/pay-listing`, {});
