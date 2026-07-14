@@ -5,6 +5,9 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { Agent } from "@/types/agent";
 import { AgentCard } from "@/components/marketplace/AgentCard";
 import { listAgents, getFeaturedAgents } from "@/lib/api/agents";
+import { EcosystemStats } from "@/components/marketplace/EcosystemStats";
+import { LeaderboardSection } from "@/components/marketplace/LeaderboardSection";
+import { ActivityFeed } from "@/components/marketplace/ActivityFeed";
 import { getCategories } from "@/lib/api/categories";
 import { cn } from "@/lib/utils/cn";
 
@@ -409,6 +412,11 @@ export default function AgentsPage(): React.JSX.Element {
         </p>
       </div>
 
+      {/* Network-health stats */}
+      <div className="mb-8">
+        <EcosystemStats />
+      </div>
+
       {/* Search bar */}
       <div className="mb-6">
         <SearchBar
@@ -514,6 +522,11 @@ export default function AgentsPage(): React.JSX.Element {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mx-auto mt-16 max-w-6xl space-y-16 px-5 pb-24">
+        <LeaderboardSection />
+        <ActivityFeed />
       </div>
     </div>
   );

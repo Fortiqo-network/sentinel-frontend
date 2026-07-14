@@ -124,6 +124,72 @@ export async function getRelatedAgents(agentId: string): Promise<RelatedAgents> 
   }
 }
 
+export const EcosystemStatsSchema = z.object({
+  live_agents: z.number().int(),
+  verified_agents: z.number().int(),
+  avg_trust_score: z.number().nullable(),
+  sellers: z.number().int(),
+  total_reviews: z.number().int(),
+  avg_rating: z.number().nullable(),
+  categories: z.number().int(),
+});
+export type EcosystemStats = z.infer<typeof EcosystemStatsSchema>;
+
+export const LeaderboardSchema = z.object({
+  top_rated: z.array(AgentSchema),
+  most_trusted: z.array(AgentSchema),
+  most_reviewed: z.array(AgentSchema),
+});
+
+export interface Leaderboard {
+  topRated: Agent[];
+  mostTrusted: Agent[];
+  mostReviewed: Agent[];
+}
+
+export const ActivityItemSchema = z.object({
+  agent_slug: z.string(),
+  agent_name: z.string(),
+  seller_handle: z.string().nullable(),
+  trust_score: z.number().nullable(),
+  cert_status: z.string().nullable(),
+  at: z.string(),
+});
+export type ActivityItem = z.infer<typeof ActivityItemSchema>;
+
+const ActivityFeedSchema = z.object({ items: z.array(ActivityItemSchema) });
+
+/** Public liveness feed: recent verification events for live agents. */
+export async function getActivityFeed(limit = 20): Promise<ActivityItem[]> {
+  try {
+    const response = await apiClient.get<unknown>("/v1/listings/activity", { params: { limit } });
+    return ActivityFeedSchema.parse(response.data).items;
+  } catch {
+    return [];
+  }
+}
+
+/** Public agent leaderboards: top-rated, most-trusted, most-reviewed. */
+export async function getLeaderboard(limit = 10): Promise<Leaderboard> {
+  try {
+    const response = await apiClient.get<unknown>("/v1/listings/leaderboard", { params: { limit } });
+    const p = LeaderboardSchema.parse(response.data);
+    return { topRated: p.top_rated, mostTrusted: p.most_trusted, mostReviewed: p.most_reviewed };
+  } catch {
+    return { topRated: [], mostTrusted: [], mostReviewed: [] };
+  }
+}
+
+/** Public, non-money network-health metrics for the marketplace. */
+export async function getEcosystemStats(): Promise<EcosystemStats | null> {
+  try {
+    const response = await apiClient.get<unknown>("/v1/listings/stats");
+    return EcosystemStatsSchema.parse(response.data);
+  } catch {
+    return null;
+  }
+}
+
 // ── Trust report ──────────────────────────────────────────────────────────────
 
 export const ReportDimensionSchema = z.object({
