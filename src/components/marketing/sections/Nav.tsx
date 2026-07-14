@@ -8,7 +8,7 @@ import { Logo } from "@/components/brand/Logo";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
 import { DOCS_URL } from "@/lib/site";
-import { portalHome } from "@/lib/utils/portal";
+import { isAdminRole, portalHome } from "@/lib/utils/portal";
 
 const LINKS = [
   { href: "/agents", label: "Marketplace" },
@@ -115,7 +115,7 @@ export function Nav(): React.JSX.Element {
 
   const portalHref = portalHome(user?.role);
   const profileHref =
-    user?.role === "admin"
+    isAdminRole(user?.role)
       ? "/admin"
       : user?.role === "seller"
         ? "/seller/profile"

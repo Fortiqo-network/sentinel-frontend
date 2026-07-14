@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { getServerUser } from "@/lib/api/server-auth";
+import { isAdminRole } from "@/lib/utils/portal";
 
 interface SellerLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ export default async function SellerLayout({ children }: SellerLayoutProps): Pro
   if (!user) redirect("/login");
   if (user.needsOnboarding) redirect("/onboarding");
   if (user.role === "buyer") redirect("/dashboard");
-  if (user.role === "admin") redirect("/admin");
+  if (isAdminRole(user.role)) redirect("/admin");
 
   return (
     <div className="flex h-screen overflow-hidden dark:bg-ink-950">

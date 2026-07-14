@@ -4,8 +4,12 @@
  * are cosmetic UI gating only.
  */
 
-/** Primary role assigned at registration. */
-export type UserRole = "buyer" | "seller" | "admin";
+/**
+ * A role the account can hold. `buyer`/`seller` are self-serve; `admin` and
+ * `super_admin` are provisioned out-of-band. `super_admin` is admin-tier plus
+ * super-admin-only capabilities — use `isAdminRole()` for admin-console gating.
+ */
+export type UserRole = "buyer" | "seller" | "admin" | "super_admin";
 
 /** Authenticated user profile as returned by GET /v1/auth/me. */
 export interface User {

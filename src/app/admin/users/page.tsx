@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { listAdminUsers, blockUser, unblockUser, type AdminUserRow } from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
+import { isAdminRole } from "@/lib/utils/portal";
 
-const ROLE_FILTERS = ["", "buyer", "seller", "admin"];
+const ROLE_FILTERS = ["", "buyer", "seller", "admin", "super_admin"];
 
 function roleVariant(role: string): "success" | "info" | "warning" | "default" {
-  if (role === "admin") return "warning";
+  if (isAdminRole(role)) return "warning";
   if (role === "seller") return "info";
   if (role === "buyer") return "success";
   return "default";
@@ -141,7 +142,7 @@ export default function AdminUsersPage(): React.JSX.Element {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {u.roles.includes("admin") ? (
+                    {u.roles.some(isAdminRole) ? (
                       <span className="text-xs text-slate-300 dark:text-porcelain/30">—</span>
                     ) : u.is_active ? (
                       <Button size="sm" variant="destructive" disabled={busyId === u.id} onClick={() => toggleBlock(u)}>

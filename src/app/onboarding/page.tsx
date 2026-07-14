@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerUser } from "@/lib/api/server-auth";
-import { portalHome } from "@/lib/utils/portal";
+import { isAdminRole, portalHome } from "@/lib/utils/portal";
 import { OnboardingForm } from "@/components/onboarding/OnboardingForm";
 
 /**
@@ -19,7 +19,7 @@ export default async function OnboardingPage({
   const user = await getServerUser();
   if (!user) redirect("/login");
 
-  const isAdmin = user.role === "admin";
+  const isAdmin = isAdminRole(user.role);
   const mustChangePassword = user.mustChangePassword === true;
   const needsProfile = !isAdmin && (user.needsOnboarding === true || !user.termsAcceptedAt);
   if (!mustChangePassword && !needsProfile) redirect(portalHome(user.role));

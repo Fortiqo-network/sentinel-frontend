@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth";
 import { becomeSeller } from "@/lib/api/auth";
 import { isSentinelApiError } from "@/lib/api/client";
+import { isAdminRole } from "@/lib/utils/portal";
 
 type State = "idle" | "upgrading" | "error";
 
@@ -28,7 +29,7 @@ export function BecomeSellerCard(): React.JSX.Element | null {
   // resolved portal role for older sessions that predate `roles`.
   const roles = user?.roles ?? [];
   const isSeller = roles.includes("seller") || user?.role === "seller";
-  const isAdmin = roles.includes("admin") || user?.role === "admin";
+  const isAdmin = roles.some(isAdminRole) || isAdminRole(user?.role);
 
   // Admins manage the platform, not a storefront — nothing to upgrade.
   if (isAdmin) return null;

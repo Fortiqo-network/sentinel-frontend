@@ -3,14 +3,24 @@
  * and nav link routes admins to /admin, sellers to /seller, and everyone
  * else to the buyer dashboard — consistently.
  */
+/**
+ * Whether a role has admin-console access. Both `admin` and `super_admin`
+ * (provisioned out-of-band) are admin-tier; the gateway/core-api enforce the
+ * same set server-side. Use this for every admin routing/guard check so a
+ * `super_admin` is never mistaken for a non-admin.
+ */
+export function isAdminRole(role?: string | null): boolean {
+  return role === "admin" || role === "super_admin";
+}
+
 export function portalHome(role?: string | null): string {
-  if (role === "admin") return "/admin";
+  if (isAdminRole(role)) return "/admin";
   if (role === "seller") return "/seller";
   return "/dashboard";
 }
 
 export function portalLabel(role?: string | null): string {
-  if (role === "admin") return "Admin Console";
+  if (isAdminRole(role)) return "Admin Console";
   if (role === "seller") return "Seller Dashboard";
   return "Buyer Dashboard";
 }
@@ -29,7 +39,7 @@ export function postAuthDestination(user: {
   termsAcceptedAt?: string | null;
   firstLogin?: boolean;
 }): string {
-  const isAdmin = user.role === "admin";
+  const isAdmin = isAdminRole(user.role);
   const needsWizard =
     user.mustChangePassword === true ||
     (!isAdmin && (user.needsOnboarding === true || !user.termsAcceptedAt));

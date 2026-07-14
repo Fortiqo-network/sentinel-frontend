@@ -28,7 +28,7 @@ const PUBLIC_NAV: NavLink[] = [
 // ---------------------------------------------------------------------------
 
 interface DashboardDropdownProps {
-  role: "buyer" | "seller" | "admin";
+  role: "buyer" | "seller" | "admin" | "super_admin";
 }
 
 function DashboardDropdown({ role }: DashboardDropdownProps): React.JSX.Element {
@@ -114,7 +114,7 @@ interface MobileMenuProps {
   open: boolean;
   onClose: () => void;
   isAuthenticated: boolean;
-  role?: "buyer" | "seller" | "admin";
+  role?: "buyer" | "seller" | "admin" | "super_admin";
 }
 
 function MobileMenu({ open, onClose, isAuthenticated, role }: MobileMenuProps): React.JSX.Element | null {

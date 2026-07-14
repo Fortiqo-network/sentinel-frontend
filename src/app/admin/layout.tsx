@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { getServerUser } from "@/lib/api/server-auth";
+import { isAdminRole } from "@/lib/utils/portal";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps): Promi
 
   if (!user) redirect("/login");
   if (user.needsOnboarding) redirect("/onboarding");
-  if (user.role !== "admin") redirect(user.role === "seller" ? "/seller" : "/dashboard");
+  if (!isAdminRole(user.role)) redirect(user.role === "seller" ? "/seller" : "/dashboard");
 
   return (
     <div className="flex h-screen overflow-hidden dark:bg-ink-950">
