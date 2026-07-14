@@ -258,6 +258,62 @@ export async function listAdminUsers(params?: {
   return { users: parsed.users, total: parsed.total, page: parsed.page, pageSize: parsed.page_size };
 }
 
+export const AdminAuditRowSchema = z.object({
+  id: z.string(),
+  action: z.string(),
+  entity_type: z.string(),
+  entity_id: z.string().nullable().optional(),
+  actor_id: z.string().nullable().optional(),
+  actor_email: z.string().nullable().optional(),
+  details: z.record(z.unknown()).nullable().optional(),
+  created_at: z.string(),
+});
+
+export type AdminAuditRow = z.infer<typeof AdminAuditRowSchema>;
+
+const AdminAuditListSchema = z.object({
+  events: z.array(AdminAuditRowSchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  page_size: z.number().int(),
+});
+
+/** A page of audit-log entries, camelCased for the console. */
+export interface AdminAuditListResult {
+  events: AdminAuditRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** Query the append-only admin audit log (filters combine with AND). */
+export async function listAuditEvents(params?: {
+  action?: string;
+  entityType?: string;
+  entityId?: string;
+  actorId?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<AdminAuditListResult> {
+  const response = await apiClient.get<unknown>("/v1/admin/audit", {
+    params: {
+      action: params?.action || undefined,
+      entity_type: params?.entityType || undefined,
+      entity_id: params?.entityId || undefined,
+      actor_id: params?.actorId || undefined,
+      page: params?.page ?? 1,
+      page_size: params?.pageSize ?? 50,
+    },
+  });
+  const parsed = AdminAuditListSchema.parse(response.data);
+  return {
+    events: parsed.events,
+    total: parsed.total,
+    page: parsed.page,
+    pageSize: parsed.page_size,
+  };
+}
+
 // ── Mutations ─────────────────────────────────────────────────────────────────
 
 /** Disable an agent (hides it from the marketplace until re-enabled). */

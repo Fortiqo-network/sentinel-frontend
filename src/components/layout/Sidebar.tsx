@@ -150,6 +150,7 @@ const ADMIN_LINKS: SidebarLink[] = [
   { href: "/admin/moderation", label: "Moderation", icon: <IconShield /> },
   { href: "/admin/sellers", label: "Sellers", icon: <IconCurrencyRupee /> },
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
+  { href: "/admin/audit", label: "Audit log", icon: <IconKey /> },
   { href: "/admin/promo", label: "Promo codes", icon: <IconCurrencyRupee /> },
   { href: "/admin/sybil", label: "Multi-accounts", icon: <IconUsers /> },
   { href: "/admin/flags", label: "Feature flags", icon: <IconCog /> },
