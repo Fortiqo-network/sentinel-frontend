@@ -44,7 +44,7 @@ bun run dev          # dev server with Turbopack on http://localhost:3000
 bun run build        # production build
 bun run start        # serve the production build
 bun run type-check   # tsc --noEmit — must be clean before merging
-bun run lint         # next lint (eslint)
+bun run lint         # eslint . (flat config: eslint.config.mjs)
 bun run test         # vitest
 bun run test:e2e     # playwright
 bun run codegen      # regenerate API types from shared schemas (scripts/codegen.mjs)

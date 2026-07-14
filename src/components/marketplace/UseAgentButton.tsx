@@ -56,7 +56,7 @@ export function UseAgentButton({
     setFeedback(null);
     let payload: Record<string, unknown>;
     try {
-      const parsed = argsText.trim() ? JSON.parse(argsText) : {};
+      const parsed: unknown = argsText.trim() ? JSON.parse(argsText) : {};
       payload = isMcp
         ? { tool: tool.trim(), arguments: parsed }
         : (parsed as Record<string, unknown>);

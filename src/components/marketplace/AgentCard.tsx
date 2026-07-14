@@ -134,7 +134,7 @@ interface StatusCornerBadgeProps {
 }
 
 /** Pill badge rendered at the top-left of the card. Hidden when health is unknown and not discontinued. */
-function StatusCornerBadge({ health, lastCheckAt, discontinued, dark }: StatusCornerBadgeProps): React.JSX.Element | null {
+function StatusCornerBadge({ health, discontinued, dark }: StatusCornerBadgeProps): React.JSX.Element | null {
   if (health === "unknown" && !discontinued) return null;
 
   const config = discontinued

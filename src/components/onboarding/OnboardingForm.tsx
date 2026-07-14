@@ -316,7 +316,7 @@ export function OnboardingForm({
           Welcome{displayName ? `, ${displayName}` : ""}
         </h1>
         <p className="mt-1 text-sm text-porcelain/55">
-          One quick step — tell us how you'll use Sentinel.
+          One quick step — tell us how you&apos;ll use Sentinel.
         </p>
       </div>
 

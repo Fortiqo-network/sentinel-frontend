@@ -64,7 +64,7 @@ export function TiltCard({ children, className, intensity = 5 }: TiltCardProps):
         style={{
           background: useTransform(
             [glowX, glowY],
-            ([gx, gy]) => `radial-gradient(420px circle at ${gx} ${gy}, rgba(99,102,241,0.18), transparent 70%)`,
+            ([gx, gy]) => `radial-gradient(420px circle at ${String(gx)} ${String(gy)}, rgba(99,102,241,0.18), transparent 70%)`,
           ),
         }}
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"

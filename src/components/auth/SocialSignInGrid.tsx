@@ -209,6 +209,7 @@ export function SocialSignInGrid({
         )}
 
         {twitterEnabled ? (
+          // eslint-disable-next-line @next/next/no-html-link-for-pages -- BFF API route that issues a server-side OAuth redirect, not a Next page
           <a href="/api/v1/auth/x/start" title="Continue with X" className={CELL_ACTIVE}>
             <span className="font-bold">𝕏</span>
             <span className="hidden sm:inline">X</span>

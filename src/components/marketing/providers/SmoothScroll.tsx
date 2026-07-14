@@ -33,7 +33,7 @@ export function SmoothScroll({ children }: { children: ReactNode }): React.JSX.E
       touchMultiplier: 1.6,
     });
 
-    lenis.on("scroll", ScrollTrigger.update);
+    lenis.on("scroll", () => ScrollTrigger.update());
 
     const onTick = (time: number): void => {
       lenis.raf(time * 1000);

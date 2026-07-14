@@ -40,11 +40,10 @@ function initials(name: string): string {
  * consistent, non-broken avatar even without an uploaded image).
  */
 export function AgentAvatar({ name, iconUrl, className = "h-16 w-16" }: AgentAvatarProps): React.JSX.Element {
-  const usable = typeof iconUrl === "string" && /^https?:\/\//.test(iconUrl.trim());
-  if (usable) {
+  if (typeof iconUrl === "string" && /^https?:\/\//.test(iconUrl.trim())) {
     return (
       <img
-        src={iconUrl as string}
+        src={iconUrl}
         alt={name}
         className={`${className} shrink-0 rounded-2xl object-cover`}
         loading="lazy"

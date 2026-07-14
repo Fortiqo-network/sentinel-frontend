@@ -81,7 +81,13 @@ export default function AdminFlagsPage(): React.JSX.Element {
                   </Button>
                 ) : (
                   <InlineValue
-                    initial={String(f.value ?? "")}
+                    initial={
+                      typeof f.value === "string"
+                        ? f.value
+                        : f.value == null
+                          ? ""
+                          : JSON.stringify(f.value)
+                    }
                     busy={busyKey === f.key}
                     onSave={(v) => save(f.key, v)}
                   />
