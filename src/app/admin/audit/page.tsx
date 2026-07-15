@@ -3,7 +3,12 @@
 import * as React from "react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { listAuditEvents, type AdminAuditRow } from "@/lib/api/admin";
+import {
+  auditExportFilename,
+  exportAuditEventsCsv,
+  listAuditEvents,
+  type AdminAuditRow,
+} from "@/lib/api/admin";
 import { isSentinelApiError } from "@/lib/api/client";
 
 const PAGE_SIZE = 50;
@@ -21,6 +26,7 @@ export default function AdminAuditPage(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [action, setAction] = React.useState("");
   const [entityType, setEntityType] = React.useState("");
+  const [exporting, setExporting] = React.useState(false);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -50,6 +56,29 @@ export default function AdminAuditPage(): React.JSX.Element {
     setter(value);
   }
 
+  const onExport = React.useCallback(async () => {
+    setExporting(true);
+    try {
+      const csv = await exportAuditEventsCsv({
+        action: action.trim() || undefined,
+        entityType: entityType.trim() || undefined,
+      });
+      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = auditExportFilename(new Date());
+      link.click();
+      URL.revokeObjectURL(url);
+      setError(null);
+    } catch (err) {
+      setError(
+        isSentinelApiError(err) ? err.message : "Unable to export the audit log.",
+      );
+    } finally {
+      setExporting(false);
+    }
+  }, [action, entityType]);
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
@@ -75,6 +104,15 @@ export default function AdminAuditPage(): React.JSX.Element {
           placeholder="Filter by entity type, e.g. agent"
           className="h-9 w-56 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
         />
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={exporting || total === 0}
+          onClick={() => void onExport()}
+          title="Download the filtered audit trail as CSV"
+        >
+          {exporting ? "Exporting…" : "Export CSV"}
+        </Button>
       </div>
 
       {error && (

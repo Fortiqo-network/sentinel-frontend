@@ -286,21 +286,69 @@ export interface AdminAuditListResult {
   pageSize: number;
 }
 
-/** Query the append-only admin audit log (filters combine with AND). */
-export async function listAuditEvents(params?: {
+/** Filters accepted by both the audit listing and its CSV export. */
+export interface AuditFilters {
   action?: string;
   entityType?: string;
   entityId?: string;
   actorId?: string;
-  page?: number;
-  pageSize?: number;
-}): Promise<AdminAuditListResult> {
+}
+
+/**
+ * Map console filters onto the API's snake_case query contract.
+ *
+ * Shared by the listing and the export so a downloaded CSV always covers exactly
+ * the rows the admin previewed. Blank strings collapse to `undefined` so an
+ * empty filter box is omitted rather than sent as an empty match.
+ */
+export function auditFilterParams(
+  filters?: AuditFilters,
+): Record<string, string | undefined> {
+  return {
+    action: filters?.action || undefined,
+    entity_type: filters?.entityType || undefined,
+    entity_id: filters?.entityId || undefined,
+    actor_id: filters?.actorId || undefined,
+  };
+}
+
+/**
+ * Filename for a downloaded audit export, stamped with the download time.
+ *
+ * The BFF does not forward the upstream `Content-Disposition`, so the console
+ * names the file itself; the compact UTC stamp keeps repeated exports distinct
+ * and sortable.
+ */
+export function auditExportFilename(now: Date): string {
+  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return `sentinel-audit-${stamp}.csv`;
+}
+
+/**
+ * Download the filtered audit log as CSV text.
+ *
+ * Returns the raw body rather than a parsed shape — the caller turns it into a
+ * blob for the browser to save.
+ */
+export async function exportAuditEventsCsv(filters?: AuditFilters): Promise<string> {
+  const response = await apiClient.get<string>("/v1/admin/audit/export", {
+    params: auditFilterParams(filters),
+    responseType: "text",
+    headers: { Accept: "text/csv" },
+  });
+  return response.data;
+}
+
+/** Query the append-only admin audit log (filters combine with AND). */
+export async function listAuditEvents(
+  params?: AuditFilters & {
+    page?: number;
+    pageSize?: number;
+  },
+): Promise<AdminAuditListResult> {
   const response = await apiClient.get<unknown>("/v1/admin/audit", {
     params: {
-      action: params?.action || undefined,
-      entity_type: params?.entityType || undefined,
-      entity_id: params?.entityId || undefined,
-      actor_id: params?.actorId || undefined,
+      ...auditFilterParams(params),
       page: params?.page ?? 1,
       page_size: params?.pageSize ?? 50,
     },
