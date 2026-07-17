@@ -181,7 +181,7 @@ export default function MyAgentsPage(): React.JSX.Element {
   // Cached list — revisiting the page is instant, and mutations below refresh it
   // by invalidating this key rather than refetching by hand.
   const agentsQuery = useQuery({ queryKey: ["my-agents"], queryFn: () => listMyAgents() });
-  const agents = agentsQuery.data ?? [];
+  const agents = React.useMemo(() => agentsQuery.data ?? [], [agentsQuery.data]);
   const loading = agentsQuery.isPending;
   const loadError = agentsQuery.isError
     ? errorMessage(agentsQuery.error, "Could not load your agents. Please try again.")

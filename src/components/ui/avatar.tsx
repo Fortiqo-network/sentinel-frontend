@@ -49,6 +49,10 @@ export function Avatar({ src, name, size = "md", className }: AvatarProps): Reac
 
   if (isImageUrl(src)) {
     return (
+      // Avatar URLs are arbitrary self-hosted/R2/external images, so next/image
+      // (which needs each host allowlisted in images.remotePatterns) is
+      // intentionally not used; a plain <img> renders any host without config.
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
         alt={name ? `${name} avatar` : "Avatar"}

@@ -386,7 +386,7 @@ export default function AgentsPage(): React.JSX.Element {
       }),
     placeholderData: keepPreviousData,
   });
-  const agents = agentsQuery.data?.agents ?? [];
+  const agents = React.useMemo(() => agentsQuery.data?.agents ?? [], [agentsQuery.data]);
   const loading = agentsQuery.isPending;
   const error = agentsQuery.isError ? "Could not load agents. Please try again shortly." : null;
 

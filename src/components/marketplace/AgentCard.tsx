@@ -204,7 +204,7 @@ export function AgentCard({
 
   return (
     <article
-      aria-disabled={disabled || undefined}
+      data-disabled={disabled || undefined}
       className={cn(
         "flex flex-col border-l-4 p-5 transition-all",
         accent,

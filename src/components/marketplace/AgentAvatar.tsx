@@ -42,6 +42,10 @@ function initials(name: string): string {
 export function AgentAvatar({ name, iconUrl, className = "h-16 w-16" }: AgentAvatarProps): React.JSX.Element {
   if (typeof iconUrl === "string" && /^https?:\/\//.test(iconUrl.trim())) {
     return (
+      // Agent logos are arbitrary seller-supplied URLs, so next/image (which
+      // needs each host allowlisted in images.remotePatterns) is intentionally
+      // not used; a plain lazy <img> renders any host without config.
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={iconUrl}
         alt={name}
