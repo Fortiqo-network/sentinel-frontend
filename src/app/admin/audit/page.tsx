@@ -26,6 +26,8 @@ export default function AdminAuditPage(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [action, setAction] = React.useState("");
   const [entityType, setEntityType] = React.useState("");
+  const [entityId, setEntityId] = React.useState("");
+  const [actorId, setActorId] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
 
   const load = React.useCallback(async () => {
@@ -34,6 +36,8 @@ export default function AdminAuditPage(): React.JSX.Element {
       const result = await listAuditEvents({
         action: action.trim() || undefined,
         entityType: entityType.trim() || undefined,
+        entityId: entityId.trim() || undefined,
+        actorId: actorId.trim() || undefined,
         page,
         pageSize: PAGE_SIZE,
       });
@@ -45,7 +49,7 @@ export default function AdminAuditPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [action, entityType, page]);
+  }, [action, entityType, entityId, actorId, page]);
 
   React.useEffect(() => {
     void load();
@@ -62,6 +66,8 @@ export default function AdminAuditPage(): React.JSX.Element {
       const csv = await exportAuditEventsCsv({
         action: action.trim() || undefined,
         entityType: entityType.trim() || undefined,
+        entityId: entityId.trim() || undefined,
+        actorId: actorId.trim() || undefined,
       });
       const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
       const link = document.createElement("a");
@@ -77,7 +83,7 @@ export default function AdminAuditPage(): React.JSX.Element {
     } finally {
       setExporting(false);
     }
-  }, [action, entityType]);
+  }, [action, entityType, entityId, actorId]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -102,6 +108,20 @@ export default function AdminAuditPage(): React.JSX.Element {
           value={entityType}
           onChange={(e) => onFilterChange(setEntityType, e.target.value)}
           placeholder="Filter by entity type, e.g. agent"
+          className="h-9 w-56 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
+        />
+        <input
+          type="search"
+          value={entityId}
+          onChange={(e) => onFilterChange(setEntityId, e.target.value)}
+          placeholder="Filter by entity id"
+          className="h-9 w-56 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
+        />
+        <input
+          type="search"
+          value={actorId}
+          onChange={(e) => onFilterChange(setActorId, e.target.value)}
+          placeholder="Filter by actor id (UUID)"
           className="h-9 w-56 rounded-md border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none dark:border-porcelain/15 dark:bg-ink-800 dark:text-porcelain dark:placeholder:text-porcelain/30 dark:focus:border-gold"
         />
         <Button
