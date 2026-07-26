@@ -46,6 +46,38 @@ describe("middleware — portal guard", () => {
   });
 });
 
+describe("middleware — public pages", () => {
+  // The matcher was broadened to every page so the pageview beacon sees all
+  // traffic. These lock in that broadening did not extend the portal guard:
+  // an anonymous visitor must still reach the marketing site.
+  it("lets an anonymous visitor through the home page", () => {
+    const res = middleware(req("/"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("lets an anonymous visitor through a marketing page", () => {
+    const res = middleware(req("/how-it-works"));
+    expect(res.status).toBe(200);
+  });
+
+  it("treats /sellers as public, not as the /seller portal", () => {
+    const res = middleware(req("/sellers/acme"));
+    expect(res.status).toBe(200);
+  });
+
+  it("still guards the /seller portal itself", () => {
+    const res = middleware(req("/seller"));
+    expect(res.status).toBe(307);
+    expect(res.headers.get("location")).toContain("/login");
+  });
+
+  it("guards a nested portal path", () => {
+    const res = middleware(req("/admin/users"));
+    expect(res.status).toBe(307);
+  });
+});
+
 describe("middleware — CSRF on /api (dark, default)", () => {
   it("allows an unsafe request with no token but records the would-be block", () => {
     delete process.env.CSRF_ENFORCED;

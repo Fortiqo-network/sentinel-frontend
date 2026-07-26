@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextFetchEvent, type NextRequest, NextResponse } from "next/server";
 import {
   CSRF_COOKIE,
   CSRF_HEADER,
@@ -10,7 +10,7 @@ import {
 import { SESSION_COOKIE } from "@/lib/bff/gateway";
 
 /**
- * Edge middleware: two concerns at one choke point.
+ * Edge middleware: three concerns at one choke point.
  *
  * 1. **Portal guard** (`/dashboard`, `/seller`, `/admin`) — a coarse presence
  *    check that a first-party session cookie exists before serving the protected
@@ -22,8 +22,31 @@ import { SESSION_COOKIE } from "@/lib/bff/gateway";
  *    with 403 only when `CSRF_ENFORCED` is set; otherwise recorded via a response
  *    header and allowed (dark rollout). Either way the token cookie is minted for
  *    any session that lacks one, so the flip can never lock out a live client.
+ *
+ * 3. **Pageview beacon** — every page request is reported to sentinel-observ for
+ *    the traffic dashboard. Counted here rather than in the browser so that
+ *    ad-blockers and disabled JavaScript cannot undercount a developer audience.
+ *    Fire-and-forget via `waitUntil`, so it never adds latency to the response
+ *    and a failed beacon can never fail a page.
+ *
+ * The matcher covers every page so concern 3 sees all traffic; concerns 1 and 2
+ * are scoped by path inside, to exactly the prefixes they covered before.
  */
-export function middleware(request: NextRequest): NextResponse {
+
+const PORTAL_PREFIXES = ["/dashboard", "/seller", "/admin"];
+
+/** True for the protected portal roots. `/sellers` (public directory) is not one. */
+function isPortalPath(pathname: string): boolean {
+  return PORTAL_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+/**
+ * `event` is optional purely so unit tests can invoke the middleware directly
+ * without constructing a runtime fetch event; Next.js always supplies it.
+ */
+export function middleware(request: NextRequest, event?: NextFetchEvent): NextResponse {
   const { pathname } = request.nextUrl;
   const session = request.cookies.get(SESSION_COOKIE)?.value;
 
@@ -31,11 +54,45 @@ export function middleware(request: NextRequest): NextResponse {
     return handleApiCsrf(request, session);
   }
 
-  // Protected portal pages: require a session, else send to login.
-  if (!session) {
+  event?.waitUntil(reportPageview(request));
+
+  if (isPortalPath(pathname) && !session) {
     return NextResponse.redirect(new URL("/login", request.url), 307);
   }
   return mintCsrfIfMissing(request, NextResponse.next(), session);
+}
+
+/**
+ * Report one visit to sentinel-observ.
+ *
+ * Skips prefetches, which are speculative and would inflate the count well
+ * above real traffic. Sends no identifier — path, referrer and the country
+ * Vercel already resolved at the edge, nothing else. Silently gives up if the
+ * ingest endpoint is not configured or unreachable: analytics must never be
+ * able to break page delivery.
+ */
+async function reportPageview(request: NextRequest): Promise<void> {
+  const endpoint = process.env.OBSERV_INGEST_URL;
+  const token = process.env.OBSERV_INGEST_TOKEN;
+  if (!endpoint || !token) return;
+  if (request.method !== "GET") return;
+  if (request.headers.get("next-router-prefetch") === "1") return;
+  if (request.headers.get("purpose") === "prefetch") return;
+
+  try {
+    await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Ingest-Token": token },
+      body: JSON.stringify({
+        path: request.nextUrl.pathname,
+        referrer: request.headers.get("referer"),
+        country: request.headers.get("x-vercel-ip-country"),
+      }),
+      signal: AbortSignal.timeout(2_000),
+    });
+  } catch {
+    // Analytics is best-effort by design; a dropped beacon is not an incident.
+  }
 }
 
 /** Enforce (or, dark, record) the CSRF check on a `/api/*` request. */
@@ -79,19 +136,12 @@ function mintCsrfIfMissing(
 }
 
 /**
- * Match the protected portal roots and all BFF (`/api`) routes. The negative
- * lookahead after `seller` excludes the public `/sellers` directory while still
- * matching the singular `/seller` portal. `/_next`, static assets, and public
- * marketing/auth pages are intentionally not matched.
+ * Every request except Next's build output and static assets. Excluding those
+ * keeps the beacon counting page views rather than image and font fetches, and
+ * keeps middleware off the hot path for assets entirely.
  */
 export const config = {
   matcher: [
-    "/api/:path*",
-    "/dashboard/:path*",
-    "/dashboard",
-    "/seller/:path*",
-    "/seller",
-    "/admin/:path*",
-    "/admin",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|txt|xml)$).*)",
   ],
 };
