@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProofLockup } from "@/components/brand/Logo";
+import { GUARD_URL } from "@/lib/site";
 
 interface FooterColumn {
   heading: string;
@@ -14,6 +15,7 @@ const COLUMNS: FooterColumn[] = [
       { href: "/playground", label: "Playground" },
       { href: "/seller", label: "For sellers" },
       { href: "/how-it-works", label: "How it works" },
+      { href: `${GUARD_URL}/login`, label: "Sentinel Guard" },
     ],
   },
   {

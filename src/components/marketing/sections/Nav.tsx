@@ -7,7 +7,7 @@ import { MagneticButton } from "../ui/MagneticButton";
 import { Logo } from "@/components/brand/Logo";
 import { useAuthStore } from "@/store/auth";
 import { cn } from "@/lib/utils/cn";
-import { DOCS_URL } from "@/lib/site";
+import { DOCS_URL, GUARD_URL } from "@/lib/site";
 import { isAdminRole, portalHome } from "@/lib/utils/portal";
 
 const LINKS = [
@@ -15,6 +15,7 @@ const LINKS = [
   { href: "/playground", label: "Playground" },
   { href: "/seller", label: "Sellers" },
   { href: "/how-it-works", label: "How it works" },
+  { href: `${GUARD_URL}/login`, label: "Guard" },
   { href: DOCS_URL, label: "Docs" },
 ];
 
