@@ -428,3 +428,76 @@ export async function getAgentAudience(
   });
   return AudienceResponseSchema.parse(response.data);
 }
+
+// ── KYC + payout destination ─────────────────────────────────────────────────
+
+export const KycStatusValueSchema = z.enum(["pending", "submitted", "verified", "rejected"]);
+export type KycStatusValue = z.infer<typeof KycStatusValueSchema>;
+
+/**
+ * What the seller submitted, echoed back by the gateway. The bank account
+ * number never round-trips: only `bank_account_last4` does.
+ */
+export const KycDetailsSchema = z
+  .object({
+    legal_name: z.string().optional(),
+    date_of_birth: z.string().optional(),
+    country: z.string().optional(),
+    address: z.string().optional(),
+    phone: z.string().optional(),
+    organization: z.string().optional(),
+    company: z.string().optional(),
+    tax_id: z.string().optional(),
+    website_url: z.string().optional(),
+    linkedin_url: z.string().optional(),
+    github_url: z.string().optional(),
+    payout_provider: z.enum(["razorpay", "stripe"]).optional(),
+    bank_account_name: z.string().optional(),
+    bank_account_last4: z.string().optional(),
+    bank_ifsc: z.string().optional(),
+    upi_id: z.string().optional(),
+  })
+  .passthrough();
+export type KycDetails = z.infer<typeof KycDetailsSchema>;
+
+export const KycStatusSchema = z.object({
+  status: KycStatusValueSchema,
+  emailVerified: z.boolean(),
+  submittedAt: z.string().nullable().optional(),
+  reviewedAt: z.string().nullable().optional(),
+  reviewNote: z.string().nullable().optional(),
+  details: KycDetailsSchema.nullable().optional(),
+});
+export type KycStatus = z.infer<typeof KycStatusSchema>;
+
+/** Fields the seller fills in; matches core-api's `KycSubmission` contract. */
+export const KycSubmissionSchema = z.object({
+  legal_name: z.string().min(2).max(200),
+  date_of_birth: z.string().max(10).optional(),
+  country: z.string().min(2).max(64),
+  address: z.string().max(512).optional(),
+  phone: z.string().max(32).optional(),
+  organization: z.string().max(128).optional(),
+  company: z.string().max(128).optional(),
+  tax_id: z.string().max(64).optional(),
+  website_url: z.string().max(512).optional(),
+  payout_provider: z.enum(["razorpay", "stripe"]),
+  bank_account_name: z.string().max(200).optional(),
+  bank_account_number: z.string().min(6).max(34).optional(),
+  bank_ifsc: z.string().optional(),
+  upi_id: z.string().max(64).optional(),
+  accepted_terms: z.literal(true),
+});
+export type KycSubmission = z.infer<typeof KycSubmissionSchema>;
+
+/** Current KYC / payout-onboarding status for the signed-in seller. */
+export async function getKyc(): Promise<KycStatus> {
+  const response = await apiClient.get<unknown>("/v1/seller/kyc");
+  return KycStatusSchema.parse(response.data);
+}
+
+/** Submit (or re-submit after a rejection) identity + payout details for admin review. */
+export async function submitKyc(body: KycSubmission): Promise<KycStatus> {
+  const response = await apiClient.post<unknown>("/v1/seller/kyc", body);
+  return KycStatusSchema.parse(response.data);
+}

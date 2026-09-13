@@ -152,8 +152,8 @@ Route groups `(auth)`/`(marketplace)` affect layout only; they are not in the UR
 | `/dashboard` | Buyer overview: credits, usage, active agents | Yes (buyer) |
 | `/dashboard/{usage,billing,api-keys,subscriptions,profile,settings}` | Buyer sub-pages | Yes (buyer) |
 | `/seller` | Seller portal home | Yes (seller) |
-| `/seller/{agents,agents/new,agents/[agentId],earnings,wallet,bonds,profile,settings}` | Seller sub-pages | Yes (seller) |
-| `/admin` and `/admin/{agents,users,sellers,moderation,flags,promo,analytics,sybil}` | Admin console | Yes (admin) |
+| `/seller/{agents,agents/new,agents/[agentId],earnings,kyc,wallet,bonds,profile,settings}` | Seller sub-pages (`kyc` = payout onboarding: identity + bank/UPI or Stripe rail) | Yes (seller) |
+| `/admin` and `/admin/{agents,users,sellers,kyc,moderation,flags,promo,analytics,sybil}` | Admin console (`kyc` = review queue → audited reveal → approve-with-account-ref / reject) | Yes (admin) |
 
 ## Gateway API surface consumed
 

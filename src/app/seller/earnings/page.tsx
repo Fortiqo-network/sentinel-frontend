@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 import { depositBond, getBond, getEarnings, type Bond, type Earnings } from "@/lib/api/seller";
@@ -119,7 +120,8 @@ export default function EarningsPage(): React.JSX.Element {
             Request Payout
           </button>
           <p className="text-xs text-slate-400 dark:text-porcelain/40">
-            Payouts require completing KYC / bank details (coming soon).
+            Payouts run automatically once your{" "}
+            <Link href="/seller/kyc" className="underline">KYC and payout details</Link> are verified.
           </p>
         </div>
       </div>
@@ -237,8 +239,8 @@ export default function EarningsPage(): React.JSX.Element {
           </div>
 
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200">
-            Bonds are funded from your available (settled) balance. Cash payouts require completing
-            KYC / bank details — that flow is coming soon.
+            Bonds are funded from your available (settled) balance. Cash payouts require verified{" "}
+            <Link href="/seller/kyc" className="underline">KYC and payout details</Link>.
           </div>
         </>
       )}

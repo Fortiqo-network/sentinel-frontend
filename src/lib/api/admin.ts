@@ -751,3 +751,76 @@ export async function setPromoActive(code: string, active: boolean): Promise<Pro
 export async function deletePromoCode(code: string): Promise<void> {
   await apiClient.delete(`/v1/admin/promo/${code}`);
 }
+
+// ── KYC review queue ─────────────────────────────────────────────────────────────
+
+/** Billing's payout profile for a seller, attached to KYC rows when one exists. */
+export const PayoutProfileSchema = z.object({
+  seller_id: z.string().optional(),
+  provider: z.enum(["razorpay", "stripe"]),
+  fund_account_id: z.string().nullable().optional(),
+  stripe_account_id: z.string().nullable().optional(),
+  kyc_verified: z.boolean(),
+});
+export type PayoutProfile = z.infer<typeof PayoutProfileSchema>;
+
+export const AdminKycRowSchema = z.object({
+  user_id: z.string(),
+  email: z.string(),
+  display_name: z.string().nullable().optional(),
+  kyc_status: z.enum(["pending", "submitted", "verified", "rejected"]),
+  email_verified: z.boolean(),
+  submitted_at: z.string().nullable().optional(),
+  reviewed_at: z.string().nullable().optional(),
+  review_note: z.string().nullable().optional(),
+  details: z.record(z.unknown()).nullable().optional(),
+  payout_profile: PayoutProfileSchema.nullable().optional(),
+});
+export type AdminKycRow = z.infer<typeof AdminKycRowSchema>;
+
+const AdminKycListSchema = z.object({
+  items: z.array(AdminKycRowSchema),
+  total: z.number().int(),
+  page: z.number().int(),
+  page_size: z.number().int(),
+});
+export type AdminKycList = z.infer<typeof AdminKycListSchema>;
+
+/** List sellers by KYC status (default: awaiting review). Bank details are masked here. */
+export async function listKyc(params?: {
+  status?: AdminKycRow["kyc_status"];
+  page?: number;
+  pageSize?: number;
+}): Promise<AdminKycList> {
+  const response = await apiClient.get<unknown>("/v1/admin/kyc", {
+    params: {
+      status: params?.status ?? "submitted",
+      page: params?.page ?? 1,
+      pageSize: params?.pageSize ?? 50,
+    },
+  });
+  return AdminKycListSchema.parse(response.data);
+}
+
+/** Reveal one seller's full submission (decrypted bank account number); audited upstream. */
+export async function getKycDetail(userId: string): Promise<AdminKycRow> {
+  const response = await apiClient.get<unknown>(`/v1/admin/users/${userId}/kyc`);
+  return AdminKycRowSchema.parse(response.data);
+}
+
+export interface KycReview {
+  decision: "approve" | "reject";
+  note?: string;
+  provider?: "razorpay" | "stripe";
+  fund_account_id?: string;
+  stripe_account_id?: string;
+}
+
+/**
+ * Approve (provisions the billing payout profile; needs the provider account
+ * reference) or reject a seller's KYC. Approval fails closed if billing is down.
+ */
+export async function reviewKyc(userId: string, body: KycReview): Promise<AdminKycRow> {
+  const response = await apiClient.post<unknown>(`/v1/admin/users/${userId}/kyc`, body);
+  return AdminKycRowSchema.parse(response.data);
+}
